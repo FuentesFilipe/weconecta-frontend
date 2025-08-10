@@ -1,36 +1,85 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Frontend - [Nome do Projeto]
 
-## Getting Started
+Base do frontend do time, desenvolvido com [Next.js](https://nextjs.org/) (React + App Router).
 
-First, run the development server:
+## 📋 Pré-requisitos
+
+- [Node.js](https://nodejs.org/) >= 20
+- [npm](https://www.npmjs.com/) (já incluído na instalação do Node)
+- (Opcional) [VS Code](https://code.visualstudio.com/) + extensões para React/TS/ESLint/Prettier
+
+> **OBS:**
+> É **fortemente recomendado** utilizar **Linux** ou **[WSL2 no Windows](https://learn.microsoft.com/windows/wsl/install)** para trabalhar neste projeto.
+>
+> Em geral a DX é mais fluida em ambientes Unix-like devido a:
+>
+> - Maior compatibilidade com ferramentas e scripts de linha de comando
+> - Instalação mais simples de dependências nativas e bibliotecas C/C++
+> - Menos problemas com diferenças de paths (`/` vs `\`) e permissões de arquivos
+> - Melhor integração com Docker e automações de build
+>
+> Caso seja realmente não queira utilizar Linux ou WSL 😔:
+>
+> - Utilize um terminal compatível com bash/zsh (Git Bash, PowerShell 7+)
+> - Considere gerenciadores como [Chocolatey](https://chocolatey.org/) ou [Scoop](https://scoop.sh/)
+
+## Instalação do projeto
+
+Clone o repositório e instale as dependências:
+
+```bash
+git clone <url-do-repositorio>
+cd <nome-do-projeto-frontend>
+
+pnpm install
+
+```
+
+## Executando o projeto
+
+### Modo desenvolvimento
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# ou: pnpm dev <----
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+A aplicação ficará disponível (por padrão) em http://localhost:3000
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build de produção
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+```
 
-## Learn More
+### Servir build de produção
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run start
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts úteis
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run dev       # iniciar em desenvolvimento
+npm run build     # gerar build de produção
+npm run start     # servir build
+npm run lint      # checar lint (ESLint)
+npm run typecheck # checar tipos (se configurado com tsc)
+```
 
-## Deploy on Vercel
+## Dicas rápidas do Next.js
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Rotas (App Router)**: arquivos em `app/` definem rotas automaticamente. Ex.: `app/page.tsx` → `/`, `app/dashboard/page.tsx` → `/dashboard`
+- **Variáveis de ambiente**: use `.env.local` (NÃO COMMITAR PLS). Prefixo `NEXT_PUBLIC_` para expor no client
+- **Imagens**: prefira `<Image />` de `next/image` para otimização automática
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Links úteis
+
+- [Documentação do Next.js](https://nextjs.org/docs)
+- [App Router](https://nextjs.org/docs/app)
+- [Configuração de ESLint](https://nextjs.org/docs/app/building-your-application/configuring/eslint)
+- [Ambientes e variáveis](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables)
+- [Next.js CLI](https://nextjs.org/docs/app/api-reference/next-cli)
+
+---
