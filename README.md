@@ -1,6 +1,6 @@
-# Frontend - [Nome do Projeto]
+# Frontend - WeConecta
 
-Base do frontend do time, desenvolvido com [Next.js](https://nextjs.org/) (React + App Router).
+Repo frontend do time, desenvolvido com [Next.js](https://nextjs.org/) (React + App Router).
 
 ## 📋 Pré-requisitos
 
