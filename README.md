@@ -66,3 +66,14 @@ que a versão do node esteja atualizada e que o código, sendo commitado, esteja
 - npm run lint
 
 Qualquer dúvida, é só clicar em 'show command output' e enviar um print do erro no discord.
+
+## Extensões recomendadas para o VSCode
+
+- tailwind css intellisense
+- npm intellisense
+- prettier - code formatter
+
+## Formatação de código
+
+- Utilizar sempre o prettier como formatador padrão
+- Alterar configuração do VSCode para formatar ao salvar (format on save)
