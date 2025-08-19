@@ -80,7 +80,6 @@ Qualquer dúvida, é só clicar em 'show command output' e enviar um print do er
 
 - tailwind css intellisense
 - npm intellisense
-- prettier - code formatter
 
 ## Formatação de código
 
