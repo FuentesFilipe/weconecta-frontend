@@ -1,5 +1,6 @@
-export { Button, buttonVariants } from './button';
-export { Checkbox } from './checkbox';
-export { Input } from './input';
-export { Select } from './select';
-export { Textarea } from './textarea';
+export { Button, buttonVariants } from './button'
+export { Checkbox } from './checkbox'
+export { Input } from './input'
+export { Select } from './select'
+export { Textarea } from './textarea'
+export { Card } from './card'
