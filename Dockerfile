@@ -1,5 +1,8 @@
 FROM node:23-alpine
 
+# Install pnpm globally
+RUN npm install -g pnpm
+
 # Set working directory
 WORKDIR /app
 
@@ -7,7 +10,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN pnpm install
 
 # Copy the rest of the application
 COPY . .
@@ -16,4 +19,4 @@ COPY . .
 EXPOSE 3000
 
 # Start the application
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "dev"]
