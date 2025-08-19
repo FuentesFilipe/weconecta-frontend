@@ -1,0 +1,14 @@
+services:
+  app:
+    container_name: weconecta.app
+    volumes:
+      - /app/node_modules
+      - .:/app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: weconecta/app
+    command: npm run dev
+    ports:
+      - '3000:3000'
+    restart: always

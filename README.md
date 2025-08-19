@@ -1,3 +1,12 @@
+# Executando com docker
+
+Instalar docker desktop (windows ou mac). Para ubuntu nao é necessário o docker desktop, apenas docker.
+Executar o seguinte comando, na pasta raiz do projeto frontend:
+
+- docker compose up
+
+# Executando sem docker
+
 ## Instalação do Node Version Manager
 
 ### Instalação windows
