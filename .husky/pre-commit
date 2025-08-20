@@ -1,1 +1,1 @@
-npm run lintFix
+pnpm lint-staged

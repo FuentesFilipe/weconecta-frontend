@@ -8,7 +8,7 @@
 	"arrowParens": "always",
 	"proseWrap": "preserve",
 	"quoteProps": "as-needed",
-	"useTabs": true,
+	"useTabs": false,
 	"htmlWhitespaceSensitivity": "css",
 	"jsxSingleQuote": true
 }

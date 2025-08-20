@@ -67,7 +67,7 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-## Commits
+# Commits
 
 Os commits do projeto passam por verificação antes de sairem do local. Por isso, podem aparecer mensagens de erro ao tentar realizar commit. É importante
 que a versão do node esteja atualizada e que o código, sendo commitado, esteja formatado. Isso pode ser verificado através do comando:
@@ -80,6 +80,8 @@ Qualquer dúvida, é só clicar em 'show command output' e enviar um print do er
 
 - tailwind css intellisense
 - npm intellisense
+- prettier code formatter
+- eslint
 
 ## Formatação de código
 
