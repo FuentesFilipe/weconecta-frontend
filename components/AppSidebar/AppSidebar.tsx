@@ -1,4 +1,4 @@
-import { Calendar, Home, icons, Inbox, Search, Settings, User } from 'lucide-react';
+import { TrendingUp, Calendar, Home, icons, Inbox, Search, Settings, Users, FileUser } from 'lucide-react';
 
 import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar';
 import './index.css';
@@ -11,17 +11,17 @@ const items = [
     {
         title: 'Reports',
         url: '/reports',
-        icon: Home
+        icon: TrendingUp
     },
     {
         title: 'Usuários',
         url: '/usuarios',
-        icon: User
+        icon: Users
     },
     {
         title: 'Questionários',
         url: '/questionarios',
-        icon: Inbox
+        icon: FileUser
     }
 ];
 
@@ -31,7 +31,7 @@ export function AppSidebarComponent() {
             <SidebarHeader>
                 <img src='https://weconecta.com/wp-content/uploads/2024/02/WeConecta-logo-icon.png' className='weconecta-logo' />
             </SidebarHeader>
-            <SidebarContent>
+            <SidebarContent className="weconecta-sidebar-content">
                 <SidebarGroup>
                     <SidebarGroupContent>
                         <SidebarMenu>
@@ -40,7 +40,7 @@ export function AppSidebarComponent() {
                                     <SidebarMenuButton asChild>
                                         <a href={item.url}>
                                             <item.icon />
-                                            <span>{item.title}</span>
+                                            <span className="weconecta-sidebar-text"> {item.title}</span>
                                         </a>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
@@ -50,7 +50,7 @@ export function AppSidebarComponent() {
                 </SidebarGroup>
                 <SidebarGroup />
             </SidebarContent>
-            <SidebarFooter />
+            <SidebarFooter className="weconecta-sidebar-footer" />
         </Sidebar>
     );
 }
