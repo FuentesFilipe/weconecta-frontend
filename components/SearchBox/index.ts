@@ -1,1 +1,1 @@
-export { TextareaDemo as SearchBoxComponent } from './SearchBox';
+export { SearchBoxComponent as SearchBox } from './SearchBox';
