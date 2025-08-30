@@ -14,9 +14,9 @@ export function CardComponent() {
             </section>
             <Files className='center-icon-alignment' />
             <div className='footer-text'>
-                <h4>Ozzy viado</h4>
+                <h4>TEXTO UM</h4>
                 <strong>
-                    <h4>OZZY VIADAOZAO</h4>
+                    <h4>SEGUNDO TEXTINHO</h4>
                 </strong>
             </div>
             <Link className='footer-icon-alignment' />
