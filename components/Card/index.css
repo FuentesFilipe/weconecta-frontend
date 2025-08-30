@@ -67,14 +67,14 @@
     max-height: 5.5rem;
     overflow: hidden;
     overflow-wrap: break-word;
-} 
+}
 
 .h2-input {
   color: #ff894e;
   font-weight: bold;
   font-size: 1.25rem;
   width: 13rem;
-  
+
   border: none;
   border-bottom: 2px solid #ff894e;
   background-color: transparent;
