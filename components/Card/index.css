@@ -1,0 +1,52 @@
+h4{
+    color: orange;
+}
+
+
+.card-box{
+    position: absolute;
+    padding: 2rem;
+    border-color: orange ;
+    border-width: 4px;
+    text-align: center;
+    gap: 3;
+
+}
+
+.top-icons {
+    color: orange;
+    cursor: pointer;
+
+}
+.top-button-alignment{
+    width: 13rem;
+    height: 5rem;
+    margin: 0 auto;
+    padding: 0 auto;
+    display: grid;
+}
+
+    .top-button-alignment{
+        grid-template-columns: repeat(3, 6rem)
+    }
+
+.center-icon-alignment{
+    color: orange;
+    padding: 0 auto;
+    margin: 0 auto ;
+    cursor: pointer;
+    height: 7rem;
+    width: 7rem;
+
+}
+
+.footer-icon-alignment{
+    color: orange;
+    padding: 0 auto;
+    margin: 0 auto;
+    cursor: pointer;
+}
+
+.footer-text{
+    padding-top: 2rem;
+}
