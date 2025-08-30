@@ -1,9 +1,5 @@
-h4{
-    color: orange;
-}
-
-
 .card-box{
+
     position: absolute;
     padding: 2rem;
     border-color: orange ;
@@ -27,7 +23,7 @@ h4{
 }
 
     .top-button-alignment{
-        grid-template-columns: repeat(3, 6rem)
+        grid-template-columns: repeat(3, 5.5rem)
     }
 
 .center-icon-alignment{
@@ -42,11 +38,34 @@ h4{
 
 .footer-icon-alignment{
     color: orange;
-    padding: 0 auto;
+    padding: 3rem auto;
     margin: 0 auto;
     cursor: pointer;
 }
 
-.footer-text{
+.footer-text {
     padding-top: 2rem;
+}
+
+.footer-text h3,
+.footer-text h2 {
+    color: orange; 
+    margin: 0.5rem 0; 
+}
+
+.footer-text h2 {
+    position: inherit;
+    font-size: 1.25rem;
+    font-weight: bold;
+    max-width: 13rem;
+    max-height: 5.5rem;
+
+} 
+
+.h2-input{
+    color: orange;
+    width: 10rem;
+    border-width: 0;
+    font-weight: bold;
+    font-size: 1.25rem;
 }

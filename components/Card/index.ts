@@ -1,1 +1,1 @@
-export { CardComponent as Card } from './Card';
+export { CardContainer as Card } from './Card';
