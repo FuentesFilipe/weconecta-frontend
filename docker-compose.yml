@@ -1,14 +1,14 @@
 services:
-  app:
-    container_name: weconecta.app
-    volumes:
-      - .:/app # mount your code
-      - /app/node_modules
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: weconecta/app
-    command: pnpm dev
-    ports:
-      - '3000:3000'
-    restart: always
+    app:
+        container_name: weconecta.app
+        volumes:
+            - .:/app # mount your code
+            - ./node_modules:/app/node_modules
+        build:
+            context: .
+            dockerfile: Dockerfile
+        image: weconecta/app
+        command: pnpm dev
+        ports:
+            - '3000:3000'
+        restart: always

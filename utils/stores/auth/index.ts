@@ -1,19 +1,15 @@
-import { STORE_KEYS } from '../../contants/stores'
+import { STORE_KEYS } from '../../contants/stores';
 
 const getAuthToken = () => {
-	return localStorage.getItem(STORE_KEYS.token)
-}
+    return localStorage.getItem(STORE_KEYS.token);
+};
 
 const setAuthToken = (token: string) => {
-	localStorage.setItem(STORE_KEYS.token, token)
-}
+    localStorage.setItem(STORE_KEYS.token, token);
+};
 
 const removeAuthToken = () => {
-	localStorage.removeItem(STORE_KEYS.token)
-}
+    localStorage.removeItem(STORE_KEYS.token);
+};
 
-export default {
-	getAuthToken,
-	setAuthToken,
-	removeAuthToken
-}
+export { getAuthToken, setAuthToken, removeAuthToken };

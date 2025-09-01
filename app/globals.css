@@ -76,6 +76,12 @@
     --sidebar-accent-foreground: oklch(0.205 0 0);
     --sidebar-border: oklch(0.922 0 0);
     --sidebar-ring: oklch(0.708 0 0);
+
+    /* Variáveis customizaveis */
+    --shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+    --primary-color: #fcb043;
+    --secondary-color: #e8433b;
+    --text-dark: rgba(0, 0, 0, 0.7);
 }
 
 .dark {
@@ -119,4 +125,16 @@
     body {
         @apply bg-background text-foreground;
     }
+}
+
+/* Estilos padrões para o projeto */
+
+span {
+    color: rgba(0, 0, 0, 0.7);
+}
+
+.custom-hiperlink {
+    color: rgba(31, 145, 238, 1);
+    text-decoration: underline;
+    cursor: pointer;
 }
