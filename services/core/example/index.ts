@@ -1,4 +1,5 @@
-import { coreApi } from '..'
-import { createHttpClient } from '../../http-client'
+import { coreApi } from '..';
 
-export const exampleApi = createHttpClient('/example', coreApi)
+export const exampleApi = coreApi;
+
+exampleApi.defaults.baseURL += '/example';

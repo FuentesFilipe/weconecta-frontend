@@ -1,4 +1,63 @@
-/* Apenas exemplo, deletar */
 .custom-login {
-    background-color: aqua;
+    background-color: white;
+    min-width: 23vw;
+    height: 50vh;
+    display: grid;
+    justify-content: space-between;
+    border-radius: 1rem;
+    grid-template-columns: 1fr;
+    grid-template-rows: 25% 60% 15%;
+
+    box-shadow: var(--shadow);
+
+    [aria-label='logo-group'] {
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit;
+    }
+
+    [aria-label='input-group'] {
+        display: flex;
+        flex-direction: column;
+        padding: 0 1rem;
+        align-items: stretch;
+        justify-content: center;
+        width: 100%;
+        gap: 2rem;
+
+        div {
+            gap: 1rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            border-radius: 0.375rem;
+        }
+
+        [aria-label='checkbox'] {
+            display: flex;
+            div {
+                justify-content: space-between;
+            }
+        }
+    }
+
+    [aria-label='button-group'] {
+        padding: 0 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-bottom-left-radius: inherit;
+        border-bottom-right-radius: inherit;
+
+        button {
+            width: 100%;
+        }
+    }
+}
+
+.custom-body {
+    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
 }
