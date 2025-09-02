@@ -1,0 +1,17 @@
+.custom-input {
+    border: 1px solid #ccc; /* borda opcional */
+    color: #000; /* cor do texto */
+
+    background-color: #f0f0f0; /* cor de fundo desejada */
+    color: var(--text-dark);
+    border: 1px solid #ccc; /* borda */
+    padding: 0.5rem; /* espaçamento interno */
+    border-radius: 4px; /* cantos arredondados */
+}
+
+/* Foco no input */
+.custom-input:focus {
+    background-color: #fff; /* muda a cor de fundo ao focar */
+    border-color: var(--primary-color); /* borda azul ao focar */
+    outline: none; /* remove contorno padrão */
+}

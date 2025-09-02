@@ -1,3 +1,8 @@
+# Execução (Atualizado)
+
+- make install
+- docker compose up
+
 # Executando com docker
 
 Instalar docker desktop (windows ou mac). Para ubuntu nao é necessário o docker desktop, apenas docker.

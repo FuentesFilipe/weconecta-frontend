@@ -1,0 +1,9 @@
+.custom-checkbox:hover {
+    cursor: pointer;
+}
+
+.custom-checkbox {
+    background: transparent;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    color: rgba(0, 0, 0, 0.6);
+}
