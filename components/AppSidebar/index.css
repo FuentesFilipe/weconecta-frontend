@@ -1,5 +1,9 @@
 .weconecta-logo {
-    background-color: orange
+    background-color: white;
+}
+
+.weconecta-sidebar-header {
+    background-color: white;
 }
 
 .weconecta-sidebar-content {
@@ -35,35 +39,64 @@ Sidebar Footer
 */
 
 .weconecta-sidebar-footer {
+    position: relative;
     background-color: white;
-    border-top: 1px solid #eee;
-    padding: 16px;
+    padding: 20px 0;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+}
+
+.weconecta-sidebar-footer::before,
+.weconecta-sidebar-footer::after {
+    content: "";
+    position: absolute;
+    left: 12px;
+    right: 12px;
+    height: 1px;
+    background-color: #e0e0e0;
+}
+
+.weconecta-sidebar-footer::before {
+    top: 0;
+}
+
+.weconecta-sidebar-footer::after {
+    bottom: 0;
 }
 
 .weconecta-sidebar-user {
     display: flex;
-    align-items: center;
-    gap: 12px;
+    flex-direction: column;
+    gap: 8px;
+    margin-left: 8px;
+
 }
 
 .weconecta-sidebar-user-avatar {
     width: 36px;
     height: 36px;
-    color: black
+    margin-left: 24px;
+    color: black;
 }
 
 .weconecta-sidebar-user-info {
     display: flex;
     flex-direction: column;
-    font-size: 14px;
+    align-items: flex-start;
+    padding: 0 16px;
+    text-align: left;
 }
 
 .weconecta-sidebar-user-name {
     font-weight: 600;
+    font-size: 15px;
+    margin-left: 8px;
     color: black;
 }
 
 .weconecta-sidebar-user-email {
-    font-size: 12px;
-    color: grey;
+    font-size: 13px;
+    margin-left: 8px;
+    color: #6b6b6b;
 }

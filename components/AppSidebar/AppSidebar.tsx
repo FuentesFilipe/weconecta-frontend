@@ -37,8 +37,8 @@ const user = {
 export function AppSidebarComponent() {
     return (
         <Sidebar className='app-sidebar'>
-            <SidebarHeader>
-                <img src='https://weconecta.com/wp-content/uploads/2024/02/WeConecta-logo-icon.png' className='weconecta-logo' />
+            <SidebarHeader className="weconecta-sidebar-header">
+                <img src='/logo_padrao_horizontal.png' className='weconecta-logo' />
             </SidebarHeader>
             <SidebarContent className="weconecta-sidebar-content">
                 <SidebarGroup>
