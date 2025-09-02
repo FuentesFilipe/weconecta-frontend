@@ -4,7 +4,7 @@
     height: 25rem;
     width: 18rem;
     padding: 2rem;
-    border-color: #fcb043 ;
+    border-color: #ff894e ;
     border-width: 4px;
     text-align: center;
     gap: 3;
@@ -12,7 +12,7 @@
 }
 
 .top-icons {
-    color: #fcb043;
+    color: #ff894e;
     cursor: pointer;
 
 }
@@ -29,7 +29,7 @@
     }
 
 .center-icon-alignment{
-    color: #fcb043;
+    color: #ff894e;
     padding: 0 auto;
     margin: 0 auto ;
     cursor: pointer;
@@ -39,25 +39,28 @@
 }
 
 .footer-icon-alignment{
-    color: #fcb043;
-    padding: 3rem auto;
-    margin: 0 auto;
+    color: #ff894e;
+    padding: 1rem auto;
+    margin:  auto;
     cursor: pointer;
 }
 
-.footer-text {
-    padding-top: 2rem;
-}
 
-.footer-text h3,
-.footer-text h2 {
-    color: #fcb043; 
-    margin: 0.5rem 0; 
+
+.footer-text h3{
+    font-size: 1.20rem;
+    color: #ff894e;
 }
 
 .footer-text h2 {
-    position: inherit;
-    font-size: 1.45rem;
+    color: #FF894e;
+    background: linear-gradient(to bottom, #FF894e, #FF5500);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footer-text h2 {
+    font-size: 1.35rem;
     font-weight: bold;
     max-width: 13rem;
     max-height: 5.5rem;
@@ -66,19 +69,19 @@
 } 
 
 .h2-input {
-  color: #fcb043;
+  color: #ff894e;
   font-weight: bold;
   font-size: 1.25rem;
   width: 13rem;
   
   border: none;
-  border-bottom: 2px solid #fcb043;
+  border-bottom: 2px solid #ff894e;
   background-color: transparent;
 
 }
 
 h2 {
-  color: #fcb043;
+  color: #ff894e;
   font-weight: bold;
   font-size: 1.25rem;
 }

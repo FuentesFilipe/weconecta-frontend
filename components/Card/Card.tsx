@@ -75,7 +75,9 @@ function CardComponent({ id, initialTitle, url, onDelete, onUpdateTitle }: CardC
             <Files className='center-icon-alignment' />
 
             <div className='footer-text'>
-                <h3>Questionário</h3>
+                <div className='questionario'>
+                    <h3>Questionário</h3>
+                </div>
                 {isEditing ? (
                     <input
                         type='text'
