@@ -1,12 +1,14 @@
+import { AppSidebar } from "@/components/AppSidebar";
 import { SearchBox } from "@/components/ui/searchbox";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function QuestionariosPage() {
   return (
-    <div className="flex min-h-screen">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-sm sticky top-0 h-screen">
-        {/* Conteúdo da sidebar */}
-      </aside>
+    <SidebarProvider>
+      <div className="flex min-h-screen">
+        {/* Sidebar */}
+        <AppSidebar />
+      </div>
 
       {/* Conteúdo principal */}
       <main className="flex-1 bg-gray-50 flex flex-col items-start overflow-y-auto">
@@ -66,6 +68,6 @@ export default function QuestionariosPage() {
           </div>
         </div>
       </main>
-    </div>
+    </SidebarProvider>
   );
 }
