@@ -1,5 +1,5 @@
 import { Button } from '../ui';
-import './index.css';
+import styles from './index.css';
 
 export type ButtonProps = {
     onClick?: VoidFunction;
@@ -9,7 +9,7 @@ export type ButtonProps = {
 
 export function ButtonComponent({ onClick, disabled = false, children }: ButtonProps) {
     return (
-        <Button className="custom-button" onClick={onClick} disabled={disabled}>
+        <Button variant='orange' size='wide' onClick={onClick} disabled={disabled}>
             {children}
         </Button>
     );
