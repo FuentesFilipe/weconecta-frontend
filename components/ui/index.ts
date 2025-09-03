@@ -6,3 +6,4 @@ export { Loading } from './loading';
 export { Select } from './select';
 export { Textarea } from './textarea';
 export { Toast } from './toast';
+export { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './dialog';
