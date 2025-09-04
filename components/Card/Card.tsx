@@ -20,7 +20,44 @@ const mockData = [
         id: 3,
         title: 'Avaliação de Desempenho Trimestral',
         questionnaire_url: 'https://exemplo/questionario/3'
-    }
+    },
+    { 
+        id: 4, 
+        title: 'Saúde Mental', 
+        questionnaire_url: 'https://exemplo/questionario/4' },
+    {
+        id: 5,
+        title: 'Check-up Cardiovascular',
+        questionnaire_url: 'https://exemplo/questionario/5'
+    },
+    {
+        id: 6,
+        title: 'Pressão Arterial',
+        questionnaire_url: 'https://exemplo/questionario/6'
+    },
+    {
+        id: 7,
+        title: 'Diabetes',
+        questionnaire_url: 'https://exemplo/questionario/7'
+    },
+    {
+        id: 8,
+        title: 'Rastreamento de Câncer de Pele',
+        questionnaire_url: 'https://exemplo/questionario/8'
+    },
+    {
+        id: 9,
+        title: 'Avaliação de Saúde Geral',
+        questionnaire_url: 'https://exemplo/questionario/9'
+    },
+    { 
+        id: 10,
+        title: 'Saúde Mental', 
+        questionnaire_url: 'https://exemplo/questionario/10' },
+    { 
+        id: 11, 
+        title: 'Check-up Cardiovascular', 
+        questionnaire_url: 'https://exemplo/questionario/11' },
 ];
 
 type CardComponentProps = {

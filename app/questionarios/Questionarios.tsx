@@ -1,4 +1,8 @@
+'use client';
+
 import { AppSidebar } from "@/components/AppSidebar";
+import { CardContainer } from "@/components/Card/Card";
+import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal";
 import { SearchBox } from "@/components/ui/searchbox";
 import { SidebarProvider } from "@/components/ui/sidebar";
 
@@ -21,7 +25,7 @@ export default function QuestionariosPage() {
           {/* Bloco branco */}
           <div className="bg-white rounded-lg shadow-sm mt-8">
             {/* Grid */}
-            <div 
+            <div
               className="grid grid-cols-[1fr_auto] items-start gap-x-4 p-4"
               style={{ gridTemplateRows: 'min-content min-content' }}
             >
@@ -31,16 +35,23 @@ export default function QuestionariosPage() {
               </h2>
 
               {/* Botão */}
-              <button 
-                className="bg-[#FF894E] text-white text-xs px-10 py-2.5 rounded-md hover:opacity-90 h-min"
-                style={{ gridRow: 'span 2', alignSelf: 'center' }}
-              >
-                Novo questionário
-              </button>
+              <NovoQuestionarioModal
+                trigger={
+                  <button
+                    className="bg-[#FF894E] text-white text-xs px-10 py-2.5 rounded-md hover:opacity-90 h-min"
+                    style={{ gridRow: 'span 2', alignSelf: 'center' }}
+                  >
+                    Novo questionário
+                  </button>
+                }
+                onConfirm={(data) => {
+                  console.log("Novo questionário criado:", data);
+                }}
+              />
 
               {/* SearchBox */}
-              <div className="mt-0"> 
-                <SearchBox 
+              <div className="mt-0">
+                <SearchBox
                   placeholder="Procure por um questionário"
                   variant="orange"
                   size="xs"
@@ -54,16 +65,7 @@ export default function QuestionariosPage() {
 
             {/* Grid de cards */}
             <div className="p-4">
-              <div className="grid grid-cols-5 gap-4">
-                {Array.from({ length: 15 }).map((_, i) => (
-                  <div 
-                    key={i} 
-                    className="border border-[#FF894E] rounded-lg p-4 text-center text-[#FF894E] h-52"
-                  >
-                    Card {i + 1}
-                  </div>
-                ))}
-              </div>
+              <CardContainer />
             </div>
           </div>
         </div>
