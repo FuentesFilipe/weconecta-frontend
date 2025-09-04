@@ -2,7 +2,9 @@ import { SearchBox } from "@/components/ui/searchbox";
 
 export default function HomePage() {
   return (
-    <div></div>
+    <div>
+      <h1>Home Dashboard</h1>
+    </div>
   );
 }
 

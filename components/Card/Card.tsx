@@ -137,7 +137,12 @@ function CardComponent({ id, initialTitle, url, onDelete, onUpdateTitle }: CardC
     );
 }
 
-export function CardContainer(): JSX.Element {
+
+type CardContainerProps = {
+    searchTerm: string;
+};
+
+export function CardContainer({ searchTerm }: CardContainerProps): JSX.Element {
     const [cards, setCards] = useState(mockData);
 
     const handleDeleteCard = (idToDelete: number): void => {
@@ -150,9 +155,16 @@ export function CardContainer(): JSX.Element {
         );
     };
 
+    const normalizeText = (text: string) =>
+        text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+    const filteredCards = cards.filter((card) =>
+        normalizeText(card.title).includes(normalizeText(searchTerm))
+    );
+
     return (
         <div className='cards-display'>
-            {cards.map((card) => (
+            {filteredCards.map((card) => (
                 <CardComponent
                     key={card.id}
                     id={card.id}

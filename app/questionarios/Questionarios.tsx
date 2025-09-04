@@ -5,8 +5,11 @@ import { CardContainer } from "@/components/Card/Card";
 import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal";
 import { SearchBox } from "@/components/ui/searchbox";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import { useState } from "react";
 
 export default function QuestionariosPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+
   return (
     <SidebarProvider>
       <div className="flex min-h-screen">
@@ -56,6 +59,8 @@ export default function QuestionariosPage() {
                   variant="orange"
                   size="xs"
                   width="medium"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
             </div>
@@ -65,7 +70,7 @@ export default function QuestionariosPage() {
 
             {/* Grid de cards */}
             <div className="p-4">
-              <CardContainer />
+              <CardContainer searchTerm={searchTerm}/>
             </div>
           </div>
         </div>
