@@ -5,10 +5,11 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { AxiosError, AxiosResponse } from 'axios';
 import React from 'react';
 
-import { Toast } from '../components/ui';
-import { coreApi } from '../services/core';
-import { queryClient } from '../services/query-client';
-import { removeAuthToken } from '../utils/stores/auth';
+import { ClientLayout } from '@/components/ClientLayout';
+import { Toast } from '@/components/ui';
+import { coreApi } from '@/services/core';
+import { queryClient } from '@/services/query-client';
+import { removeAuthToken } from '@/utils/stores/auth';
 
 function QueryClient({ children }: { children: React.ReactNode }) {
     coreApi.interceptors.response.use(
@@ -26,7 +27,9 @@ function QueryClient({ children }: { children: React.ReactNode }) {
 
     return (
         <div>
-            {children}
+            <ClientLayout>
+                {children}
+            </ClientLayout>
         </div>
     );
 }

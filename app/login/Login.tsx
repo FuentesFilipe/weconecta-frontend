@@ -2,11 +2,9 @@
 
 import LockIcon from '@mui/icons-material/Lock';
 import PersonIcon from '@mui/icons-material/Person';
-import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ChangeEventHandler, useEffect, useState } from 'react';
 
-import logo from '@/assets/logo.png';
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { AuthPayload } from '@/dtos/AuthDto';
@@ -65,7 +63,7 @@ export default function Login() {
             <main className='flex flex-col gap-[32px] row-start-2 items-center sm:items-start'>
                 <div className='custom-login'>
                     <div aria-label='logo-group'>
-                        <Image src={logo} alt='Logo da empresa' height={75} priority />
+                        <img src='/logo_padrao_horizontal.png' className='weconecta-logo' />
                     </div>
                     <div aria-label='input-group'>
                         <h2 className='text-2xl font-bold text-gray-500 mr-2'>Log in</h2>
