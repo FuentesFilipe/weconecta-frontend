@@ -32,7 +32,6 @@
         "axios": "^1.11.0",
         "class-variance-authority": "^0.7.1",
         "clsx": "^2.1.1",
-        "lucide-react": "^0.539.0",
         "next": "15.4.6",
         "pnpm": "^10.15.0",
         "postcss": "^8.5.6",
