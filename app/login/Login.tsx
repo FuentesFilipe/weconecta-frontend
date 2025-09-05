@@ -1,6 +1,7 @@
 'use client';
 
-import { Lock, User } from 'lucide-react';
+import LockIcon from '@mui/icons-material/Lock';
+import PersonIcon from '@mui/icons-material/Person';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { ChangeEventHandler, useEffect, useState } from 'react';
@@ -11,9 +12,9 @@ import { Input } from '@/components/Input';
 import { AuthPayload } from '@/dtos/AuthDto';
 import { useLoginMutation } from '@/services/auth/login/mutations';
 
+import { Loading } from '@/components/ui/';
+import { setAuthToken } from '@/utils/stores/auth';
 import { toast } from 'react-toastify';
-import { Loading } from '../../components/ui/';
-import { setAuthToken } from '../../utils/stores/auth';
 import './index.css';
 
 export default function Login() {
@@ -69,12 +70,10 @@ export default function Login() {
                     <div aria-label='input-group'>
                         <h2 className='text-2xl font-bold text-gray-500 mr-2'>Log in</h2>
                         <div>
-                            <User className='w-5 h-5 text-gray-500' />
-                            <Input onChange={onEmailChange} placeholder='Email' type='email' />
+                            <Input onChange={onEmailChange} placeholder='Email' type='email' icon={<PersonIcon />} />
                         </div>
                         <div>
-                            <Lock className='w-5 h-5 text-gray-500' />
-                            <Input onChange={onPasswordChange} placeholder='Senha' type='password' />
+                            <Input onChange={onPasswordChange} placeholder='Senha' type='password' icon={<LockIcon />} />
                         </div>
                         <div>
                             <span className='custom-hiperlink'>Esqueci a senha!</span>

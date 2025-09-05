@@ -13,21 +13,21 @@ export default tseslint.config(
         plugins: {
             node: nodePlugin,
             perfectionist,
-            unicorn
+            unicorn,
         },
         languageOptions: {
             globals: {
                 ...globals.node,
-                ...globals.browser
+                ...globals.browser,
             },
             parserOptions: {
                 projectService: true,
-                tsconfigRootDir: import.meta.dirname
-            }
+                tsconfigRootDir: import.meta.dirname,
+            },
         },
         rules: {
             // estilo
-            indent: ['error', 4],
+            indent: ['warn', 4],
             semi: ['error', 'always'],
             quotes: ['error', 'single', { avoidEscape: true }],
 
@@ -67,16 +67,16 @@ export default tseslint.config(
                         'mutations.ts',
                         'query-client.ts',
                         'http-client.ts',
-                        'next.config.ts'
-                    ]
-                }
-            ]
-        }
+                        'next.config.ts',
+                    ],
+                },
+            ],
+        },
     },
     {
         files: ['components/ui/**/*'],
         rules: {
-            'unicorn/filename-case': 'off'
-        }
-    }
+            'unicorn/filename-case': 'off',
+        },
+    },
 );

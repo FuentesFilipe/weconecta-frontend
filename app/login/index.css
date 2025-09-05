@@ -11,7 +11,7 @@
     box-shadow: var(--shadow);
 
     [aria-label='logo-group'] {
-        padding: 0 1rem;
+        padding: 0 2rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -22,30 +22,20 @@
     [aria-label='input-group'] {
         display: flex;
         flex-direction: column;
-        padding: 0 1rem;
         align-items: stretch;
         justify-content: center;
         width: 100%;
         gap: 2rem;
+        padding: 0 2rem;
 
         div {
-            gap: 1rem;
-            width: 100%;
             display: flex;
-            align-items: center;
             border-radius: 0.375rem;
-        }
-
-        [aria-label='checkbox'] {
-            display: flex;
-            div {
-                justify-content: space-between;
-            }
         }
     }
 
     [aria-label='button-group'] {
-        padding: 0 1rem;
+        padding: 0 2rem;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -59,5 +49,9 @@
 }
 
 .custom-body {
-    background: linear-gradient(to right, var(--primary-color), var(--secondary-color));
+    background: linear-gradient(
+        to right,
+        var(--primary-color),
+        var(--secondary-color)
+    );
 }
