@@ -1,37 +1,22 @@
 "use client";
 
-import { HomeFilled, Menu } from "@mui/icons-material";
+import { PAGES } from "@/providers/Route/pages";
+import { Menu } from "@mui/icons-material";
 import { Box, Drawer, List, Toolbar, Typography } from "@mui/material";
 import { usePathname, useRouter } from "next/navigation";
 import "./index.css";
 
-const getIconForLabel = (label: string, active: boolean): React.ReactNode => {
-    const style = { color: active ? "#fff" : "#c2c7d0" };
-
-    switch (label) {
-        case "Home":
-            return <HomeFilled sx={style} />;
-        default:
-            return null;
-    }
-};
-
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSidebarOpen: any }) => {
     const pathname = usePathname();
-
-    const links = [
-        { label: "Home", href: "/" },
-    ];
-
     return (
         <Box className="sidebarWrapper">
             <Drawer
+                className="custom-drawer"
                 variant="permanent"
                 sx={{
                     flex: 1,
                     [`& .MuiDrawer-paper`]: {
                         position: "relative",
-                        backgroundColor: "#343a40",
                     },
                 }}
             >
@@ -45,7 +30,7 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
                             ""
                         )}
                         <Menu
-                            className="toggle-btn"
+                            className="hamburguer toggle-btn"
                             onClick={() => setSidebarOpen((prev: any) => !prev)}
                             fontSize="small"
                         />
@@ -53,16 +38,19 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
                 </Toolbar>
                 <Box sx={{ overflow: "auto" }}>
                     <List>
-                        {links.map(({ label, href }) => (
-                            <MenuItem
-                                key={href}
-                                icon={getIconForLabel(label, pathname === href)}
-                                href={href}
-                                text={label}
-                                active={pathname === href}
-                                sidebarOpen={sidebarOpen}
-                            />
-                        ))}
+                        {PAGES.map((PAGE) => {
+                            if (PAGE.sidebarEnabled === false) return <div key={PAGE.path}></div>;
+                            return (
+                                <MenuItem
+                                    key={PAGE.path}
+                                    icon={PAGE.icon}
+                                    href={PAGE.path}
+                                    text={PAGE.name}
+                                    active={pathname === PAGE.path}
+                                    sidebarOpen={sidebarOpen}
+                                />
+                            )
+                        })}
                     </List>
                 </Box>
             </Drawer>
@@ -86,7 +74,7 @@ const MenuItem = ({
     const router = useRouter();
 
     return (
-        <div className="menuItemWrapper" onClick={() => router.push(href)}>
+        <div className="menuItemWrapper" aria-checked={active} onClick={() => router.push(href)}>
             <Box className={`menuItem ${active ? "active" : "closed"}`}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>{icon}</Box>
                 {sidebarOpen && (

@@ -12,4 +12,4 @@ const removeAuthToken = () => {
     localStorage.removeItem(STORE_KEYS.token);
 };
 
-export { getAuthToken, setAuthToken, removeAuthToken };
+export { getAuthToken, removeAuthToken, setAuthToken };

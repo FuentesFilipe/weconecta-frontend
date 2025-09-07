@@ -1,11 +1,9 @@
-import { SearchBox } from "@/components/ui/searchbox";
+import { HomePage } from "./Home";
 
-export default function HomePage() {
-  return (
-    <div>
-      <h1>Home Dashboard</h1>
-    </div>
-  );
+export default function Home() {
+    return (
+        <HomePage />
+    );
 }
 
 

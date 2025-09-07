@@ -3,6 +3,7 @@
 }
 
 .custom-button {
+    height: 2.5rem;
     background: linear-gradient(to right, #fcb043, #e8433b);
     box-shadow: var(--shadow);
 

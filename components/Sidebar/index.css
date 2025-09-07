@@ -1,8 +1,22 @@
 /* Sidebar.module.scss */
 
+.menuItemWrapper {
+    .active {
+        svg {
+            color: #fff;
+        }
+    }
+}
+
+.custom-drawer {
+    .MuiDrawer-paper {
+        /* Cor da gaveta */
+        background: var(--grey-color);
+    }
+}
+
 .weconecta-logo {
-    background-color: white;
-    width: 200px;
+    width: 165px;
     height: auto;
     margin-top: 12px;
     margin-left: 16px;
@@ -20,8 +34,6 @@
 }
 
 .toolbar {
-    background-color: #343a40;
-    color: #fff;
     border-color: #4b545c;
     padding-right: 0 !important;
     padding-left: 0 !important;
@@ -37,6 +49,11 @@
     border-bottom: 1px solid #4b545c;
     display: flex;
     align-items: center;
+
+    /* Hamburguer */
+    svg {
+        color: white;
+    }
 }
 
 .toolbar.title {

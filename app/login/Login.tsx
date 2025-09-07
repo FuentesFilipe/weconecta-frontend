@@ -11,11 +11,12 @@ import { AuthPayload } from '@/dtos/AuthDto';
 import { useLoginMutation } from '@/services/auth/login/mutations';
 
 import { Loading } from '@/components/ui/';
-import { setAuthToken } from '@/utils/stores/auth';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../providers/Auth/AuthProvider';
 import './index.css';
 
 export default function Login() {
+    const { setAuthToken } = useAuth();
     const router = useRouter();
 
     const [form, setForm] = useState<AuthPayload>({
