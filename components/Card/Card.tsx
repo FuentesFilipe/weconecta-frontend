@@ -20,7 +20,44 @@ const mockData = [
         id: 3,
         title: 'Avaliação de Desempenho Trimestral',
         questionnaire_url: 'https://exemplo/questionario/3'
-    }
+    },
+    { 
+        id: 4, 
+        title: 'Saúde Mental', 
+        questionnaire_url: 'https://exemplo/questionario/4' },
+    {
+        id: 5,
+        title: 'Check-up Cardiovascular',
+        questionnaire_url: 'https://exemplo/questionario/5'
+    },
+    {
+        id: 6,
+        title: 'Pressão Arterial',
+        questionnaire_url: 'https://exemplo/questionario/6'
+    },
+    {
+        id: 7,
+        title: 'Diabetes',
+        questionnaire_url: 'https://exemplo/questionario/7'
+    },
+    {
+        id: 8,
+        title: 'Rastreamento de Câncer de Pele',
+        questionnaire_url: 'https://exemplo/questionario/8'
+    },
+    {
+        id: 9,
+        title: 'Avaliação de Saúde Geral',
+        questionnaire_url: 'https://exemplo/questionario/9'
+    },
+    { 
+        id: 10,
+        title: 'Saúde Mental', 
+        questionnaire_url: 'https://exemplo/questionario/10' },
+    { 
+        id: 11, 
+        title: 'Check-up Cardiovascular', 
+        questionnaire_url: 'https://exemplo/questionario/11' },
 ];
 
 type CardComponentProps = {
@@ -100,7 +137,12 @@ function CardComponent({ id, initialTitle, url, onDelete, onUpdateTitle }: CardC
     );
 }
 
-export function CardContainer(): JSX.Element {
+
+type CardContainerProps = {
+    searchTerm: string;
+};
+
+export function CardContainer({ searchTerm }: CardContainerProps): JSX.Element {
     const [cards, setCards] = useState(mockData);
 
     const handleDeleteCard = (idToDelete: number): void => {
@@ -113,9 +155,16 @@ export function CardContainer(): JSX.Element {
         );
     };
 
+    const normalizeText = (text: string) =>
+        text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+    const filteredCards = cards.filter((card) =>
+        normalizeText(card.title).includes(normalizeText(searchTerm))
+    );
+
     return (
         <div className='cards-display'>
-            {cards.map((card) => (
+            {filteredCards.map((card) => (
                 <CardComponent
                     key={card.id}
                     id={card.id}
