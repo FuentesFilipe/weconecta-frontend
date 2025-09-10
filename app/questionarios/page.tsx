@@ -1,3 +1,3 @@
-import Questionarios from './Questionarios'
+import Questionarios from './Questionarios';
 
 export default Questionarios;
