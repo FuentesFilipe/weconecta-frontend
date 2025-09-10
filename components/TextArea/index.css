@@ -12,10 +12,6 @@
         -webkit-text-fill-color: #000; /* cor do texto */
         transition: background-color 5000s ease-in-out 0s; /* hack de longo prazo */
     }
-
-    label {
-        font-size: 0.8rem;
-    }
 }
 
 .custom-input label.Mui-focused {

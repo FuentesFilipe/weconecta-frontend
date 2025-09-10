@@ -6,12 +6,12 @@ export type ButtonProps = {
     onChange?: ChangeEventHandler<HTMLInputElement> | undefined;
     disabled?: boolean;
     placeholder: string;
-    type: 'password' | 'text' | 'email' | 'number';
+    type?: 'password' | 'text' | 'email' | 'number';
     icon?: React.ReactNode;
 };
 
 function Icon({ children }: { children: React.ReactNode }) {
-
+    console.log(children);
     return (
         <InputAdornment position="start">
             {children}
@@ -19,7 +19,7 @@ function Icon({ children }: { children: React.ReactNode }) {
     )
 }
 
-export function InputComponent({ type, placeholder, disabled = false, onChange, icon }: ButtonProps) {
+export function InputComponent({ type = 'text', placeholder, disabled = false, onChange, icon }: ButtonProps) {
     return (
         <TextField
             id="outlined-password-input"
@@ -28,7 +28,7 @@ export function InputComponent({ type, placeholder, disabled = false, onChange, 
             slotProps={{
                 input: {
                     startAdornment: (
-                        <Icon>{icon}</Icon>
+                        icon && <Icon>{icon}</Icon>
                     ),
                 },
             }}
