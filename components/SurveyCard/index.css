@@ -1,0 +1,38 @@
+.survey-card {
+    border: 1px solid var(--primary-color);
+    border-radius: 1rem;
+    padding: 2rem;
+    gap: 1rem;
+
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 25% 60% 15%;
+
+    svg {
+        fill: var(--primary-color);
+        transition: fill 0.3s;
+
+        &:hover {
+            fill: var(--secondary-color);
+        }
+    }
+}
+
+.survey-card [aria-label='buttons-container'] {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+}
+
+.survey-card [aria-label='text-container'] {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+
+    [aria-label='title'] {
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--text-color);
+    }
+}
