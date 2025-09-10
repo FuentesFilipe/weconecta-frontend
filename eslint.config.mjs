@@ -1,5 +1,6 @@
 // @ts-check
 import eslint from '@eslint/js';
+import nextPlugin from '@next/eslint-plugin-next';
 import nodePlugin from 'eslint-plugin-node';
 import perfectionist from 'eslint-plugin-perfectionist';
 import unicorn from 'eslint-plugin-unicorn';
@@ -14,6 +15,7 @@ export default tseslint.config(
             node: nodePlugin,
             perfectionist,
             unicorn,
+            '@next/next': nextPlugin,
         },
         languageOptions: {
             globals: {
@@ -35,19 +37,23 @@ export default tseslint.config(
             '@typescript-eslint/no-redeclare': 'off',
             '@typescript-eslint/consistent-type-definitions': ['error', 'type'],
             '@typescript-eslint/no-unsafe-assignment': 'off',
+            '@typescript-eslint/no-unused-vars': 'off',
+            '@typescript-eslint/no-explicit-any': 'off',
 
             // outras regras
             'no-console': ['warn'],
             'node/prefer-global/process': 'off',
             'node/no-process-env': 'off',
 
-            // import sorting (se você usa eslint-plugin-perfectionist)
-            // 'perfectionist/sort-imports': [
-            //     'error',
-            //     {
-            //         tsconfigRootDir: '.'
-            //     }
-            // ],
+            // Next.js recommended rules
+            ...Object.fromEntries(
+                Object.entries(nextPlugin.configs.recommended.rules).map(
+                    ([key, value]) => [
+                        key,
+                        Array.isArray(value) ? value : [value],
+                    ],
+                ),
+            ),
 
             // filename case
             'unicorn/filename-case': [
@@ -74,7 +80,7 @@ export default tseslint.config(
         },
     },
     {
-        files: ['components/ui/**/*'],
+        files: ['components/ui/**/*', 'Utils.ts'],
         rules: {
             'unicorn/filename-case': 'off',
         },
