@@ -1,3 +1,14 @@
 .custom-searchbox:hover {
     cursor: pointer;
 }
+
+.custom-searchbox {
+    [aria-label='input'] {
+        width: 95%;
+    }
+
+    [aria-label='button'] {
+        width: 3%;
+        align-content: center;
+    }
+}

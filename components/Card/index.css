@@ -1,8 +1,8 @@
 .card-box{
     display: flex;
     flex-direction: column;
-    justify-content: space-between; 
-    align-items: center; 
+    justify-content: space-between;
+    align-items: center;
     position: relative;
     height: 15rem;
     width: 100%;
@@ -67,14 +67,14 @@
     max-height: 5.5rem;
     overflow: hidden;
     overflow-wrap: break-word;
-} 
+}
 
 .h2-input {
   color: #ff894e;
   font-weight: bold;
   font-size: 1.25rem;
   width: 13rem;
-  
+
   border: none;
   border-bottom: 2px solid #ff894e;
   background-color: transparent;
@@ -89,8 +89,8 @@ h2 {
 
 .cards-display{
     display: grid;
-    gap: 1.5rem; 
+    gap: 1.5rem;
     grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
-    justify-items: center; 
+    justify-items: center;
     padding: 1rem 0;
 }

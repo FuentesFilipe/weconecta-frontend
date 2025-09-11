@@ -81,6 +81,8 @@
     --shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
     --primary-color: #fcb043;
     --secondary-color: #e8433b;
+    --grey-color: #343a40;
+    --card-white: rgb(249, 250, 251);
     --text-dark: rgba(0, 0, 0, 0.7);
 }
 
@@ -130,6 +132,7 @@
 /* Estilos padrões para o projeto */
 
 span {
+    text-transform: none;
     color: rgba(0, 0, 0, 0.7);
 }
 

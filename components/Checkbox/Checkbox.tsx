@@ -1,14 +1,15 @@
-import { Checkbox } from '../ui';
+import { Checkbox } from '@mui/material';
 import './index.css';
 
 export type CheckboxProps = {
     checked: boolean;
     onClick?: VoidFunction;
     disabled?: boolean;
+    indeterminate?: boolean;
 };
 
-export function CheckboxComponent({ onClick, disabled = false, checked }: CheckboxProps) {
+export function CheckboxComponent({ onClick, disabled = false, checked, indeterminate = false }: CheckboxProps) {
     return (
-        <Checkbox className="custom-checkbox w-5 h-5" defaultChecked={checked} onClick={onClick} disabled={disabled} />
+        <Checkbox className='custom-checkbox' defaultChecked={checked} onClick={onClick} disabled={disabled} indeterminate={indeterminate} />
     );
 }

@@ -9,7 +9,7 @@ export type ButtonProps = {
 
 export function ButtonComponent({ onClick, disabled = false, children }: ButtonProps) {
     return (
-        <Button className='custom-button' onClick={onClick} disabled={disabled}>
+        <Button className='custom-icon-button' onClick={onClick} disabled={disabled}>
             {children}
         </Button>
     );

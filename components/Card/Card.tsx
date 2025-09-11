@@ -21,9 +21,9 @@ const mockData = [
         title: 'Avaliação de Desempenho Trimestral',
         questionnaire_url: 'https://exemplo/questionario/3'
     },
-    { 
-        id: 4, 
-        title: 'Saúde Mental', 
+    {
+        id: 4,
+        title: 'Saúde Mental',
         questionnaire_url: 'https://exemplo/questionario/4' },
     {
         id: 5,
@@ -50,13 +50,13 @@ const mockData = [
         title: 'Avaliação de Saúde Geral',
         questionnaire_url: 'https://exemplo/questionario/9'
     },
-    { 
+    {
         id: 10,
-        title: 'Saúde Mental', 
+        title: 'Saúde Mental',
         questionnaire_url: 'https://exemplo/questionario/10' },
-    { 
-        id: 11, 
-        title: 'Check-up Cardiovascular', 
+    {
+        id: 11,
+        title: 'Check-up Cardiovascular',
         questionnaire_url: 'https://exemplo/questionario/11' },
 ];
 

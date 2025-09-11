@@ -1,0 +1,10 @@
+.questionarios-page {
+    [aria-label='filters'] {
+        margin-bottom: 1rem !important;
+    }
+
+    [aria-label='cards'] {
+        /* grid-template-columns: repeat(5, 1fr);
+        gap: 1rem; */
+    }
+}
