@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Topbar } from '@/components/Topbar';
 import './index.css';
 
@@ -11,10 +12,11 @@ interface CriacaoDeQuestionariosPageProps {
 export default function CriacaoDeQuestionariosPage({ onSave }: CriacaoDeQuestionariosPageProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
+  const router = useRouter();
 
   const handleBack = () => {
     if (isDisabled) return;
-    window.history.back();
+    router.push('/questionarios');
   };
 
   const handleSave = async () => {

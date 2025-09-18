@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '23':
+        specifier: ^0.0.0
+        version: 0.0.0
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@19.1.12)(react@19.1.0)
@@ -167,6 +170,9 @@ importers:
         version: 8.42.0(eslint@9.35.0(jiti@2.5.1))(typescript@5.9.2)
 
 packages:
+
+  23@0.0.0:
+    resolution: {integrity: sha512-uAETf9Okr72trtp1pNXYKhFCTTI1EKGcYMA8gw3jLGhlbaDX+grrNToEWrpt8luxRAvrZWBTvyB5wk3PpNjGQQ==}
 
   '@alloc/quick-lru@5.2.0':
     resolution: {integrity: sha512-UrcABB+4bUrFABwbluTIBErXwvbsU/V7TZWfmbgJfbkwiBuziS9gxdODUyuiecfdGQ85jglMW6juS3+z5TsKLw==}
@@ -3497,6 +3503,8 @@ packages:
         optional: true
 
 snapshots:
+
+  23@0.0.0: {}
 
   '@alloc/quick-lru@5.2.0': {}
 
