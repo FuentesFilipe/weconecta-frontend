@@ -8,9 +8,11 @@ import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal"
 import { useState } from "react";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
 import { surveysMock } from "../../components/SurveyCard/mockData";
+import { NovaMensagemModal } from "@/components/Modal/NovaMensagemModal";
 
 export default function QuestionariosPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isTestModalOpen, setIsTestModalOpen] = useState(false);
 
     return (
         <div className="w-full flex flex-col p-4 questionarios-page">
@@ -25,7 +27,11 @@ export default function QuestionariosPage() {
                         <Button onClick={() => setIsModalOpen(true)}>
                             <span>Novo questionário</span>
                         </Button>
+                        <Button onClick={() => setIsTestModalOpen(true)}>
+                            <span>TESTE MODAL DE QUESTIONARIO</span>
+                        </Button>
                         <NovoQuestionarioModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                        <NovaMensagemModal open={isTestModalOpen} onClose={() => setIsTestModalOpen(false)} />
                     </Grid>
                 </Grid>
             </div>

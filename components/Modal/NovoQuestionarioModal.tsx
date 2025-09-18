@@ -24,12 +24,18 @@ export function NovoQuestionarioModal({
     };
 
     return (
-        <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}>
-            <Card>
-                <CardHeader>
-                    <h4>Novo Questionário</h4>
-                </CardHeader>
-                <CardContent className="sm:max-w-md">
+        <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
+            <Card style={{ width: '35%', borderRadius: '16px', padding: '24px 16px' }}>
+                <div className="p-6 pb-0 flex justify-between items-center">
+                    <h2 className="text-lg font-semibold text-gray-900">Novo Questionário</h2>
+                    <button 
+                        onClick={onClose}
+                        className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+                    >
+                        ×
+                    </button>
+                </div>
+                <CardContent className=" w-full ">
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-orange-600">
@@ -43,19 +49,34 @@ export function NovoQuestionarioModal({
 
                         <div className="space-y-2">
                             <label className="text-sm font-medium text-orange-600">
+                                Membros
+                            </label>
+                            <div className="relative">
+                                <select className="w-full px-3 py-2 border border-orange-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-700 bg-white">
+                                    <option value="">Selecione os membros</option>
+                                    <option value="membro1">Membro 1</option>
+                                    <option value="membro2">Membro 2</option>
+                                    <option value="membro3">Membro 3</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium text-orange-600">
                                 Descrição
                             </label>
                             <TextArea
-                                placeholder="Digite uma descrição aqui"
+                                placeholder="Digite a descrição aqui"
                                 onChange={(e) => setDescricao(e.target.value)}
                             />
                         </div>
                     </div>
 
                 </CardContent>
-                <CardActions>
+                <CardActions className="justify-end gap-3 p-6 pt-0">
                     <Button
                         onClick={onClose}
+                        
                     >
                         <span>Cancelar</span>
                     </Button>

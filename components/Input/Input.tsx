@@ -8,6 +8,7 @@ export type ButtonProps = {
     placeholder: string;
     type?: 'password' | 'text' | 'email' | 'number';
     icon?: React.ReactNode;
+    value?: string;
 };
 
 function Icon({ children }: { children: React.ReactNode }) {
@@ -19,7 +20,7 @@ function Icon({ children }: { children: React.ReactNode }) {
     )
 }
 
-export function InputComponent({ type = 'text', placeholder, disabled = false, onChange, icon }: ButtonProps) {
+export function InputComponent({ type = 'text', placeholder, disabled = false, onChange, icon, value }: ButtonProps) {
     return (
         <TextField
             id="outlined-password-input"
@@ -35,6 +36,7 @@ export function InputComponent({ type = 'text', placeholder, disabled = false, o
             disabled={disabled}
             onChange={onChange}
             type={type}
+            value={value}
         />
     );
 }
