@@ -43,4 +43,12 @@ export const PAGES: Page[] = [
         name: 'Questionários',
         icon: <HomeFilled className='sidebar-icon' />,
     },
+    {
+        path: '/questionarios/criacao',
+        sidebarEnabled: true,
+        requireRoles: [UserRole.ADMIN],
+        requireAuth: false,
+        name: 'Novo Questionário',
+        icon: <HomeFilled className='sidebar-icon' />,
+    },
 ];

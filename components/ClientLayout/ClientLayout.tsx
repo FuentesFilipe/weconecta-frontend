@@ -57,8 +57,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <div className="w-full p-2">
                 {/* Conteúdo principal */}
                 <main className="flex-1 bg-gray-50 flex flex-col items-start overflow-y-auto">
-                    {/* Cabeçalho da página */}
-                    <PageName />
+                    {/* Cabeçalho da página - não mostrar se a página tem seu próprio cabeçalho */}
+                    {currentPage?.path !== '/questionarios/criacao' && <PageName />}
                     <div className="w-full">
                         {children}
                     </div>
