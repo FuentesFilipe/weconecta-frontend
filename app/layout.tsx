@@ -19,6 +19,7 @@ export const metadata: Metadata = {
     title: 'WeConecta',
 };
 
+
 export default function RootLayout({
     children,
 }: Readonly<{
