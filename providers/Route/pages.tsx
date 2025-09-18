@@ -35,4 +35,12 @@ export const PAGES: Page[] = [
         name: 'Questionários',
         icon: <HomeFilled className='sidebar-icon' />,
     },
+    {
+        path: '/questionarios/canva',
+        sidebarEnabled: true,
+        requireRoles: [UserRole.ADMIN],
+        requireAuth: false,
+        name: 'Questionários',
+        icon: <HomeFilled className='sidebar-icon' />,
+    },
 ];
