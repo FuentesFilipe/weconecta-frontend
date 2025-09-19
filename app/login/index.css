@@ -1,13 +1,27 @@
+@media (max-width: 640px) {
+    .custom-login {
+        max-width: 90%;
+        min-height: auto;
+        padding: 1rem;
+    }
+
+    .weconecta-logo {
+        width: 12rem !important;
+    }
+}
+
 .custom-login {
+    padding: 2rem 0;
     background-color: white;
-    min-width: 23vw;
-    height: 50vh;
+    width: 100%;
+    max-width: 400px;
+    min-height: 400px;
+    height: auto;
     display: grid;
     justify-content: space-between;
     border-radius: 1rem;
     grid-template-columns: 1fr;
-    grid-template-rows: 25% 60% 15%;
-
+    grid-template-rows: auto 1fr auto;
     box-shadow: var(--shadow);
 
     [aria-label='logo-group'] {
