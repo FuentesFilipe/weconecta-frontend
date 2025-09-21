@@ -132,8 +132,8 @@
 /* Estilos padrões para o projeto */
 
 span {
-    text-transform: none;
-    color: rgba(0, 0, 0, 0.7);
+    text-transform: none !important;
+    color: rgba(255, 255, 255, 0.8) !important;
 }
 
 .custom-hiperlink {
