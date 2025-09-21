@@ -1,14 +1,11 @@
-/* Wrapper da AppBar */
 .topbar {
-  /* efeito translúcido semelhante ao da sua UI */
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   background: rgba(255, 255, 255, 0.8) !important;
   border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  z-index: 1100; /* acima do conteúdo, abaixo do Drawer se necessário */
+  z-index: 1100; 
 }
 
-/* Altura e espaçamento */
 .topbar__toolbar {
   min-height: 72px;
   padding-inline: 16px;
@@ -17,29 +14,19 @@
   justify-content: space-between;
 }
 
-/* Título grande (igual ao “Novo Questionário”) */
 .topbar__title {
   font-weight: 600;
   letter-spacing: .2px;
-}
-
-/* Botões redondos com hover suave */
-.topbar__btn {
-  border-radius: 9999px !important;
-  padding: 8px !important;
-  transition: background-color .15s ease;
 }
 
 .topbar__btn:hover {
   background: rgba(0, 0, 0, 0.06);
 }
 
-/* Contêiner das ações à direita */
 .topbar__actions {
   gap: 4px;
 }
 
-/* Responsivo: título menor em telas estreitas */
 @media (max-width: 768px) {
   .topbar__title {
     font-size: 1rem;

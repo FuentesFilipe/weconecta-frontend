@@ -42,11 +42,11 @@ export default function CriacaoDeQuestionariosPage({ onSave }: CriacaoDeQuestion
 
   return (
     <div className="w-full flex flex-col criacao-page">
-      {/* Topbar reutilizável */}
-      <Topbar
+      <Topbar 
         title="Novo Questionário"
-        onBack={handleBack}
-        onSave={handleSave}
+        showBack={true}
+        onBackClick={handleBack}
+        onSaveClick={handleSave}
         isSaving={isSaving}
         isDisabled={isDisabled}
       />
@@ -55,7 +55,7 @@ export default function CriacaoDeQuestionariosPage({ onSave }: CriacaoDeQuestion
       <div className="flex-1 bg-gray-100 p-6">
         <div className="h-full flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-sm w-full max-w-4xl min-h-96 flex items-center justify-center">
-            <p className="text-gray-500 text-lg">Em breve: canva para criar questionários.</p>
+            <p className="text-gray-500 text-lg">Em breve: formulário para criar questionários.</p>
           </div>
         </div>
       </div>
