@@ -40,10 +40,7 @@ export default function Login() {
 
     useEffect(() => {
         if (loginData && loginData.accessToken) {
-            setAuthToken(loginData.accessToken);
-            if (rememberMe) {
-            localStorage.setItem("accessToken", loginData.accessToken);
-            };
+            setAuthToken(loginData.accessToken, rememberMe);
             toast.success('Login realizado com sucesso!');
             router.push('/');
         }
@@ -80,15 +77,15 @@ export default function Login() {
                         </div>
                         <div className="flex items-center gap-2 mt-2">
                             <input
-                            id="rememberMe"
-                            type="checkbox"
-                            checked={rememberMe}
-                             onChange={(e) => setRememberMe(e.target.checked)}
-                            className="w-4 h-4"
+                                id="rememberMe"
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="w-4 h-4"
                             />
-                         <label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer">
-                        Lembre-se de mim
-                        </label>
+                            <label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer">
+                                Lembre-se de mim
+                            </label>
                         </div>
 
                         <div>
