@@ -17,7 +17,6 @@ export default function QuestionariosPage() {
 
     return (
         <div className="w-full flex flex-col p-4 questionarios-page">
-            {/* <Topbar title="aaaa" /> */}
             <Topbar title="Questionários" />
             <div aria-label="filters">
                 <Grid dir="row" container spacing={2}>
