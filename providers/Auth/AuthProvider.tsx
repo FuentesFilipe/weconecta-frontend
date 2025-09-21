@@ -23,11 +23,14 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const [user, setUser] = useState<UserProfileDto | null>(null)
     const [token, setToken] = useState<string | undefined>()
     const router = useRouter();
-
+    
     useEffect(() => {
-        const storageToken = getAuthToken()
-        if (storageToken) setToken(storageToken)
-    }, [])
+    const token = localStorage.getItem("accessToken");
+    if (token) {
+      setAuthToken(token);
+    }
+  }, []);
+
 
     useEffect(() => {
         if (token) {
