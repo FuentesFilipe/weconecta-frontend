@@ -24,6 +24,7 @@ export default function Login() {
         password: ''
     });
     const [disabled, setDisabled] = useState<boolean>(false);
+    const [rememberMe, setRememberMe] = useState<boolean>(false);
 
     const { mutate: login, data: loginData } = useLoginMutation(form);
 
@@ -39,7 +40,7 @@ export default function Login() {
 
     useEffect(() => {
         if (loginData && loginData.accessToken) {
-            setAuthToken(loginData.accessToken);
+            setAuthToken(loginData.accessToken, rememberMe);
             toast.success('Login realizado com sucesso!');
             router.push('/');
         }
@@ -74,6 +75,19 @@ export default function Login() {
                         <div>
                             <Input onChange={onPasswordChange} placeholder='Senha' type='password' icon={<LockIcon />} />
                         </div>
+                        <div className="flex items-center gap-2 mt-2">
+                            <input
+                                id="rememberMe"
+                                type="checkbox"
+                                checked={rememberMe}
+                                onChange={(e) => setRememberMe(e.target.checked)}
+                                className="w-4 h-4"
+                            />
+                            <label htmlFor="rememberMe" className="text-sm text-gray-600 cursor-pointer">
+                                Lembre-se de mim
+                            </label>
+                        </div>
+
                         <div>
                             <span className='custom-hiperlink'>Esqueci a senha!</span>
                         </div>

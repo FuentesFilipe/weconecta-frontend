@@ -1,5 +1,6 @@
 import { Loader } from '@/components/Loader'
 import { UserProfileDto } from '@/dtos/UserDto'
+import { STORE_KEYS } from '@/utils/contants/stores'
 import { getAuthToken, removeAuthToken, setAuthToken as setStoreAuthToken } from '@/utils/stores/auth'
 import { jwtDecode } from 'jwt-decode'
 import { useRouter } from 'next/navigation'
@@ -8,7 +9,7 @@ import React, { createContext, ReactNode, useContext, useEffect, useState } from
 interface AuthProviderProps {
     user: UserProfileDto | null
     isLogged: (() => boolean)
-    setAuthToken: ((token?: string) => void)
+    setAuthToken: ((token?: string, rememberMe?: boolean) => void)
     logout: (() => void)
 }
 
@@ -25,9 +26,12 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const router = useRouter();
 
     useEffect(() => {
-        const storageToken = getAuthToken()
-        if (storageToken) setToken(storageToken)
-    }, [])
+        const token = localStorage.getItem(STORE_KEYS.token);
+        if (token) {
+            setAuthToken(token);
+        }
+    }, []);
+
 
     useEffect(() => {
         if (token) {
@@ -40,11 +44,11 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
 
     const isLogged = () => !!getAuthToken()
 
-    const setAuthToken = (token?: string) => {
+    const setAuthToken = (token?: string, rememberMe?: boolean) => {
 
         setToken(token)
         if (token) {
-            setStoreAuthToken(token)
+            setStoreAuthToken(token, rememberMe)
         } else {
             removeAuthToken()
         }
