@@ -17,6 +17,8 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: { sidebarOpen: boolean; setSid
                     flex: 1,
                     [`& .MuiDrawer-paper`]: {
                         position: "relative",
+                        backgroundColor: "#fff",
+                        color: "4c4c4c",
                     },
                 }}
             >
@@ -76,9 +78,9 @@ const MenuItem = ({
     return (
         <div className="menuItemWrapper" aria-checked={active} onClick={() => router.push(href)}>
             <Box className={`menuItem ${active ? "active" : "closed"}`}>
-                <Box sx={{ display: "flex", alignItems: "center" }}>{icon}</Box>
+                <Box sx={{ display: "flex", alignItems: "center", color: active ? "#0c8bfc" : "#4c4c4c" }}>{icon}</Box>
                 {sidebarOpen && (
-                    <Typography variant="body1" className={`menuText ${sidebarOpen ? "active" : "closed"}`}>
+                    <Typography variant="body1" className={`menuText ${active ? "active" : "closed"}`} sx={{ fontSize: 18, fontWeight: 500 }}>
                         {text}
                     </Typography>
                 )}
