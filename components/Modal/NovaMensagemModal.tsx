@@ -10,6 +10,16 @@ type NovaMensagemModalProps = {
     open: boolean
     onClose: VoidFunction
     isEdit?: number
+    onConfirm?: (data: {
+        titulo: string;
+        tipo: string;
+        alternativas: string[];
+    }) => void
+    initialData?: {
+        label: string;
+        type: string;
+        maxEdges?: number;
+    } | null
 }
 
 enum TipoMensagem {
@@ -23,15 +33,52 @@ export function NovaMensagemModal({
     open,
     onClose,
     isEdit,
+    onConfirm,
+    initialData,
 }: NovaMensagemModalProps) {
     const [titulo, setTitulo] = React.useState('');
     const [tipoSelecionado, setTipoSelecionado] = React.useState('');
     const [alternativas, setAlternativas] = React.useState<string[]>([]);
 
+    React.useEffect(() => {
+        if (open && initialData) {
+            setTitulo(initialData.label);
+            
+            let modalTipo = '';
+            if (initialData.type === 'mensagem') {
+                modalTipo = 'Feedback';
+            } else if (initialData.type === 'input') {
+                modalTipo = 'Input';
+            } else if (initialData.type === 'alternativa') {
+                modalTipo = 'Alternativa';
+            }
+            
+            setTipoSelecionado(modalTipo);
+            
+            if (modalTipo === 'MultiplaEscolha' || modalTipo === 'Alternativa') {
+                setAlternativas(['', '']);
+            } else {
+                setAlternativas([]);
+            }
+        } else if (open && !initialData) {
+            setTitulo('');
+            setTipoSelecionado('');
+            setAlternativas([]);
+        }
+    }, [open, initialData]);
+
     const handleConfirm = () => {
+        if (onConfirm) {
+            onConfirm({
+                titulo,
+                tipo: tipoSelecionado,
+                alternativas: alternativas.filter(alt => alt.trim() !== '')
+            });
+        }
         setTitulo('');
         setTipoSelecionado('');
         setAlternativas([]);
+        onClose();
     };
 
     const handleTipoClick = (tipo: string) => {
@@ -70,7 +117,11 @@ export function NovaMensagemModal({
                     <label className="text-sm font-medium text-orange-500">
                         Título
                     </label>
-                    <Input placeholder="Digite um título aqui" />
+                    <Input 
+                        placeholder="Digite um título aqui" 
+                        value={titulo}
+                        onChange={(e) => setTitulo(e.target.value)}
+                    />
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-orange-500">
@@ -126,8 +177,8 @@ export function NovaMensagemModal({
                 </CardContent>
 
                 <CardActions>
-                    <Button onClick={onClose}>Cancelar</Button>
-                    <Button>{isEdit ? 'Salvar' : 'Criar'}</Button>
+                    <Button onClick={onClose}><span>Cancelar</span></Button>
+                    <Button onClick={handleConfirm}><span>{isEdit ? 'Salvar' : 'Criar'}</span></Button>
                 </CardActions>
             </Card>
         </Modal>
