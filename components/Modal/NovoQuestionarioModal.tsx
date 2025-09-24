@@ -1,36 +1,96 @@
 'use client';
 
-import * as React from 'react';
-import { Modal, CardHeader, CardContent, CardActions, Card } from '@mui/material'
 import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { TextArea } from '@/components/TextArea';
+import { Loading } from '@/components/ui/loading';
+import { Card, CardActions, CardContent, Modal } from '@mui/material';
+import * as React from 'react';
+import { toast } from 'react-toastify';
 
 type NovoQuestionarioModalProps = {
     open: boolean
     onClose: VoidFunction
+    isLoading?: boolean
+    onSuccess?: () => void
+    onError?: (error : string) => void 
 }
 
 export function NovoQuestionarioModal({
     open,
     onClose,
+    isLoading = false,
+    onError
+  
 }: NovoQuestionarioModalProps) {
     const [titulo, setTitulo] = React.useState('');
     const [descricao, setDescricao] = React.useState('');
 
-    const handleConfirm = () => {
-        setTitulo('');
-        setDescricao('');
+    const showErrorAndReturn = (message:string) => {
+        toast.error(message);
+        if (onError){
+            onError(message);
+        }
+        return false;
     };
 
+
+    const handleConfirm = async () => {
+        
+        try {
+            //futuramente adicionar logia do tanstack aqui
+            await new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    if (Math.random() > 0.7) {
+                        reject(new Error('Erro, tente novamente.'));
+                    } else {
+                        resolve('success');
+                    }
+                }, 1000);
+            });
+
+            
+            setTitulo('');
+            setDescricao('');
+            onClose();
+            
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+            showErrorAndReturn(errorMessage);
+        }
+    };
+
+    const handleClose = () => {
+        if (isLoading) return;
+        
+        setTitulo('');
+        setDescricao('');
+        onClose();
+    };
+
+    if (isLoading) {
+        return (
+            <Modal 
+                open={open} 
+                onClose={() => {}} 
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+            >
+                <Card style={{ width: '35%', borderRadius: '16px', padding: '24px 16px', minHeight: '400px' }}>
+                    <Loading />
+                </Card>
+            </Modal>
+        );
+    }
+
     return (
-        <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
+        <Modal open={open} onClose={handleClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
             <Card style={{ width: '35%', borderRadius: '16px', padding: '24px 16px' }}>
                 <div className="p-6 pb-0 flex justify-between items-center">
                     <h2 className="text-lg font-semibold text-gray-900">Novo Questionário</h2>
                     <button 
-                        onClick={onClose}
+                        onClick={handleClose}
                         className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+                        disabled={isLoading}
                     >
                         ×
                     </button>
@@ -44,6 +104,7 @@ export function NovoQuestionarioModal({
                             <Input
                                 placeholder="Digite um título aqui"
                                 onChange={(e) => setTitulo(e.target.value)}
+                                disabled = {isLoading}
                             />
                         </div>
 
@@ -53,6 +114,7 @@ export function NovoQuestionarioModal({
                             </label>
                             <div className="relative">
                                 <select className="w-full px-3 py-2 border border-orange-200 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-gray-700 bg-white">
+                                    disabled = {isLoading}
                                     <option value="">Selecione os membros</option>
                                     <option value="membro1">Membro 1</option>
                                     <option value="membro2">Membro 2</option>
@@ -68,6 +130,7 @@ export function NovoQuestionarioModal({
                             <TextArea
                                 placeholder="Digite a descrição aqui"
                                 onChange={(e) => setDescricao(e.target.value)}
+                                disabled = {isLoading}
                             />
                         </div>
                     </div>
@@ -75,7 +138,9 @@ export function NovoQuestionarioModal({
                 </CardContent>
                 <CardActions className="justify-end gap-3 p-6 pt-0">
                     <Button
-                        onClick={onClose}
+                        onClick={handleClose}
+                        disabled = {isLoading}
+
                         
                     >
                         <span>Cancelar</span>

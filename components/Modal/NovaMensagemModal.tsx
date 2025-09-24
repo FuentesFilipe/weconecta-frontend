@@ -1,15 +1,17 @@
 'use client';
 
-import * as React from 'react';
-import { Modal, CardContent, CardActions, Card, Chip } from '@mui/material'
 import { Button } from '@/components/Button';
-import { Input } from '@/components/Input';
 import { IconButton } from '@/components/IconButton';
+import { Input } from '@/components/Input';
+import { Loading } from '@/components/ui/loading';
+import { Card, CardActions, CardContent, Chip, Modal } from '@mui/material';
+import * as React from 'react';
 
 type NovaMensagemModalProps = {
     open: boolean
     onClose: VoidFunction
     isEdit?: number
+    isLoading?: boolean
 }
 
 enum TipoMensagem {
@@ -23,6 +25,7 @@ export function NovaMensagemModal({
     open,
     onClose,
     isEdit,
+    isLoading = false,
 }: NovaMensagemModalProps) {
     const [titulo, setTitulo] = React.useState('');
     const [tipoSelecionado, setTipoSelecionado] = React.useState('');
@@ -34,7 +37,18 @@ export function NovaMensagemModal({
         setAlternativas([]);
     };
 
+    const handleClose = () => {
+        if (isLoading) return;
+        
+        setTitulo('');
+        setTipoSelecionado('');
+        setAlternativas([]);
+        onClose();
+    };
+
     const handleTipoClick = (tipo: string) => {
+        if (isLoading) return;
+        
         console.log(tipo);
         setTipoSelecionado(tipo);
 
@@ -46,45 +60,80 @@ export function NovaMensagemModal({
     };
 
     const handleAddAlternativa = (index: number) => {
+        if (isLoading) return;
         setAlternativas([...alternativas, '']);
     };
 
     const handleRemoveAlternativa = (index: number) => {
-        if (alternativas.length > 2) {
-            setAlternativas(alternativas.filter((_, i) => i !== index));
-        }
+        if (isLoading || alternativas.length <= 2) return;
+        setAlternativas(alternativas.filter((_, i) => i !== index));
     };
 
     const handleAlternativaChange = (index: number, value: string) => {
+        if (isLoading) return;
         const novasAlternativas = [...alternativas];
         novasAlternativas[index] = value;
         setAlternativas(novasAlternativas);
     };
 
+    if (isLoading) {
+        return (
+            <Modal 
+                open={open} 
+                onClose={() => {}} 
+                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
+            >
+                <Card style={{ width: '40%', borderRadius: '16px', padding: '24px 16px', minHeight: '400px' }}>
+                    <Loading />
+                </Card>
+            </Modal>
+        );
+    }
+
     return (
-        <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
+        <Modal open={open} onClose={handleClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
             <Card style={{ width: '40%', borderRadius: '16px', padding: '24px 16px' }}>
-                <h4 className="text-lg font-semibold text-orange-500">{isEdit ? 'Editar Mensagem' : 'Nova Mensagem'}</h4>
+                <div className="flex justify-between items-center mb-4">
+                    <h4 className="text-lg font-semibold text-orange-500">
+                        {isEdit ? 'Editar Mensagem' : 'Nova Mensagem'}
+                    </h4>
+                    <button 
+                        onClick={handleClose}
+                        className="text-gray-400 hover:text-gray-600 text-xl font-bold"
+                        disabled={isLoading}
+                    >
+                        ×
+                    </button>
+                </div>
 
                 <CardContent className="flex flex-col gap-4">
-                    <label className="text-sm font-medium text-orange-500">
-                        Título
-                    </label>
-                    <Input placeholder="Digite um título aqui" />
+                    <div className="flex flex-col gap-2">
+                        <label className="text-sm font-medium text-orange-500">
+                            Título
+                        </label>
+                        <Input 
+                            placeholder="Digite um título aqui" 
+                            value={titulo}
+                            onChange={(e) => setTitulo(e.target.value)}
+                            disabled={isLoading}
+                        />
+                    </div>
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-orange-500">
                             Tipo
                         </label>
-                        <div className="flex gap-2">
+                        <div className="flex gap-2 flex-wrap">
                             {Object.values(TipoMensagem).map((tipo: string) => (
-                                    <Chip
+                                <Chip
                                     key={tipo}
                                     label={tipo}
-                                    clickable
+                                    clickable={!isLoading}
                                     style={{
-                                        backgroundColor: tipoSelecionado === tipo ? 'var(--primary-color)' : 'lightgray',
-                                        opacity: tipoSelecionado === tipo ? 1 : 0.5
+                                        backgroundColor: tipoSelecionado === tipo ? '#f97316' : '#e5e7eb',
+                                        color: tipoSelecionado === tipo ? 'white' : '#374151',
+                                        opacity: isLoading ? 0.5 : 1,
+                                        cursor: isLoading ? 'not-allowed' : 'pointer'
                                     }}
                                     onClick={() => handleTipoClick(tipo)}
                                 />
@@ -92,42 +141,56 @@ export function NovaMensagemModal({
                         </div>
                     </div>
 
-                    <label className="text-sm font-medium text-orange-500">
-                        Alternativas
-                    </label>
                     {(tipoSelecionado === 'MultiplaEscolha' || tipoSelecionado === 'Alternativa') && (
-                        <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
-                            <div className="flex flex-col gap-2">
-
-                                <div className="flex flex-col gap-2">
-                                    {alternativas.map((alternativa, index) => (
-                                        <div key={index} className="flex gap-2 items-center">
-                                            <Input
-                                                placeholder="Digite uma alternativa aqui"
-                                                value={alternativa}
-                                                onChange={(e) => handleAlternativaChange(index, e.target.value)}
-                                            />
-                                            {alternativas.length - 1 == index && (
-                                                <IconButton onClick={() => handleAddAlternativa(index)}>
-                                                    <span>+</span>
-                                                </IconButton>
-                                            )}
-                                            {alternativas.length > 2 && (
-                                                <IconButton onClick={() => handleRemoveAlternativa(index)}>
-                                                    <span>-</span>
-                                                </IconButton>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
+                        <div className="flex flex-col gap-2">
+                            <label className="text-sm font-medium text-orange-500">
+                                Alternativas
+                            </label>
+                            <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+                                {alternativas.map((alternativa, index) => (
+                                    <div key={index} className="flex gap-2 items-center">
+                                        <Input
+                                            placeholder="Digite uma alternativa aqui"
+                                            value={alternativa}
+                                            onChange={(e) => handleAlternativaChange(index, e.target.value)}
+                                            disabled={isLoading}
+                                        />
+                                        {alternativas.length - 1 === index && (
+                                            <IconButton 
+                                                onClick={() => handleAddAlternativa(index)}
+                                                disabled={isLoading}
+                                            >
+                                                <span>+</span>
+                                            </IconButton>
+                                        )}
+                                        {alternativas.length > 2 && (
+                                            <IconButton 
+                                                onClick={() => handleRemoveAlternativa(index)}
+                                                disabled={isLoading}
+                                            >
+                                                <span>-</span>
+                                            </IconButton>
+                                        )}
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     )}
                 </CardContent>
 
                 <CardActions>
-                    <Button onClick={onClose}>Cancelar</Button>
-                    <Button>{isEdit ? 'Salvar' : 'Criar'}</Button>
+                    <Button 
+                        onClick={handleClose}
+                        disabled={isLoading}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button 
+                        onClick={handleConfirm}
+                        disabled={!titulo.trim() || !tipoSelecionado || isLoading}
+                    >
+                        {isLoading ? (isEdit ? 'Salvando...' : 'Criando...') : (isEdit ? 'Salvar' : 'Criar')}
+                    </Button>
                 </CardActions>
             </Card>
         </Modal>
