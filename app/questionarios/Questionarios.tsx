@@ -1,14 +1,14 @@
 'use client';
 
 import { Button } from "@/components/Button";
+import { NovaMensagemModal } from "@/components/Modal/NovaMensagemModal";
+import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal";
 import { SearchBox } from "@/components/SearchBox";
 import { Grid } from "@mui/material";
-import './index.css';
-import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal";
 import { useState } from "react";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
 import { surveysMock } from "../../components/SurveyCard/mockData";
-import { NovaMensagemModal } from "@/components/Modal/NovaMensagemModal";
+import './index.css';
 
 export default function QuestionariosPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -35,15 +35,16 @@ export default function QuestionariosPage() {
                     </Grid>
                 </Grid>
             </div>
-
-            {/* Grid de cards */}
             <div aria-label="cards">
-                <div className="grid grid-cols-5 gap-4">
+                <div
+                    className="grid gap-4"
+                >
                     {surveysMock.map((survey) => (
                         <SurveyCard key={survey.id} survey={survey} />
                     ))}
                 </div>
             </div>
+
         </div>
     );
 }
