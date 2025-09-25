@@ -9,6 +9,7 @@ export type Page = {
     requireAuth: boolean;
     name: string;
     icon?: JSX.Element;
+    topbarDisabled?: boolean;
 }
 
 export const PAGES: Page[] = [
@@ -42,5 +43,14 @@ export const PAGES: Page[] = [
         requireAuth: false,
         name: 'Questionários',
         icon: <HomeFilled className='sidebar-icon' />,
+    },
+    {
+        path: '/questionarios/criacao',
+        sidebarEnabled: true,
+        requireRoles: [UserRole.ADMIN],
+        requireAuth: false,
+        name: 'Novo Questionário',
+        icon: <HomeFilled className='sidebar-icon' />,
+        topbarDisabled: true,
     },
 ];

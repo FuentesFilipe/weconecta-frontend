@@ -9,6 +9,7 @@ import { useState } from "react";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
 import { surveysMock } from "../../components/SurveyCard/mockData";
 import './index.css';
+import { Topbar } from "@/components/Topbar";
 
 export default function QuestionariosPage() {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -16,6 +17,7 @@ export default function QuestionariosPage() {
 
     return (
         <div className="w-full flex flex-col p-4 questionarios-page">
+            <Topbar title="Questionários" />
             <div aria-label="filters">
                 <Grid dir="row" container spacing={2}>
                     <Grid size={{ xs: 10 }}>

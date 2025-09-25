@@ -1,0 +1,29 @@
+.criacao-page {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    padding: 0;
+}
+
+/* Estilos para os botões de ação */
+.action-button {
+    transition: all 0.2s ease-in-out;
+    transform: scale(1);
+}
+
+.action-button:hover:not(:disabled) {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.action-button:active:not(:disabled) {
+    transform: scale(0.95);
+}
+
+.action-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
