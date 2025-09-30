@@ -34,8 +34,8 @@ const Sidebar = ({
                     },
                 }}
             >
-                <Toolbar className='toolbar' style={{ height: '70px' }}>
-                    <div className='toolbar inner'>
+                <Toolbar className='toolbar' style={{ height: '90px' }}>
+                    <div className='toolbar inner' style={{ height: '90px' }}>
                         {sidebarOpen ? (
                             <div aria-label='logo-group'>
                                 <img

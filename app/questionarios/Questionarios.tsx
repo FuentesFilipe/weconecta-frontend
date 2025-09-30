@@ -7,20 +7,92 @@ import { SearchBox } from "@/components/SearchBox";
 import { Grid } from "@mui/material";
 import { useState } from "react";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
-import { surveysMock } from "../../components/SurveyCard/mockData";
 import './index.css';
 import { Topbar } from "@/components/Topbar";
+import { Loading } from "@/components/ui/loading";
+import { useQuestionarios, Questionario } from "@/hooks/useQuestionarios";
+import { toast } from "react-toastify";
 
 type QuestionariosPageProps = {
     isLoading?: boolean;
 }
 
 export default function QuestionariosPage({
-    isLoading = false
+    isLoading: externalIsLoading = false
 }: QuestionariosPageProps) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isTestModalOpen, setIsTestModalOpen] = useState(false);
+    const [editingQuestionario, setEditingQuestionario] = useState<Questionario | null>(null);
+    const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+    const {
+        questionarios,
+        isLoading: questionariosLoading,
+        createQuestionario,
+        updateQuestionario,
+        deleteQuestionario,
+        duplicateQuestionario,
+        copyUrl
+    } = useQuestionarios();
+
+    const isLoading = externalIsLoading || questionariosLoading;
+
+    // Handlers para as operações CRUD
+    const handleCreateQuestionario = async (data: { title: string; description: string }) => {
+        try {
+            createQuestionario({
+                title: data.title,
+                description: data.description,
+                surveyUrl: ''
+            });
+            toast.success('Questionário criado com sucesso!');
+            setIsModalOpen(false);
+        } catch (error) {
+            toast.error('Erro ao criar questionário');
+        }
+    };
+
+    const handleEditQuestionario = (questionario: Questionario) => {
+        setEditingQuestionario(questionario);
+        setIsEditModalOpen(true);
+    };
+
+    const handleUpdateQuestionario = async (data: { title: string; description: string }) => {
+        if (!editingQuestionario) return;
+        
+        try {
+            updateQuestionario(editingQuestionario.id, {
+                title: data.title,
+                description: data.description
+            });
+            toast.success('Questionário atualizado com sucesso!');
+            setIsEditModalOpen(false);
+            setEditingQuestionario(null);
+        } catch (error) {
+            toast.error('Erro ao atualizar questionário');
+        }
+    };
+
+    const handleDeleteQuestionario = (id: number) => {
+        try {
+            deleteQuestionario(id);
+            toast.success('Questionário deletado com sucesso!');
+        } catch (error) {
+            toast.error('Erro ao deletar questionário');
+        }
+    };
+
+    const handleDuplicateQuestionario = (id: number) => {
+        try {
+            duplicateQuestionario(id);
+        } catch (error) {
+            toast.error('Erro ao duplicar questionário');
+        }
+    };
+
+    const handleCopyUrl = (url: string) => {
+        copyUrl(url);
+    };
 
     if (isLoading) {
         return (
@@ -59,10 +131,24 @@ export default function QuestionariosPage({
                         <Button onClick={() => setIsModalOpen(true)}>
                             <span>Novo questionário</span>
                         </Button>
-                        <Button onClick={() => setIsTestModalOpen(true)}>
+                        {/* <Button onClick={() => setIsTestModalOpen(true)}>
                             <span>TESTE MODAL DE QUESTIONARIO</span>
-                        </Button>
-                        <NovoQuestionarioModal open={isModalOpen} onClose={() => setIsModalOpen(false)} />
+                        </Button> */}
+                        <NovoQuestionarioModal 
+                            open={isModalOpen} 
+                            onClose={() => setIsModalOpen(false)}
+                            onSuccess={handleCreateQuestionario}
+                        />
+                        <NovoQuestionarioModal 
+                            open={isEditModalOpen} 
+                            onClose={() => {
+                                setIsEditModalOpen(false);
+                                setEditingQuestionario(null);
+                            }}
+                            questionario={editingQuestionario}
+                            isEdit={true}
+                            onSuccess={handleUpdateQuestionario}
+                        />
                         <NovaMensagemModal open={isTestModalOpen} onClose={() => setIsTestModalOpen(false)} />
                     </Grid>
                 </Grid>
@@ -71,8 +157,15 @@ export default function QuestionariosPage({
                 <div
                     className="grid gap-4"
                 >
-                    {surveysMock.map((survey) => (
-                        <SurveyCard key={survey.id} survey={survey} />
+                    {questionarios.map((survey) => (
+                        <SurveyCard 
+                            key={survey.id} 
+                            survey={survey}
+                            onEdit={handleEditQuestionario}
+                            onDelete={handleDeleteQuestionario}
+                            onDuplicate={handleDuplicateQuestionario}
+                            onCopyUrl={handleCopyUrl}
+                        />
                     ))}
                 </div>
             </div>

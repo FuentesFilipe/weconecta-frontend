@@ -52,11 +52,11 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
                 <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
             </aside>
-            <div className="w-full p-2">
-                <main className="flex-1 bg-gray-50 flex flex-col items-start overflow-y-auto">
+            <div className="w-full p-2 rounded-lg">
+                <main className="flex-1 bg-gray-50 flex flex-col items-start overflow-y-auto rounded-lg">
                     {!currentPage?.topbarDisabled && <PageName />}
 
-                    <div className="w-full">
+                    <div className="w-full ">
                         {children}
                     </div>
                 </main>

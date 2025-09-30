@@ -11,7 +11,16 @@ type NovaMensagemModalProps = {
     open: boolean
     onClose: VoidFunction
     isEdit?: number
-    isLoading?: boolean
+    onConfirm?: (data: {
+        titulo: string;
+        tipo: string;
+        alternativas: string[];
+    }) => void
+    initialData?: {
+        label: string;
+        type: string;
+        maxEdges?: number;
+    } | null
 }
 
 enum TipoMensagem {
@@ -25,21 +34,57 @@ export function NovaMensagemModal({
     open,
     onClose,
     isEdit,
-    isLoading = false,
+    onConfirm,
+    initialData,
 }: NovaMensagemModalProps) {
     const [titulo, setTitulo] = React.useState('');
     const [tipoSelecionado, setTipoSelecionado] = React.useState('');
     const [alternativas, setAlternativas] = React.useState<string[]>([]);
-
-    const handleConfirm = () => {
-        setTitulo('');
-        setTipoSelecionado('');
-        setAlternativas([]);
-    };
+    const [isLoading, setIsLoading] = React.useState(false);
 
     const handleClose = () => {
         if (isLoading) return;
-        
+        setTitulo('');
+        setTipoSelecionado('');
+        setAlternativas([]);
+        onClose();
+    };
+
+    React.useEffect(() => {
+        if (open && initialData) {
+            setTitulo(initialData.label);
+            
+            let modalTipo = '';
+            if (initialData.type === 'mensagem') {
+                modalTipo = 'Feedback';
+            } else if (initialData.type === 'input') {
+                modalTipo = 'Input';
+            } else if (initialData.type === 'alternativa') {
+                modalTipo = 'Alternativa';
+            }
+            
+            setTipoSelecionado(modalTipo);
+            
+            if (modalTipo === 'MultiplaEscolha' || modalTipo === 'Alternativa') {
+                setAlternativas(['', '']);
+            } else {
+                setAlternativas([]);
+            }
+        } else if (open && !initialData) {
+            setTitulo('');
+            setTipoSelecionado('');
+            setAlternativas([]);
+        }
+    }, [open, initialData]);
+
+    const handleConfirm = () => {
+        if (onConfirm) {
+            onConfirm({
+                titulo,
+                tipo: tipoSelecionado,
+                alternativas: alternativas.filter(alt => alt.trim() !== '')
+            });
+        }
         setTitulo('');
         setTipoSelecionado('');
         setAlternativas([]);
@@ -107,17 +152,14 @@ export function NovaMensagemModal({
                 </div>
 
                 <CardContent className="flex flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                        <label className="text-sm font-medium text-orange-500">
-                            Título
-                        </label>
-                        <Input 
-                            placeholder="Digite um título aqui" 
-                            value={titulo}
-                            onChange={(e) => setTitulo(e.target.value)}
-                            disabled={isLoading}
-                        />
-                    </div>
+                    <label className="text-sm font-medium text-orange-500">
+                        Título
+                    </label>
+                    <Input 
+                        placeholder="Digite um título aqui" 
+                        value={titulo}
+                        onChange={(e) => setTitulo(e.target.value)}
+                    />
 
                     <div className="flex flex-col gap-2">
                         <label className="text-sm font-medium text-orange-500">
@@ -179,18 +221,8 @@ export function NovaMensagemModal({
                 </CardContent>
 
                 <CardActions>
-                    <Button 
-                        onClick={handleClose}
-                        disabled={isLoading}
-                    >
-                        Cancelar
-                    </Button>
-                    <Button 
-                        onClick={handleConfirm}
-                        disabled={!titulo.trim() || !tipoSelecionado || isLoading}
-                    >
-                        {isLoading ? (isEdit ? 'Salvando...' : 'Criando...') : (isEdit ? 'Salvar' : 'Criar')}
-                    </Button>
+                    <Button onClick={onClose}><span>Cancelar</span></Button>
+                    <Button onClick={handleConfirm}><span>{isEdit ? 'Salvar' : 'Criar'}</span></Button>
                 </CardActions>
             </Card>
         </Modal>

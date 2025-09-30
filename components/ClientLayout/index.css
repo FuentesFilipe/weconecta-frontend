@@ -40,6 +40,12 @@ layout-container {
 
 /* Layout container */
 .layout-container {
+    background: linear-gradient(to right, #fcb043, #e8433b);
     display: flex;
     position: relative;
+}
+
+
+*{
+    overscroll-behavior: none;
 }

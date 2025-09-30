@@ -2,14 +2,15 @@ import { TextField } from '@mui/material';
 import { ChangeEventHandler } from 'react';
 import './index.css';
 
-export type ButtonProps = {
+export type TextAreaProps = {
     onChange?: ChangeEventHandler<HTMLInputElement> | undefined;
     disabled?: boolean;
     placeholder: string;
     minRows?: number;
+    value?: string;
 };
 
-export function TextAreaComponent({ placeholder, disabled = false, onChange, minRows = 3 }: ButtonProps) {
+export function TextAreaComponent({ placeholder, disabled = false, onChange, minRows = 3, value }: TextAreaProps) {
     return (
         <TextField
             id="outlined-password-input"
@@ -20,6 +21,7 @@ export function TextAreaComponent({ placeholder, disabled = false, onChange, min
             type={'text'}
             multiline
             minRows={minRows}
+            value={value}
         />
     );
 }
