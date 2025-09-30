@@ -13,6 +13,7 @@ type NewSurveyElementProp = {
     open: boolean
     onClose: VoidFunction
     isEdit?: number
+    isLoading: boolean
     onConfirm?: (data: {
         titulo: string;
         tipo: string;
@@ -36,7 +37,6 @@ export function SurveysElementModal({
     const [titulo, setTitulo] = React.useState('');
     const [tipoSelecionado, setTipoSelecionado] = React.useState<SurveyElementType | null>(SurveyElementType.OPTION);
     const [alternativas, setAlternativas] = React.useState<string[]>([]);
-    const [isLoading, setIsLoading] = React.useState(false);
 
     const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation({
         description: titulo,
