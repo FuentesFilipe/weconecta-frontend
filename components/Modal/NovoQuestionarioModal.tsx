@@ -7,24 +7,41 @@ import { Loading } from '@/components/ui/loading';
 import { Card, CardActions, CardContent, Modal } from '@mui/material';
 import * as React from 'react';
 import { toast } from 'react-toastify';
+import { Questionario } from '@/hooks/useQuestionarios';
 
 type NovoQuestionarioModalProps = {
     open: boolean
     onClose: VoidFunction
     isLoading?: boolean
-    onSuccess?: () => void
-    onError?: (error : string) => void 
+    onSuccess?: (data: { title: string; description: string }) => void
+    onError?: (error : string) => void
+    questionario?: Questionario | null
+    isEdit?: boolean
 }
 
 export function NovoQuestionarioModal({
     open,
     onClose,
     isLoading = false,
-    onError
+    onSuccess,
+    onError,
+    questionario,
+    isEdit = false
   
 }: NovoQuestionarioModalProps) {
     const [titulo, setTitulo] = React.useState('');
     const [descricao, setDescricao] = React.useState('');
+
+    // Preencher campos quando estiver editando
+    React.useEffect(() => {
+        if (isEdit && questionario) {
+            setTitulo(questionario.title);
+            setDescricao(questionario.description);
+        } else {
+            setTitulo('');
+            setDescricao('');
+        }
+    }, [isEdit, questionario]);
 
     const showErrorAndReturn = (message:string) => {
         toast.error(message);
@@ -36,19 +53,14 @@ export function NovoQuestionarioModal({
 
 
     const handleConfirm = async () => {
+        if (!titulo.trim()) {
+            showErrorAndReturn('Título é obrigatório');
+            return;
+        }
         
         try {
-            //futuramente adicionar logia do tanstack aqui
-            await new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    if (Math.random() > 0.7) {
-                        reject(new Error('Erro, tente novamente.'));
-                    } else {
-                        resolve('success');
-                    }
-                }, 1000);
-            });
-
+            // Chamar onSuccess com os dados do formulário
+            onSuccess?.({ title: titulo, description: descricao });
             
             setTitulo('');
             setDescricao('');
@@ -86,7 +98,9 @@ export function NovoQuestionarioModal({
         <Modal open={open} onClose={handleClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
             <Card style={{ width: '35%', borderRadius: '16px', padding: '24px 16px' }}>
                 <div className="p-6 pb-0 flex justify-between items-center">
-                    <h2 className="text-lg font-semibold text-gray-900">Novo Questionário</h2>
+                    <h2 className="text-lg font-semibold text-gray-900">
+                        {isEdit ? 'Editar Questionário' : 'Novo Questionário'}
+                    </h2>
                     <button 
                         onClick={handleClose}
                         className="text-gray-400 hover:text-gray-600 text-xl font-bold"
@@ -103,6 +117,7 @@ export function NovoQuestionarioModal({
                             </label>
                             <Input
                                 placeholder="Digite um título aqui"
+                                value={titulo}
                                 onChange={(e) => setTitulo(e.target.value)}
                                 disabled = {isLoading}
                             />
@@ -129,6 +144,7 @@ export function NovoQuestionarioModal({
                             </label>
                             <TextArea
                                 placeholder="Digite a descrição aqui"
+                                value={descricao}
                                 onChange={(e) => setDescricao(e.target.value)}
                                 disabled = {isLoading}
                             />

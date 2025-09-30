@@ -1,5 +1,6 @@
 import { UserRole } from '@/dtos/UserDto';
 import { HomeFilled } from '@mui/icons-material';
+import { FileText, Palette, Plus } from 'lucide-react';
 import { JSX } from 'react';
 
 export type Page = {
@@ -34,15 +35,16 @@ export const PAGES: Page[] = [
         requireRoles: [UserRole.ADMIN],
         requireAuth: false,
         name: 'Questionários',
-        icon: <HomeFilled className='sidebar-icon' />,
+        icon: <FileText className='sidebar-icon' />,
     },
+    
     {
         path: '/questionarios/canva',
         sidebarEnabled: true,
         requireRoles: [UserRole.ADMIN],
         requireAuth: false,
-        name: 'Questionários',
-        icon: <HomeFilled className='sidebar-icon' />,
+        name: 'Canva',
+        icon: <Palette className='sidebar-icon' />,
     },
     {
         path: '/questionarios/criacao',
@@ -50,7 +52,7 @@ export const PAGES: Page[] = [
         requireRoles: [UserRole.ADMIN],
         requireAuth: false,
         name: 'Novo Questionário',
-        icon: <HomeFilled className='sidebar-icon' />,
+        icon: <Plus className='sidebar-icon' />,
         topbarDisabled: true,
     },
 ];

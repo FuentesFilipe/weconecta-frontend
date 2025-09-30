@@ -99,10 +99,6 @@ export default function App() {
         } : null;
     };
 
-    
-    const handleNodeDeleteTemp = (nodeId: string) => {
-        console.log('handleNodeDeleteTemp chamado para:', nodeId);
-    };
 
     
     const handleEdgeDoubleClick = (edgeId: string) => {
@@ -122,36 +118,41 @@ export default function App() {
     const [nodes, setNodes] = useState(savedData?.nodes || []);
     const [edges, setEdges] = useState(savedData?.edges || []);
 
+    // Atualizar funções onDelete dos nodes carregados do localStorage
+    useEffect(() => {
+        if (nodes.length > 0) {
+            const updatedNodes = nodes.map((node: any) => ({
+                ...node,
+                data: {
+                    ...node.data,
+                    onDelete: () => handleNodeDelete(node.id)
+                }
+            }));
+            setNodes(updatedNodes);
+        }
+    }, []); // Executa apenas uma vez na montagem
+
     
     const handleNodeDelete = (nodeId: string) => {
-        console.log('handleNodeDelete chamado para:', nodeId);
-        console.log('Nodes atuais:', nodes);
+        console.log('🗑️ handleNodeDelete chamado para:', nodeId);
+        console.log('📋 Nodes atuais:', nodes.map((n: any) => ({ id: n.id, label: n.data.label })));
+        
         const node = nodes.find((n: any) => n.id === nodeId);
-        console.log('Nó encontrado:', node);
+        console.log('🔍 Nó encontrado:', node ? { id: node.id, label: node.data.label } : 'NÃO ENCONTRADO');
+        
         if (node) {
+            console.log('✅ Abrindo modal de confirmação...');
             setDeleteItem({
                 type: 'node',
                 id: nodeId,
                 label: node.data.label
             });
             setIsDeleteModalOpen(true);
-            console.log('Modal de deletar aberto');
         } else {
-            console.log('Nó não encontrado!');
+            console.error('❌ Nó não encontrado! ID:', nodeId);
         }
     };
 
-    
-    useEffect(() => {
-        const updatedNodes = nodes.map((node: any) => ({
-            ...node,
-            data: {
-                ...node.data,
-                onDelete: () => handleNodeDelete(node.id)
-            }
-        }));
-        setNodes(updatedNodes);
-    }, []); 
 
     
     const handleCloseModal = () => {
@@ -272,22 +273,45 @@ export default function App() {
 
     
     const handleConfirmDelete = () => {
-        if (!deleteItem) return;
+        if (!deleteItem) {
+            console.error('❌ Nenhum item para deletar!');
+            return;
+        }
+
+        console.log('🗑️ Confirmando deleção de:', deleteItem);
 
         if (deleteItem.type === 'node') {
+            console.log('🗑️ Deletando nó:', deleteItem.id);
             
+            // Mostrar conexões que serão removidas
+            const connectionsToRemove = edges.filter((edge: any) => 
+                edge.source === deleteItem.id || edge.target === deleteItem.id
+            );
+            console.log('🔗 Conexões que serão removidas:', connectionsToRemove);
+            
+            // Filtrar o nó e suas conexões
             const newNodes = nodes.filter((node: any) => node.id !== deleteItem.id);
             const newEdges = edges.filter((edge: any) => 
                 edge.source !== deleteItem.id && edge.target !== deleteItem.id
             );
+            
+            console.log('📊 Antes da deleção - Nodes:', nodes.length, 'Edges:', edges.length);
+            console.log('📊 Depois da deleção - Nodes:', newNodes.length, 'Edges:', newEdges.length);
+            console.log('🔗 Conexões removidas:', connectionsToRemove.length);
+            
             setNodes(newNodes);
             setEdges(newEdges);
             saveToLocalStorage(newNodes, newEdges);
+            
+            console.log('✅ Nó e todas as suas conexões foram deletados com sucesso!');
         } else if (deleteItem.type === 'edge') {
+            console.log('🗑️ Deletando conexão:', deleteItem.id);
             
             const newEdges = edges.filter((edge: any) => edge.id !== deleteItem.id);
             setEdges(newEdges);
             saveToLocalStorage(nodes, newEdges);
+            
+            console.log('✅ Conexão deletada com sucesso!');
         }
 
         setDeleteItem(null);
@@ -429,12 +453,22 @@ export default function App() {
         [],
     );
     const onEdgesChange = useCallback(
-        (changes: any) => setEdges((edgesSnapshot: any) => applyEdgeChanges(changes, edgesSnapshot)),
-        [],
+        (changes: any) => {
+            const newEdges = applyEdgeChanges(changes, edges);
+            setEdges(newEdges);
+            saveToLocalStorage(nodes, newEdges);
+            console.log('🔗 Conexões atualizadas:', changes);
+        },
+        [nodes, edges],
     );
     const onConnect = useCallback(
-        (params: any) => setEdges((edgesSnapshot: any) => addEdge(params, edgesSnapshot)),
-        [],
+        (params: any) => {
+            const newEdges = addEdge(params, edges);
+            setEdges(newEdges);
+            saveToLocalStorage(nodes, newEdges);
+            console.log('🔗 Nova conexão criada:', params);
+        },
+        [nodes, edges],
     );
 
     
@@ -448,7 +482,7 @@ export default function App() {
     );
 
     return (
-        <div style={{ width: '100vw', height: '100vh' }}>
+        <div style={{ height: '100vh' }}>
             {/* Botão de organizar canvas */}
             <button
                 onClick={organizeCanvas}

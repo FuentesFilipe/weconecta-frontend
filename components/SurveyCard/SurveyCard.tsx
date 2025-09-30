@@ -4,14 +4,14 @@ import { Delete as DeleteIcon, Edit as EditIcon, CopyAllTwoTone as CopyIcon, Lin
 import './index.css';
 import { IconButton } from '../IconButton';
 import { toast } from 'react-toastify';
+import { Questionario } from '@/hooks/useQuestionarios';
 
 type SurveyCardProps = {
-    survey: {
-        id: number;
-        title: string;
-        description: string;
-        surveyUrl: string;
-    };
+    survey: Questionario;
+    onEdit?: (survey: Questionario) => void;
+    onDelete?: (id: number) => void;
+    onDuplicate?: (id: number) => void;
+    onCopyUrl?: (url: string) => void;
 }
 
 
@@ -26,24 +26,69 @@ const copyUrl = (url: string): void => {
         });
 };
 
-export function SurveyCard({ survey }: SurveyCardProps): JSX.Element {
-    // const { mutate: editSurvey } = useSurveyEditMutation();
-    // const { mutate: deleteSurvey } = useSurveyDeleteMutation();
-    // const { mutate: copySurvey } = useSurveyCopyMutation();
+export function SurveyCard({ 
+    survey, 
+    onEdit, 
+    onDelete, 
+    onDuplicate, 
+    onCopyUrl 
+}: SurveyCardProps): JSX.Element {
+    const [showConfirmDelete, setShowConfirmDelete] = useState(false);
+
+    const handleEdit = () => {
+        onEdit?.(survey);
+    };
+
+    const handleDelete = () => {
+        if (showConfirmDelete) {
+            onDelete?.(survey.id);
+            setShowConfirmDelete(false);
+        } else {
+            setShowConfirmDelete(true);
+            // Auto-hide after 3 seconds
+            setTimeout(() => setShowConfirmDelete(false), 3000);
+        }
+    };
+
+    const handleDuplicate = () => {
+        onDuplicate?.(survey.id);
+        toast.success('Questionário duplicado com sucesso!');
+    };
+
+    const handleCopyUrl = () => {
+        onCopyUrl?.(survey.surveyUrl);
+        toast.info('URL copiada para a área de transferência!');
+    };
 
     return (
         <div className='survey-card'>
             <div aria-label='buttons-container'>
-                <IconButton onClick={() => copyUrl(survey.surveyUrl)}>
+                <IconButton 
+                    onClick={handleEdit}
+                    title="Editar questionário"
+                >
                     <EditIcon />
                 </IconButton>
-                <IconButton onClick={() => copyUrl(survey.surveyUrl)}>
+                <IconButton 
+                    onClick={handleDuplicate}
+                    title="Duplicar questionário"
+                >
                     <CopyIcon />
                 </IconButton>
-                <IconButton onClick={() => copyUrl(survey.surveyUrl)}>
+                <IconButton 
+                    onClick={handleDelete}
+                    title={showConfirmDelete ? "Clique novamente para confirmar" : "Deletar questionário"}
+                    style={{ 
+                        backgroundColor: showConfirmDelete ? '#ef4444' : 'transparent',
+                        color: showConfirmDelete ? 'white' : 'inherit'
+                    }}
+                >
                     <DeleteIcon />
                 </IconButton>
-                <IconButton onClick={() => copyUrl(survey.surveyUrl)}>
+                <IconButton 
+                    onClick={handleCopyUrl}
+                    title="Copiar URL do questionário"
+                >
                     <CopyUrlIcon />
                 </IconButton>
             </div>

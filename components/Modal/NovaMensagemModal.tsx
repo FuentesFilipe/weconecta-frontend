@@ -11,7 +11,6 @@ type NovaMensagemModalProps = {
     open: boolean
     onClose: VoidFunction
     isEdit?: number
-    isLoading?: boolean
     onConfirm?: (data: {
         titulo: string;
         tipo: string;
@@ -35,13 +34,21 @@ export function NovaMensagemModal({
     open,
     onClose,
     isEdit,
-    isLoading = false,
     onConfirm,
     initialData,
 }: NovaMensagemModalProps) {
     const [titulo, setTitulo] = React.useState('');
     const [tipoSelecionado, setTipoSelecionado] = React.useState('');
     const [alternativas, setAlternativas] = React.useState<string[]>([]);
+    const [isLoading, setIsLoading] = React.useState(false);
+
+    const handleClose = () => {
+        if (isLoading) return;
+        setTitulo('');
+        setTipoSelecionado('');
+        setAlternativas([]);
+        onClose();
+    };
 
     React.useEffect(() => {
         if (open && initialData) {
@@ -78,15 +85,6 @@ export function NovaMensagemModal({
                 alternativas: alternativas.filter(alt => alt.trim() !== '')
             });
         }
-        setTitulo('');
-        setTipoSelecionado('');
-        setAlternativas([]);
-        onClose();
-    };
-
-    const handleClose = () => {
-        if (isLoading) return;
-        
         setTitulo('');
         setTipoSelecionado('');
         setAlternativas([]);
@@ -161,7 +159,6 @@ export function NovaMensagemModal({
                         placeholder="Digite um título aqui" 
                         value={titulo}
                         onChange={(e) => setTitulo(e.target.value)}
-                        disabled={isLoading}
                     />
 
                     <div className="flex flex-col gap-2">
