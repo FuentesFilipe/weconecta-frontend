@@ -4,10 +4,12 @@ import { Button } from '@/components/Button';
 import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/Input';
 import { Loading } from '@/components/ui/loading';
+import { SurveyElementEnum, SurveyElementType, SurveysElementsCreateDto } from '@/dtos/SurveysElementsDto';
+import { useSurveysElementsCreateMutation } from '@/services/core/surveysElements/mutations';
 import { Card, CardActions, CardContent, Chip, Modal } from '@mui/material';
 import * as React from 'react';
 
-type NovaMensagemModalProps = {
+type NewSurveyElementProp = {
     open: boolean
     onClose: VoidFunction
     isEdit?: number
@@ -23,81 +25,52 @@ type NovaMensagemModalProps = {
     } | null
 }
 
-enum TipoMensagem {
-    Feedback = 'Feedback',
-    MultiplaEscolha = 'MultiplaEscolha',
-    Alternativa = 'Alternativa',
-    Input = 'Input'
-}
-
-export function NovaMensagemModal({
+export function SurveysElementModal({
     open,
     onClose,
     isEdit,
+    isLoading = false,
     onConfirm,
     initialData,
-}: NovaMensagemModalProps) {
+}: NewSurveyElementProp) {
     const [titulo, setTitulo] = React.useState('');
-    const [tipoSelecionado, setTipoSelecionado] = React.useState('');
+    const [tipoSelecionado, setTipoSelecionado] = React.useState<SurveyElementType | null>(SurveyElementType.OPTION);
     const [alternativas, setAlternativas] = React.useState<string[]>([]);
     const [isLoading, setIsLoading] = React.useState(false);
 
-    const handleClose = () => {
-        if (isLoading) return;
-        setTitulo('');
-        setTipoSelecionado('');
-        setAlternativas([]);
-        onClose();
-    };
+    const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation({
+        description: titulo,
+        type: tipoSelecionado,
+        options: alternativas.map((alt) => ({ description: alt })),
+    } as SurveysElementsCreateDto);
 
     React.useEffect(() => {
-        if (open && initialData) {
-            setTitulo(initialData.label);
-            
-            let modalTipo = '';
-            if (initialData.type === 'mensagem') {
-                modalTipo = 'Feedback';
-            } else if (initialData.type === 'input') {
-                modalTipo = 'Input';
-            } else if (initialData.type === 'alternativa') {
-                modalTipo = 'Alternativa';
-            }
-            
-            setTipoSelecionado(modalTipo);
-            
-            if (modalTipo === 'MultiplaEscolha' || modalTipo === 'Alternativa') {
-                setAlternativas(['', '']);
-            } else {
-                setAlternativas([]);
-            }
-        } else if (open && !initialData) {
+        if (!isEdit) {
             setTitulo('');
-            setTipoSelecionado('');
+            setTipoSelecionado(SurveyElementType.OPTION);
             setAlternativas([]);
         }
-    }, [open, initialData]);
+    }, [createSurveyElementResponse]);
 
     const handleConfirm = () => {
-        if (onConfirm) {
-            onConfirm({
-                titulo,
-                tipo: tipoSelecionado,
-                alternativas: alternativas.filter(alt => alt.trim() !== '')
-            });
-        }
+        createSurveyElement();
+    };
+
+    const handleClose = () => {
+        if (isLoading) return;
+
         setTitulo('');
-        setTipoSelecionado('');
+        setTipoSelecionado(SurveyElementType.OPTION);
         setAlternativas([]);
         onClose();
     };
 
-    const handleTipoClick = (tipo: string) => {
+    const handleTipoClick = (tipo: SurveyElementType) => {
         if (isLoading) return;
-        
-        console.log(tipo);
+
         setTipoSelecionado(tipo);
 
-        if (tipo === 'MultiplaEscolha' || tipo === 'Alternativa') {
+        if (tipo === SurveyElementType.MULTIPLE_CHOICE || tipo === SurveyElementType.OPTION) {
             setAlternativas(['', '']);
         } else {
             setAlternativas([]);
@@ -123,9 +96,9 @@ export function NovaMensagemModal({
 
     if (isLoading) {
         return (
-            <Modal 
-                open={open} 
-                onClose={() => {}} 
+            <Modal
+                open={open}
+                onClose={() => { }}
                 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
             >
                 <Card style={{ width: '40%', borderRadius: '16px', padding: '24px 16px', minHeight: '400px' }}>
@@ -142,7 +115,7 @@ export function NovaMensagemModal({
                     <h4 className="text-lg font-semibold text-orange-500">
                         {isEdit ? 'Editar Mensagem' : 'Nova Mensagem'}
                     </h4>
-                    <button 
+                    <button
                         onClick={handleClose}
                         className="text-gray-400 hover:text-gray-600 text-xl font-bold"
                         disabled={isLoading}
@@ -155,8 +128,8 @@ export function NovaMensagemModal({
                     <label className="text-sm font-medium text-orange-500">
                         Título
                     </label>
-                    <Input 
-                        placeholder="Digite um título aqui" 
+                    <Input
+                        placeholder="Digite um título aqui"
                         value={titulo}
                         onChange={(e) => setTitulo(e.target.value)}
                     />
@@ -166,58 +139,59 @@ export function NovaMensagemModal({
                             Tipo
                         </label>
                         <div className="flex gap-2 flex-wrap">
-                            {Object.values(TipoMensagem).map((tipo: string) => (
+                            {(Object.values(SurveyElementType)).map((type) => (
                                 <Chip
-                                    key={tipo}
-                                    label={tipo}
+                                    key={type}
+                                    label={SurveyElementEnum[type as keyof typeof SurveyElementEnum]}
                                     clickable={!isLoading}
                                     style={{
-                                        backgroundColor: tipoSelecionado === tipo ? '#f97316' : '#e5e7eb',
-                                        color: tipoSelecionado === tipo ? 'white' : '#374151',
+                                        backgroundColor: tipoSelecionado === (type as unknown as SurveyElementType) ? '#f97316' : '#e5e7eb',
+                                        color: tipoSelecionado === (type as unknown as SurveyElementType) ? 'white' : '#374151',
                                         opacity: isLoading ? 0.5 : 1,
                                         cursor: isLoading ? 'not-allowed' : 'pointer'
                                     }}
-                                    onClick={() => handleTipoClick(tipo)}
+                                    onClick={() => handleTipoClick(type)}
                                 />
                             ))}
                         </div>
                     </div>
 
-                    {(tipoSelecionado === 'MultiplaEscolha' || tipoSelecionado === 'Alternativa') && (
-                        <div className="flex flex-col gap-2">
-                            <label className="text-sm font-medium text-orange-500">
-                                Alternativas
-                            </label>
-                            <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
-                                {alternativas.map((alternativa, index) => (
-                                    <div key={index} className="flex gap-2 items-center">
-                                        <Input
-                                            placeholder="Digite uma alternativa aqui"
-                                            value={alternativa}
-                                            onChange={(e) => handleAlternativaChange(index, e.target.value)}
-                                            disabled={isLoading}
-                                        />
-                                        {alternativas.length - 1 === index && (
-                                            <IconButton 
-                                                onClick={() => handleAddAlternativa(index)}
+                    {(tipoSelecionado === SurveyElementType.MULTIPLE_CHOICE ||
+                        tipoSelecionado === SurveyElementType.OPTION) && (
+                            <div className="flex flex-col gap-2">
+                                <label className="text-sm font-medium text-orange-500">
+                                    Alternativas
+                                </label>
+                                <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
+                                    {alternativas.map((alternativa, index) => (
+                                        <div key={index} className="flex gap-2 items-center">
+                                            <Input
+                                                placeholder="Digite uma alternativa aqui"
+                                                value={alternativa}
+                                                onChange={(e) => handleAlternativaChange(index, e.target.value)}
                                                 disabled={isLoading}
-                                            >
-                                                <span>+</span>
-                                            </IconButton>
-                                        )}
-                                        {alternativas.length > 2 && (
-                                            <IconButton 
-                                                onClick={() => handleRemoveAlternativa(index)}
-                                                disabled={isLoading}
-                                            >
-                                                <span>-</span>
-                                            </IconButton>
-                                        )}
-                                    </div>
-                                ))}
+                                            />
+                                            {alternativas.length - 1 === index && (
+                                                <IconButton
+                                                    onClick={() => handleAddAlternativa(index)}
+                                                    disabled={isLoading}
+                                                >
+                                                    <span>+</span>
+                                                </IconButton>
+                                            )}
+                                            {alternativas.length > 2 && (
+                                                <IconButton
+                                                    onClick={() => handleRemoveAlternativa(index)}
+                                                    disabled={isLoading}
+                                                >
+                                                    <span>-</span>
+                                                </IconButton>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
                 </CardContent>
 
                 <CardActions>
