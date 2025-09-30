@@ -1,17 +1,17 @@
 'use client';
 
 import { Button } from "@/components/Button";
-import { NovaMensagemModal } from "@/components/Modal/NovaMensagemModal";
 import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal";
+import { SurveysElementModal } from "@/components/Modal/SurveysElementModal";
 import { SearchBox } from "@/components/SearchBox";
-import { Grid } from "@mui/material";
-import { useState } from "react";
-import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
-import './index.css';
 import { Topbar } from "@/components/Topbar";
 import { Loading } from "@/components/ui/loading";
-import { useQuestionarios, Questionario } from "@/hooks/useQuestionarios";
+import { Questionario, useQuestionarios } from "@/hooks/useQuestionarios";
+import { Grid } from "@mui/material";
+import { useState } from "react";
 import { toast } from "react-toastify";
+import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
+import './index.css';
 
 type QuestionariosPageProps = {
     isLoading?: boolean;
@@ -59,7 +59,7 @@ export default function QuestionariosPage({
 
     const handleUpdateQuestionario = async (data: { title: string; description: string }) => {
         if (!editingQuestionario) return;
-        
+
         try {
             updateQuestionario(editingQuestionario.id, {
                 title: data.title,
@@ -134,13 +134,13 @@ export default function QuestionariosPage({
                         {/* <Button onClick={() => setIsTestModalOpen(true)}>
                             <span>TESTE MODAL DE QUESTIONARIO</span>
                         </Button> */}
-                        <NovoQuestionarioModal 
-                            open={isModalOpen} 
+                        <NovoQuestionarioModal
+                            open={isModalOpen}
                             onClose={() => setIsModalOpen(false)}
                             onSuccess={handleCreateQuestionario}
                         />
-                        <NovoQuestionarioModal 
-                            open={isEditModalOpen} 
+                        <NovoQuestionarioModal
+                            open={isEditModalOpen}
                             onClose={() => {
                                 setIsEditModalOpen(false);
                                 setEditingQuestionario(null);
@@ -149,7 +149,9 @@ export default function QuestionariosPage({
                             isEdit={true}
                             onSuccess={handleUpdateQuestionario}
                         />
-                        <NovaMensagemModal open={isTestModalOpen} onClose={() => setIsTestModalOpen(false)} />
+                        <SurveysElementModal
+                            open={isTestModalOpen}
+                            onClose={() => setIsTestModalOpen(false)} />
                     </Grid>
                 </Grid>
             </div>
@@ -158,8 +160,8 @@ export default function QuestionariosPage({
                     className="grid gap-4"
                 >
                     {questionarios.map((survey) => (
-                        <SurveyCard 
-                            key={survey.id} 
+                        <SurveyCard
+                            key={survey.id}
                             survey={survey}
                             onEdit={handleEditQuestionario}
                             onDelete={handleDeleteQuestionario}

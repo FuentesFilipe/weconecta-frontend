@@ -13,7 +13,7 @@ type NewSurveyElementProp = {
     open: boolean
     onClose: VoidFunction
     isEdit?: number
-    isLoading: boolean
+    isLoading?: boolean
     onConfirm?: (data: {
         titulo: string;
         tipo: string;
