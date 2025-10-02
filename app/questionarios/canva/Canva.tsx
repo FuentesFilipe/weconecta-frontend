@@ -542,7 +542,6 @@ export default function App() {
             <SurveysElementModal
                 open={isModalOpen}
                 onClose={handleCloseModal}
-                isEdit={isEditMode ? 1 : undefined}
                 onConfirm={handleModalConfirm}
                 initialData={getSelectedNodeData()}
             />

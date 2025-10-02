@@ -70,11 +70,13 @@ function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, o
         if (tipo === SurveyElementType.MULTIPLE_CHOICE || tipo === SurveyElementType.OPTION) {
             setForm((prev) => ({
                 ...prev,
+                type: tipo,
                 options: DEFAULT_DATA.options,
             }));
         } else {
             setForm((prev) => ({
                 ...prev,
+                type: tipo,
                 options: [],
             }));
         }
@@ -176,7 +178,9 @@ function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, o
     }
 
     return (
-        <Modal className="modal-survey-element" open={open} onClose={handleClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
+        <Modal className="modal-survey-element" open={open} onClose={handleClose} style={{
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem',
+        }}>
             <Card style={{ width: '40%', borderRadius: '16px', padding: '24px 16px' }}>
                 <div className="flex justify-between items-center mb-4">
                     <h4 className="text-lg font-semibold text-orange-500">
@@ -231,7 +235,8 @@ function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, o
                                 </label>
                                 <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto" aria-label='options-list'>
                                     {form.options.map((alternativa, index) => (
-                                        <div key={index} className="flex gap-2 items-center" aria-label={!!alternativa.id && !!alternativa.deletedAt ? 'crossed-option' : ''}
+                                        <div key={index} className="flex gap-2 items-center" aria-label={
+                                            !!alternativa.id && !!alternativa.deletedAt ? 'crossed-option' : ''}
                                         >
                                             <Input
                                                 placeholder="Digite uma alternativa aqui"
