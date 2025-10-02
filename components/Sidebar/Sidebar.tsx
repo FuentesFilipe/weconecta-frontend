@@ -34,28 +34,27 @@ const Sidebar = ({
                     },
                 }}
             >
-                <Toolbar className='toolbar' style={{ height: '90px' }}>
-                    <div className='toolbar inner' style={{ height: '90px' }}>
-                        {sidebarOpen ? (
-                            <div aria-label='logo-group'>
+                <Toolbar className='toolbar'>
+                    <div className={`toolbar-inner ${!sidebarOpen ? 'closed' : ''}`}>
+                        {sidebarOpen && (
+                            <div className='logo-container'>
                                 <img
                                     src='/logo_padrao_horizontal.png'
                                     className='weconecta-logo'
+                                    alt='WeConnecta Logo'
                                 />
                             </div>
-                        ) : (
-                            ''
                         )}
                         <Menu
-                            className='hamburguer toggle-btn'
+                            className='hamburguer-icon'
                             onClick={() => setSidebarOpen((prev: any) => !prev)}
-                            fontSize='small'
+                            fontSize='medium'
                         />
                     </div>
                 </Toolbar>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ flex: 1, overflow: 'auto' }}>
-                    <List>
+                <Box sx={{ flex: 1, overflow: 'auto', paddingTop: '1rem' }}>
+                    <List sx={{ padding: 0 }}>
                         {PAGES.map((PAGE) => {
                             if (PAGE.sidebarEnabled === false)
                                 return <div key={PAGE.path}></div>;
@@ -73,10 +72,10 @@ const Sidebar = ({
                     </List>
                 </Box>
 
-                {sidebarOpen && (
-                    <Box className='weconecta-sidebar-footer' sx={{ mt: 'auto' }}>
-                        <div className='weconecta-sidebar-user'>
-                            <Icon className='weconecta-sidebar-user-avatar' />
+                <Box className={`weconecta-sidebar-footer ${!sidebarOpen ? 'closed' : ''}`} sx={{ mt: 'auto' }}>
+                    <div className='weconecta-sidebar-user'>
+                        <Icon className='weconecta-sidebar-user-avatar' />
+                        {sidebarOpen && (
                             <div className='weconecta-sidebar-user-info'>
                                 <Typography className='weconecta-sidebar-user-name' sx={{ color: '#333' }}>
                                     {user.name}
@@ -85,9 +84,9 @@ const Sidebar = ({
                                     {user.email}
                                 </Typography>
                             </div>
-                        </div>
-                    </Box>
-                )}
+                        )}
+                    </div>
+                </Box>
                 </Box>
             </Drawer>
         </Box>
@@ -111,15 +110,17 @@ const MenuItem = ({
 
     return (
         <div
-            className='menuItemWrapper'
+            className={`menuItemWrapper ${!sidebarOpen ? 'closed' : ''}`}
             aria-checked={active}
             onClick={() => router.push(href)}
         >
-            <Box className={`menuItem ${active ? 'active' : 'closed'}`}>
+            <Box className={`menuItem ${active ? 'active' : ''} ${!sidebarOpen ? 'closed' : ''}`}>
                 <Box
+                    className='menuIcon'
                     sx={{
                         display: 'flex',
                         alignItems: 'center',
+                        justifyContent: 'center',
                         color: active ? '#0c8bfc' : '#4c4c4c',
                     }}
                 >
@@ -128,7 +129,7 @@ const MenuItem = ({
                 {sidebarOpen && (
                     <Typography
                         variant='body1'
-                        className={`menuText ${active ? 'active' : 'closed'}`}
+                        className={`menuText ${active ? 'active' : ''}`}
                         sx={{ fontSize: 18, fontWeight: 500 }}
                     >
                         {text}
