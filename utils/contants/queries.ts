@@ -1,5 +1,7 @@
 const QUERY_KEYS = {
-	EXAMPLES: 'examples'
-}
+    SURVEYS: 'surveys',
+    USERS: 'users',
+    SURVEYS_ELEMENTS: 'surveysElements',
+};
 
-export default QUERY_KEYS
+export default QUERY_KEYS;
