@@ -1,6 +1,6 @@
 import {
     SurveysElementsCreateDto,
-    SurveysElementsCreateResponse,
+    SurveysElementsResponse,
 } from '@/dtos/SurveysElementsDto';
 import { queryClient } from '@/services/query-client';
 import QUERY_KEYS from '@/utils/contants/queries';
@@ -14,7 +14,7 @@ export const useSurveysElementsCreateMutation = (
         mutationFn: () =>
             surveyElementApi
                 .post('', payload)
-                .then((res) => res.data as SurveysElementsCreateResponse),
+                .then((res) => res.data as SurveysElementsResponse),
         onSuccess: () =>
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],

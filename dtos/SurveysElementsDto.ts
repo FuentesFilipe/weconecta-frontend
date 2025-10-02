@@ -4,7 +4,7 @@ export type SurveysElementsCreateDto = {
     options: SurveyElementOption[];
 };
 
-export type SurveysElementsCreateResponse = {
+export type SurveysElementsResponse = {
     id: number;
     description: string;
     type: SurveyElementType;
@@ -12,8 +12,10 @@ export type SurveysElementsCreateResponse = {
     deletedAt: Date | null;
 };
 
-type SurveyElementOption = {
+export type SurveyElementOption = {
+    id?: number;
     description: string;
+    deletedAt?: Date | null;
 };
 
 export enum SurveyElementType {
@@ -29,3 +31,9 @@ export enum SurveyElementEnum {
     INPUT = 'Input',
     MESSAGE = 'Feedback',
 }
+
+export type SurveysElementsPayload = {
+    surveyId?: number;
+    description?: string;
+    type?: SurveyElementType;
+};

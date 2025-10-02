@@ -3,17 +3,23 @@
 import { Button } from '@/components/Button';
 import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/Input';
-import { Loading } from '@/components/ui/loading';
-import { SurveyElementEnum, SurveyElementType, SurveysElementsCreateDto } from '@/dtos/SurveysElementsDto';
+import { SurveyElementEnum, SurveyElementOption, SurveyElementType, SurveysElementsCreateDto } from '@/dtos/SurveysElementsDto';
 import { useSurveysElementsCreateMutation } from '@/services/core/surveysElements/mutations';
+import { Add as AddIcon, Delete as DeleteIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { Card, CardActions, CardContent, Chip, Modal } from '@mui/material';
 import * as React from 'react';
+import { toast } from 'react-toastify';
+import { useGetSurveysElementById } from '../../services/core/surveysElements/queries';
+import { queryClient } from '../../services/query-client';
+import QUERY_KEYS from '../../utils/contants/queries';
+import { Loading } from '../ui';
+import './index.css';
 
 type NewSurveyElementProp = {
     open: boolean
     onClose: VoidFunction
-    isEdit?: number
     isLoading?: boolean
+    id?: number
     onConfirm?: (data: {
         titulo: string;
         tipo: string;
@@ -26,29 +32,24 @@ type NewSurveyElementProp = {
     } | null
 }
 
-export function SurveysElementModal({
-    open,
-    onClose,
-    isEdit,
-    isLoading = false,
-    onConfirm,
-    initialData,
-}: NewSurveyElementProp) {
-    const [titulo, setTitulo] = React.useState('');
-    const [tipoSelecionado, setTipoSelecionado] = React.useState<SurveyElementType | null>(SurveyElementType.OPTION);
-    const [alternativas, setAlternativas] = React.useState<string[]>([]);
+const DEFAULT_DATA = {
+    description: '',
+    type: SurveyElementType.OPTION,
+    options: [{ description: '' }, { description: '' }],
+}
 
-    const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation({
-        description: titulo,
-        type: tipoSelecionado,
-        options: alternativas.map((alt) => ({ description: alt })),
-    } as SurveysElementsCreateDto);
+function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, onClose: VoidFunction, data: SurveysElementsCreateDto, id?: number }) {
+    const [form, setForm] = React.useState<SurveysElementsCreateDto>({ ...data });
+
+    const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation(form);
 
     React.useEffect(() => {
-        if (!isEdit) {
-            setTitulo('');
-            setTipoSelecionado(SurveyElementType.OPTION);
-            setAlternativas([]);
+        if (!id) {
+            setForm({ ...DEFAULT_DATA });
+        }
+
+        if (createSurveyElementResponse) {
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS, id] });
         }
     }, [createSurveyElementResponse]);
 
@@ -57,68 +58,134 @@ export function SurveysElementModal({
     };
 
     const handleClose = () => {
-        if (isLoading) return;
-
-        setTitulo('');
-        setTipoSelecionado(SurveyElementType.OPTION);
-        setAlternativas([]);
+        setForm({ ...DEFAULT_DATA });
         onClose();
     };
 
     const handleTipoClick = (tipo: SurveyElementType) => {
-        if (isLoading) return;
-
-        setTipoSelecionado(tipo);
-
+        if (id) {
+            toast.warning('Não é possível alterar o tipo de um elemento existente.');
+            return;
+        }
         if (tipo === SurveyElementType.MULTIPLE_CHOICE || tipo === SurveyElementType.OPTION) {
-            setAlternativas(['', '']);
+            setForm((prev) => ({
+                ...prev,
+                options: DEFAULT_DATA.options,
+            }));
         } else {
-            setAlternativas([]);
+            setForm((prev) => ({
+                ...prev,
+                options: [],
+            }));
         }
     };
 
     const handleAddAlternativa = (index: number) => {
-        if (isLoading) return;
-        setAlternativas([...alternativas, '']);
+        setForm((prev) => ({
+            ...prev,
+            options: [...prev.options, { description: '' }],
+        }));
     };
 
+    const handleRemoveSavedOption = (index: number) => {
+        const options = [...form.options];
+        options[index] = { ...options[index], deletedAt: new Date() };
+
+        setForm((prev) => ({
+            ...prev,
+            options: options,
+        }));
+    }
+
+    const handleAddSavedOption = (index: number) => {
+        const options = [...form.options];
+        options[index] = { ...options[index], deletedAt: null };
+
+        setForm((prev) => ({
+            ...prev,
+            options: options,
+        }));
+    }
+
     const handleRemoveAlternativa = (index: number) => {
-        if (isLoading || alternativas.length <= 2) return;
-        setAlternativas(alternativas.filter((_, i) => i !== index));
+        if (form.options.length <= 2) return;
+        setForm((prev) => ({
+            ...prev,
+            options: prev.options.filter((_, i) => i !== index),
+        }));
     };
 
     const handleAlternativaChange = (index: number, value: string) => {
-        if (isLoading) return;
-        const novasAlternativas = [...alternativas];
-        novasAlternativas[index] = value;
-        setAlternativas(novasAlternativas);
+        const novasAlternativas = [...form.options];
+        novasAlternativas[index] = { ...novasAlternativas[index], description: value };
+        setForm((prev) => ({
+            ...prev,
+            options: [...novasAlternativas],
+        }));
     };
 
-    if (isLoading) {
-        return (
-            <Modal
-                open={open}
-                onClose={() => { }}
-                style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem' }}
-            >
-                <Card style={{ width: '40%', borderRadius: '16px', padding: '24px 16px', minHeight: '400px' }}>
-                    <Loading />
-                </Card>
-            </Modal>
-        );
+    const onDescriptionChange = (value: string) => {
+        setForm((prev) => ({
+            ...prev,
+            description: value,
+        }));
+    };
+
+    const ActionButton = ({ option, index }: { option: SurveyElementOption; index: number }) => {
+
+        if (!!option.id && !option.deletedAt) {
+            return (
+                <div className={'delete-option'} aria-label={!!option.id ? 'delete-option' : ''}>
+                    <IconButton
+                        onClick={() => handleRemoveSavedOption(index)}
+                        disabled={false}
+                    >
+                        <DeleteIcon />
+                    </IconButton>
+                </div>
+            )
+        }
+
+        if (!!option.id && !!option.deletedAt) {
+            return (
+                <div className={'delete-option'} aria-label={!!option.id ? 'add-option' : ''}>
+                    <IconButton
+                        onClick={() => handleAddSavedOption(index)}
+                        disabled={false}
+                    >
+                        <AddIcon />
+                    </IconButton>
+                </div>
+            )
+        }
+
+        if (!option.id) {
+            return (
+                <div className={'delete-option'}>
+                    <IconButton
+                        onClick={() => handleRemoveAlternativa(index)}
+                        disabled={false}
+                    >
+                        <RemoveIcon />
+                    </IconButton>
+                </div>
+            )
+        }
+
+        return <></>
     }
 
     return (
-        <Modal open={open} onClose={handleClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
+        <Modal className="modal-survey-element" open={open} onClose={handleClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
             <Card style={{ width: '40%', borderRadius: '16px', padding: '24px 16px' }}>
                 <div className="flex justify-between items-center mb-4">
                     <h4 className="text-lg font-semibold text-orange-500">
-                        {isEdit ? 'Editar Mensagem' : 'Nova Mensagem'}
+                        {id ? 'Editar Mensagem' : 'Nova Mensagem'}
                     </h4>
                     <button
                         onClick={handleClose}
                         className="text-gray-400 hover:text-gray-600 text-xl font-bold"
-                        disabled={isLoading}
+                        disabled={false}
                     >
                         ×
                     </button>
@@ -130,8 +197,8 @@ export function SurveysElementModal({
                     </label>
                     <Input
                         placeholder="Digite um título aqui"
-                        value={titulo}
-                        onChange={(e) => setTitulo(e.target.value)}
+                        value={form.description}
+                        onChange={(e) => onDescriptionChange(e.target.value)}
                     />
 
                     <div className="flex flex-col gap-2">
@@ -143,12 +210,12 @@ export function SurveysElementModal({
                                 <Chip
                                     key={type}
                                     label={SurveyElementEnum[type as keyof typeof SurveyElementEnum]}
-                                    clickable={!isLoading}
+                                    clickable={!false}
                                     style={{
-                                        backgroundColor: tipoSelecionado === (type as unknown as SurveyElementType) ? '#f97316' : '#e5e7eb',
-                                        color: tipoSelecionado === (type as unknown as SurveyElementType) ? 'white' : '#374151',
-                                        opacity: isLoading ? 0.5 : 1,
-                                        cursor: isLoading ? 'not-allowed' : 'pointer'
+                                        backgroundColor: form.type === (type as unknown as SurveyElementType) ? '#f97316' : '#e5e7eb',
+                                        color: form.type === (type as unknown as SurveyElementType) ? 'white' : '#374151',
+                                        opacity: false ? 0.5 : 1,
+                                        cursor: false ? 'not-allowed' : 'pointer'
                                     }}
                                     onClick={() => handleTipoClick(type)}
                                 />
@@ -156,39 +223,31 @@ export function SurveysElementModal({
                         </div>
                     </div>
 
-                    {(tipoSelecionado === SurveyElementType.MULTIPLE_CHOICE ||
-                        tipoSelecionado === SurveyElementType.OPTION) && (
+                    {(form.type === SurveyElementType.MULTIPLE_CHOICE ||
+                        form.type === SurveyElementType.OPTION) && (
                             <div className="flex flex-col gap-2">
                                 <label className="text-sm font-medium text-orange-500">
                                     Alternativas
                                 </label>
-                                <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto">
-                                    {alternativas.map((alternativa, index) => (
-                                        <div key={index} className="flex gap-2 items-center">
+                                <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto" aria-label='options-list'>
+                                    {form.options.map((alternativa, index) => (
+                                        <div key={index} className="flex gap-2 items-center" aria-label={!!alternativa.id && !!alternativa.deletedAt ? 'crossed-option' : ''}
+                                        >
                                             <Input
                                                 placeholder="Digite uma alternativa aqui"
-                                                value={alternativa}
+                                                value={alternativa.description}
                                                 onChange={(e) => handleAlternativaChange(index, e.target.value)}
-                                                disabled={isLoading}
+                                                disabled={false}
                                             />
-                                            {alternativas.length - 1 === index && (
-                                                <IconButton
-                                                    onClick={() => handleAddAlternativa(index)}
-                                                    disabled={isLoading}
-                                                >
-                                                    <span>+</span>
-                                                </IconButton>
-                                            )}
-                                            {alternativas.length > 2 && (
-                                                <IconButton
-                                                    onClick={() => handleRemoveAlternativa(index)}
-                                                    disabled={isLoading}
-                                                >
-                                                    <span>-</span>
-                                                </IconButton>
-                                            )}
+                                            <ActionButton option={alternativa} index={index} />
                                         </div>
                                     ))}
+                                    {form.options[form.options.length - 1].description.trim() !== '' && <IconButton
+                                        onClick={() => handleAddAlternativa(form.options.length)}
+                                        disabled={false}
+                                    >
+                                        <AddIcon />
+                                    </IconButton>}
                                 </div>
                             </div>
                         )}
@@ -196,9 +255,28 @@ export function SurveysElementModal({
 
                 <CardActions>
                     <Button onClick={onClose}><span>Cancelar</span></Button>
-                    <Button onClick={handleConfirm}><span>{isEdit ? 'Salvar' : 'Criar'}</span></Button>
+                    <Button onClick={handleConfirm}><span>{!!id ? 'Salvar' : 'Criar'}</span></Button>
                 </CardActions>
             </Card>
         </Modal>
     );
+
+}
+
+export function SurveysElementModal({
+    open,
+    onClose,
+    id
+}: NewSurveyElementProp) {
+    const { data: surveyElementData, isLoading: surveyElementLoading } = useGetSurveysElementById(id);
+
+    if (surveyElementLoading) {
+        return (
+            <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
+                <Loading />
+            </Modal>
+        )
+    }
+
+    return <CreateEditSurveyElement open={open} onClose={onClose} id={id} data={surveyElementData ?? DEFAULT_DATA} />
 }

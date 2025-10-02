@@ -1,25 +1,30 @@
-import { ExampleDto } from '@/dtos/ExampleDto';
-import { ListWrapperDto } from '@/dtos/PaginatedDto';
+import {
+    SurveysElementsPayload,
+    SurveysElementsResponse,
+} from '@/dtos/SurveysElementsDto';
 import QUERY_KEYS from '@/utils/contants/queries';
 import { useQuery } from '@tanstack/react-query';
 import { surveyElementApi } from '.';
 
-export const useGetAllSurveysElements = (surveyId?: number) =>
+export const useGetAllSurveysElements = (payload: SurveysElementsPayload) =>
     useQuery({
         queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
         queryFn: async () =>
             (
-                await surveyElementApi.get<ListWrapperDto<ExampleDto>>('/', {
-                    params: { surveyId },
+                await surveyElementApi.get<SurveysElementsResponse[]>('', {
+                    params: payload,
                 })
-            ).data.data,
+            ).data,
     });
 
 export const useGetSurveysElementById = (surveysElementId?: number) =>
     useQuery({
-        queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS + surveysElementId],
+        queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS, surveysElementId],
         queryFn: async () =>
-            (await surveyElementApi.get<ExampleDto>(`/${surveysElementId}`))
-                .data,
+            (
+                await surveyElementApi.get<SurveysElementsResponse>(
+                    `/${surveysElementId}`,
+                )
+            ).data,
         enabled: !!surveysElementId,
     });
