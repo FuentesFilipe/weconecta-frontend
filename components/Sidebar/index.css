@@ -1,4 +1,4 @@
-/* Sidebar.module.scss */
+/* Sidebar Styles */
 
 .menuItemWrapper {
     .active {
@@ -10,17 +10,8 @@
 
 .custom-drawer {
     .MuiDrawer-paper {
-        /* Cor da gaveta */
         background: #fff;
     }
-}
-
-.weconecta-logo {
-    width: 13rem;
-    height: auto;
-    margin-top: 2rem;
-    margin-left: 16px;
-    margin-bottom: 1rem;
 }
 
 .sidebarWrapper {
@@ -33,105 +24,189 @@
     background-color: #343a40 !important;
 }
 
+/* Toolbar/Header */
 .toolbar {
-    border-color: #4b545c;
-    padding-right: 0 !important;
-    padding-left: 0 !important;
+    min-height: 80px !important;
+    height: 80px;
+    padding: 0 !important;
     width: 100%;
+    border-bottom: 1px solid #e0e0e0;
 }
 
-.toolbar .inner {
+.toolbar-inner {
     height: 100%;
     width: 100%;
-    padding: 0;
-    margin: 0;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
+    padding: 0 1rem;
+    gap: 1rem;
+    transition: all 0.3s ease-in-out;
+}
 
-    /* Hamburguer */
-    svg {
-        margin-top: 1rem;
-        color: #4c4c4c;
+.toolbar-inner.closed {
+    padding: 0;
+    justify-content: center;
+}
+
+.logo-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.weconecta-logo {
+    width: 11rem;
+    height: auto;
+    object-fit: contain;
+}
+
+.hamburguer-icon {
+    cursor: pointer;
+    color: #4c4c4c !important;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+    &:hover {
+        color: #0c8bfc !important;
     }
 }
 
-.toolbar.title {
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 28px;
-    margin-left: 24px;
-    flex: 1;
-}
-
-/* Toggle Button */
-.toggle-btn {
-    cursor: pointer;
-    flex: 1;
-}
-
+/* Menu Items */
 .menuItemWrapper {
-    padding: 0 0.5rem 0.1rem 0.5rem;
+    padding: 0.25rem 1rem;
     cursor: pointer;
+    transition: padding 0.3s ease-in-out;
+}
+
+.menuItemWrapper.closed {
+    padding: 0.25rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .menuItem {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
-    margin-bottom: 0.2rem;
-    padding: 0.8rem;
-    border-radius: 0.25rem;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
     color: #4c4c4c;
-    transition: background-color 0.2s ease;
-    &:hover {
-        background-color: #d3d3d3;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    
+    svg {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
     }
     
+    &:hover {
+        background-color: #f0f0f0;
+    }
+}
+
+.menuItem.closed {
+    padding: 0.75rem;
+    width: 56px;
+    height: 56px;
+    gap: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .menuItem.active {
     background-color: #ebecfc;
+    
+    &:hover {
+        background-color: #e1e3fc;
+    }
+}
+
+.menuIcon {
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .menuText {
-    font-size: 0.95rem;
+    font-size: 1rem;
     display: flex;
     align-items: center;
     color: #4c4c4c;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
 }
 
 .menuText.active {
     color: #0c8bfc;
+    font-weight: 500;
 }
 
+/* Footer/User Section */
 .weconecta-sidebar-footer {
-    padding: 1rem;
+    padding: 1.25rem 1rem;
     border-top: 1px solid #e0e0e0;
     display: flex;
     align-items: center;
+    justify-content: flex-start;
     background: #fff;
+    margin-top: auto;
+    transition: all 0.3s ease-in-out;
+    height: 95px;
+}
+
+.weconecta-sidebar-footer.closed {
+    padding: 1rem 0;
+    justify-content: center;
 }
 
 .weconecta-sidebar-user {
     display: flex;
     align-items: center;
-    gap: 0.8rem;
+    gap: 0.75rem;
+}
+
+.weconecta-sidebar-footer:not(.closed) .weconecta-sidebar-user {
+    width: 100%;
 }
 
 .weconecta-sidebar-user-avatar {
-    font-size: 2rem;
+    min-width: 24px;
     color: #4c4c4c;
+    flex-shrink: 0;
 }
 
 .weconecta-sidebar-user-info {
     display: flex;
     flex-direction: column;
+    gap: 0.125rem;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
 }
 
 .weconecta-sidebar-user-name {
     font-weight: 600;
     font-size: 0.95rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .weconecta-sidebar-user-email {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }

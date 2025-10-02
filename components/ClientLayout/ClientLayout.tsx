@@ -13,8 +13,8 @@ function PageName() {
     const { currentPage } = useRoute();
 
     return (
-        <div className="py-4 border-b border-gray-200 w-full px-4">
-            <h1 className="text-2xl font-semibold text-gray-800">{currentPage?.name || "Página"}</h1>
+        <div className="page-name-header">
+            <h1>{currentPage?.name || "Página"}</h1>
         </div>
     )
 }
@@ -52,8 +52,8 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
             <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
                 <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
             </aside>
-            <div className="w-full p-2 rounded-lg">
-                <main className="flex-1 bg-gray-50 flex flex-col items-start overflow-y-auto rounded-lg">
+            <div className="w-full">
+                <main className="layout-container-right">
                     {!currentPage?.topbarDisabled && <PageName />}
 
                     <div className="w-full ">
