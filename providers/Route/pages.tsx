@@ -30,6 +30,13 @@ export const PAGES: Page[] = [
         name: 'Login',
     },
     {
+        path: '/teste',
+        sidebarEnabled: false,
+        requireRoles: [],
+        requireAuth: false,
+        name: 'Página de Teste',
+    },
+    {
         path: '/questionarios',
         sidebarEnabled: true,
         requireRoles: [UserRole.ADMIN],
@@ -37,7 +44,7 @@ export const PAGES: Page[] = [
         name: 'Questionários',
         icon: <FileText className='sidebar-icon' />,
     },
-    
+
     {
         path: '/questionarios/canva',
         sidebarEnabled: true,
