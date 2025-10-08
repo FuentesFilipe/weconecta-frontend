@@ -4,7 +4,7 @@ import { Menu } from '@mui/icons-material';
 import { Box, Drawer, Toolbar } from '@mui/material';
 import './index.css';
 
-const Sidebar = ({
+const SidebarFilter = ({
     children,
     sidebarOpen,
     setSidebarOpen,
@@ -75,4 +75,4 @@ const FilterBox = ({
     );
 };
 
-export default Sidebar;
+export default SidebarFilter;

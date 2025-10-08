@@ -8,7 +8,12 @@ import { surveyElementApi } from '.';
 
 export const useGetAllSurveysElements = (payload: SurveysElementsPayload) =>
     useQuery({
-        queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+        queryKey: [
+            QUERY_KEYS.SURVEYS_ELEMENTS,
+            payload.description,
+            payload.type,
+            payload.surveyId,
+        ],
         queryFn: async () =>
             (
                 await surveyElementApi.get<SurveysElementsResponse[]>('', {

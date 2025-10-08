@@ -1,14 +1,17 @@
 'use client';
 
+import { Input } from '@/components/Input';
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Save, Undo2 } from 'lucide-react';
+import { TreePine, Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from 'react';
-import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Accordion } from '../../../components/Accordion';
 import CustomNode from './CustomNode';
+import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
+import './index.css';
 
 
 const nodeTypes = {
@@ -18,6 +21,23 @@ const nodeTypes = {
 export default function App() {
     const pathname = usePathname();
     const router = useRouter();
+    // Filter
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (typingTimeout.current) {
+            clearTimeout(typingTimeout.current);
+        }
+
+        typingTimeout.current = setTimeout(() => {
+            setSearchTerm(value);
+        }, 400);
+    };
+
+    const { data: surveysElements } = useGetAllSurveysElements({ description: searchTerm });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -29,15 +49,12 @@ export default function App() {
         label?: string;
     } | null>(null);
 
-
-
     const handleGoBack = () => {
         const segments = pathname.split("/").filter(Boolean); // split into parts
         segments.pop(); // remove the last part
         const newPath = "/" + segments.join("/");
         router.push(newPath || "/");
     };
-
 
     const saveToLocalStorage = (nodesData: any[], edgesData: any[]) => {
         try {
@@ -497,6 +514,31 @@ export default function App() {
     );
 
     return (
+        <div className="filter-container">
+            <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
+                <SidebarFilter sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                    <Input placeholder='Pesquisar por Elementos do Questionário' onChange={onInputChange} />
+                    <div className='options-list'>
+                        {surveysElements?.map((element) => (
+                            <Accordion
+                                key={element.id}
+                                description={element.description}
+                                expandable={element.options && element.options.length > 0}
+                            >
+                                {element.options && element.options.length > 0 ? (
+                                    <ul>
+                                        {element.options.map((option) => (
+                                            <li key={option.id}>{option.description}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    null
+                                )}
+                            </Accordion>
+                        ))}
+                    </div>
+                </SidebarFilter>
+            </aside>
         <div style={{ height: '100%', overflow: 'hidden' }}>
             {/* Botão de salvar */}
             <div style={{ height: '97vh' }}>
@@ -637,25 +679,27 @@ export default function App() {
                     <Background color="#FF894E" variant={BackgroundVariant.Dots} />
                 </ReactFlow>
 
-                <SurveysElementModal
-                    open={isModalOpen}
-                    onClose={handleCloseModal}
-                    onConfirm={handleModalConfirm}
-                    initialData={getSelectedNodeData()}
-                />
+                    <SurveysElementModal
+                        open={isModalOpen}
+                        onClose={handleCloseModal}
+                        onConfirm={handleModalConfirm}
+                        initialData={getSelectedNodeData()}
+                    />
 
-                <ConfirmDeleteModal
-                    open={isDeleteModalOpen}
-                    onClose={handleCloseDeleteModal}
-                    onConfirm={handleConfirmDelete}
-                    title={deleteItem?.type === 'node' ? 'Deletar Nó' : 'Deletar Conexão'}
-                    message={deleteItem?.type === 'node'
-                        ? `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`
-                        : 'Tem certeza que deseja deletar esta conexão?'
-                    }
-                    itemType={deleteItem?.type === 'node' ? 'nó' : 'conexão'}
-                />
+                    <ConfirmDeleteModal
+                        open={isDeleteModalOpen}
+                        onClose={handleCloseDeleteModal}
+                        onConfirm={handleConfirmDelete}
+                        title={deleteItem?.type === 'node' ? 'Deletar Nó' : 'Deletar Conexão'}
+                        message={deleteItem?.type === 'node'
+                            ? `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`
+                            : 'Tem certeza que deseja deletar esta conexão?'
+                        }
+                        itemType={deleteItem?.type === 'node' ? 'nó' : 'conexão'}
+                    />
+                </div>
             </div>
         </div>
-    );
+        </div>
+    )
 }

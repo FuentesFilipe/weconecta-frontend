@@ -1,0 +1,9 @@
+.custom-accordion {
+    span {
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+
+    li {
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+}
