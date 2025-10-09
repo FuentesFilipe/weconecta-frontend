@@ -1,17 +1,19 @@
 'use client';
 
-import { Button } from "@/components/Button";
+import React, { useState } from 'react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Search, Filter, Plus, Grid } from 'lucide-react';
 import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal";
 import { SurveysElementModal } from "@/components/Modal/SurveysElementModal";
-import { SearchBox } from "@/components/SearchBox";
-import { Topbar } from "@/components/Topbar";
 import { Loading } from "@/components/ui/loading";
 import { Questionario, useQuestionarios } from "@/hooks/useQuestionarios";
-import { Grid } from "@mui/material";
-import { useState } from "react";
 import { toast } from "react-toastify";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
-import './index.css';
+import styles from './page.module.css';
+import { SearchBox } from '@/components/SearchBox';
+import { Topbar } from '@/components/Topbar';
 
 type QuestionariosPageProps = {
     isLoading?: boolean;
@@ -96,21 +98,17 @@ export default function QuestionariosPage({
 
     if (isLoading) {
         return (
-            <div className="w-full flex flex-col p-4 questionarios-page">
+            <div className={styles.pageContainer}>
+                <h1 className="text-3xl font-bold">Questionários</h1>
+                
                 {/* Skeleton dos filtros */}
-                <div aria-label="filters">
-                    <Grid dir="row" container spacing={2}>
-                        <Grid size={{ xs: 10 }}>
-                            <div className="h-10 bg-gray-200 rounded-md animate-pulse"></div>
-                        </Grid>
-                        <Grid size={{ xs: 2 }}>
-                            <div className="h-10 bg-gray-200 rounded-md animate-pulse"></div>
-                        </Grid>
-                    </Grid>
+                <div className={styles.skeletonFilters}>
+                    <div className={styles.skeletonSearch}></div>
+                    <div className={styles.skeletonButton}></div>
                 </div>
 
                 {/* Spinner centralizado */}
-                <div className="flex-1 flex items-center justify-center min-h-[400px]">
+                <div className={styles.loadingContainer}>
                     <Loading />
                 </div>
             </div>
@@ -118,60 +116,76 @@ export default function QuestionariosPage({
     }
 
     return (
-        <div className="w-full flex flex-col p-4 questionarios-page">
-            <Topbar title="Questionários" />
-            <div aria-label="filters">
-                <Grid dir="row" container spacing={2}>
-                    <Grid size={{ xs: 10 }}>
-                        <div>
-                            <SearchBox />
-                        </div>
-                    </Grid>
-                    <Grid size={{ xs: 2 }}>
-                        <Button onClick={() => setIsModalOpen(true)}>
-                            <span>Novo questionário</span>
-                        </Button>
-                        {/* <Button onClick={() => setIsTestModalOpen(true)}>
-                            <span>TESTE MODAL DE QUESTIONARIO</span>
-                        </Button> */}
-                        <NovoQuestionarioModal
-                            open={isModalOpen}
-                            onClose={() => setIsModalOpen(false)}
-                            onSuccess={handleCreateQuestionario}
+        <div className={styles.pageContainer}>
+            
+            {/* Seção de busca e filtros */}
+            <div className={styles.searchSection}>
+                <div className={styles.searchContainer}>
+                    <label className={styles.searchLabel}>Busca</label>
+                    <div className={styles.searchInputContainer}>
+                        <Search className={styles.searchIcon} />
+                        <Input 
+                            placeholder="Procure por um questionário"
+                            className={styles.searchInput}
                         />
-                        <NovoQuestionarioModal
-                            open={isEditModalOpen}
-                            onClose={() => {
-                                setIsEditModalOpen(false);
-                                setEditingQuestionario(null);
-                            }}
-                            questionario={editingQuestionario}
-                            isEdit={true}
-                            onSuccess={handleUpdateQuestionario}
-                        />
-                        <SurveysElementModal
-                            open={isTestModalOpen}
-                            onClose={() => setIsTestModalOpen(false)} />
-                    </Grid>
-                </Grid>
-            </div>
-            <div aria-label="cards">
-                <div
-                    className="grid gap-4"
-                >
-                    {questionarios.map((survey) => (
-                        <SurveyCard
-                            key={survey.id}
-                            survey={survey}
-                            onEdit={handleEditQuestionario}
-                            onDelete={handleDeleteQuestionario}
-                            onDuplicate={handleDuplicateQuestionario}
-                            onCopyUrl={handleCopyUrl}
-                        />
-                    ))}
+                    </div>
                 </div>
+                
+                <div className={styles.filterContainer}>
+                    <label className={styles.filterLabel}>Filtrar</label>
+                    <Button variant="outline" className={styles.filterButton}>
+                        Adicionar Filtros
+                        <Filter className="ml-2 h-4 w-4" />
+                    </Button>
+                </div>
+                
+                <Button 
+                    className={styles.newQuestionarioButton}
+                    onClick={() => setIsModalOpen(true)}
+                >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Novo Questionário
+                </Button>
             </div>
+            
+            {/* Card de questionários */}
+            <Card className={styles.questionariosCard}>
+                <div className={styles.cardsContainer}>
+                    <div className={styles.cardsGrid}>
+                        {questionarios.map((survey) => (
+                            <SurveyCard
+                                key={survey.id}
+                                survey={survey}
+                                onEdit={handleEditQuestionario}
+                                onDelete={handleDeleteQuestionario}
+                                onDuplicate={handleDuplicateQuestionario}
+                                onCopyUrl={handleCopyUrl}
+                            />
+                        ))}
+                    </div>
+                </div>
+            </Card>
 
+            {/* Modais */}
+            <NovoQuestionarioModal
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={handleCreateQuestionario}
+            />
+            <NovoQuestionarioModal
+                open={isEditModalOpen}
+                onClose={() => {
+                    setIsEditModalOpen(false);
+                    setEditingQuestionario(null);
+                }}
+                questionario={editingQuestionario}
+                isEdit={true}
+                onSuccess={handleUpdateQuestionario}
+            />
+            <SurveysElementModal
+                open={isTestModalOpen}
+                onClose={() => setIsTestModalOpen(false)} 
+            />
         </div>
     );
 }

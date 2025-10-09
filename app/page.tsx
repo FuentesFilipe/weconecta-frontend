@@ -1,8 +1,8 @@
-import { HomePage } from "./Home";
+import MetricasContent from "./metricas/MetricasContent";
 
 export default function Home() {
     return (
-        <HomePage />
+        <MetricasContent />
     );
 }
 

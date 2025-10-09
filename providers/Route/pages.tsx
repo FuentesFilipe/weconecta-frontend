@@ -1,6 +1,6 @@
 import { UserRole } from '@/dtos/UserDto';
 import { HomeFilled } from '@mui/icons-material';
-import { FileText, Palette, Plus } from 'lucide-react';
+import { FileText, Palette, Plus, BarChart, Users } from 'lucide-react';
 import { JSX } from 'react';
 
 export type Page = {
@@ -19,8 +19,16 @@ export const PAGES: Page[] = [
         sidebarEnabled: true,
         requireRoles: [UserRole.ADMIN],
         requireAuth: true,
-        name: 'Início',
+        name: 'Dashboard',
         icon: <HomeFilled className='sidebar-icon' />,
+    },
+    {
+        path: '/metricas',
+        sidebarEnabled: false,
+        requireRoles: [UserRole.ADMIN],
+        requireAuth: true,
+        name: 'Métricas',
+        icon: <BarChart className='sidebar-icon' />,
     },
     {
         path: '/login',
@@ -44,7 +52,6 @@ export const PAGES: Page[] = [
         name: 'Questionários',
         icon: <FileText className='sidebar-icon' />,
     },
-
     {
         path: '/questionarios/canva',
         sidebarEnabled: true,
@@ -53,13 +60,13 @@ export const PAGES: Page[] = [
         name: 'Canva',
         icon: <Palette className='sidebar-icon' />,
     },
+ 
     {
-        path: '/questionarios/criacao',
+        path: '/membros',
         sidebarEnabled: true,
         requireRoles: [UserRole.ADMIN],
-        requireAuth: false,
-        name: 'Novo Questionário',
-        icon: <Plus className='sidebar-icon' />,
-        topbarDisabled: true,
+        requireAuth: true,
+        name: 'Membros',
+        icon: <Users className='sidebar-icon' />,
     },
 ];

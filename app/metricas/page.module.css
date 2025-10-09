@@ -1,0 +1,397 @@
+.metricsContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.summaryCard {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  background-color: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.summaryIcon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-right: 1rem;
+}
+
+.summaryValue {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.summaryLabel {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.topQuestionariosContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.topQuestionariosHeader {
+  display: grid;
+  grid-template-columns: 60px 1fr 2fr 100px;
+  gap: 1rem;
+  color: #6b7280;
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.topQuestionarioItem {
+  display: grid;
+  grid-template-columns: 60px 1fr 2fr 100px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.topQuestionarioIndex {
+  color: #ff7300;
+  font-weight: bold;
+  font-size: 1.125rem;
+}
+
+.topQuestionarioName {
+  color: #ff7300;
+  font-size: 0.875rem;
+}
+
+.progressBarContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background-color: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressBarFill {
+  height: 100%;
+  background-color: #ff7300;
+}
+
+.topQuestionarioPercentage {
+  color: #ff7300;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: 1px solid #ff7300;
+  border-radius: 4px;
+  padding: 0.25rem 0.75rem;
+  text-align: center;
+  min-width: 60px;
+}
+
+.radialProgressContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.radialProgress {
+  width: 150px;
+  height: 150px;
+}
+
+.radialProgressBackground {
+  fill: none;
+  stroke: #e5e7eb;
+  stroke-width: 15;
+}
+
+.radialProgressForeground {
+  fill: none;
+  stroke: #ff7300;
+  stroke-width: 15;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.radialProgressText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 2rem;
+  font-weight: bold;
+  color: #ff7300;
+}
+
+.respondidosInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.respondidosValue {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #ff7300;
+}
+
+.respondidosLabel {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.respondidosDescription {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.chartContainer {
+  width: 100%;
+  height: 300px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.lineChartContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.lineChartSvg {
+  width: 100%;
+  height: 250px;
+}
+
+.lineChartAxisLabel {
+  font-size: 0.75rem;
+  fill: #ff7300;
+}
+
+.barChartContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1rem;
+}
+
+.barChartBars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  height: 220px;
+  gap: 1rem;
+  padding: 0 1rem;
+}
+
+.barChartBar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  max-width: 50px;
+  height: 100%;
+  justify-content: flex-end;
+}
+
+.barChartBarStack {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.barChartBarSegment {
+  width: 100%;
+  transition: height 0.3s ease;
+}
+
+.barChartBarSegment.respondidos {
+  background-color: #ff7300;
+  border-radius: 0 0 0 0;
+  order: 2;
+}
+
+.barChartBarSegment.enviados {
+  background-color: #d1d5db;
+  border-radius: 4px 4px 0 0;
+  order: 1;
+}
+
+.barChartLegend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.barChartLegendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #000000;
+}
+
+.barChartLegendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.barChartLegendDot.respondidos {
+  background-color: #ff7300;
+}
+
+.barChartLegendDot.enviados {
+  background-color: #d1d5db;
+}
+
+.areaChartContainer {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+}
+
+.areaChartSvg {
+  width: 100%;
+  height: 200px;
+}
+
+.areaChartLegend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.areaChartLegendItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.areaChartLegendLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.areaChartLegendDot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.areaChartLegendDot.ultimoMes {
+  background-color: #ff7300;
+}
+
+.areaChartLegendDot.esseMes {
+  background-color: #1e3a8a;
+}
+
+.areaChartLegendValue {
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.areaChartLegendValue.ultimoMes {
+  color: #ff7300;
+}
+
+.areaChartLegendValue.esseMes {
+  color: #1e3a8a;
+}
+
+.questionariosSummaryCard {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  padding: 0;
+}
+
+.summaryItem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+  padding: 1.5rem 1rem;
+  background-color: #f3f4f6;
+  border-radius: 8px;
+}
+
+.summaryItemIcon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.summaryItemContent {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  width: 100%;
+}
+
+.summaryItemValue {
+  font-size: 2rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.summaryItemLabel {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+.summaryItemTrend {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.summaryItemTrend.positive {
+  color: #10b981;
+}
+
+.summaryItemTrend.negative {
+  color: #ef4444;
+}
+
+@media (max-width: 768px) {
+  .metricsContainer {
+    grid-template-columns: 1fr;
+  }
+  .questionariosSummaryCard {
+    grid-template-columns: 1fr;
+  }
+}
