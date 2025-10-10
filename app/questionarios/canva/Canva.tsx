@@ -1,11 +1,13 @@
 'use client';
 
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
-import { NovaMensagemModal } from '@/components/Modal/NovaMensagemModal';
+import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { AlignJustify, Save, Undo2, } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import CustomNode from './CustomNode';
+
 
 const nodeTypes = {
     customNode: CustomNode,
@@ -481,113 +483,165 @@ export default function App() {
     );
 
     return (
-        <div style={{ height: '100vh' }}>
+        <div style={{ height: '100%', overflow: 'hidden' }}>
             {/* Botão de salvar */}
-            <button
-                style={{
+            <div style={{ height: '97vh' }}>
+                <div style={{
                     position: 'absolute',
-                    top: '20px',
-                    right: '20px',
-                zIndex: 1000,
-                    backgroundColor: '#C1C1C1',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '12px 16px',
-                    cursor: 'pointer',
-                display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s ease-in-out'
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#C1C1C1';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#C1C1C1';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                }}
-            >
-                Salvar
-                </button>
-            
-            {/* Botão de voltar ao questionario */}
-            <button
-                style={{
-                position: 'absolute', 
-                    top: '20px',
-                    left: '100px',
-                zIndex: 1000,
-                    backgroundColor: '#C1C1C1',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '8px',
-                    padding: '12px 16px',
-                    cursor: 'pointer',
+                    zIndex: 1000,
+                    justifyContent: 'space-between',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: '14px',
-                    fontWeight: '500',
-                    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                    transition: 'all 0.2s ease-in-out'
-                }}
-                onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = '#C1C1C1';
-                    e.currentTarget.style.transform = 'translateY(-1px)';
-                    e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                }}
-                onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = '#C1C1C1';
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                }}
-            >
-                Voltar
-                </button>
-                
-            <ReactFlow
-                nodes={nodes}
-                edges={edges}
-                nodeTypes={nodeTypes}
-                onNodesChange={onNodesChange}
-                onEdgesChange={onEdgesChange}
-                onConnect={onConnect}
-                onEdgeDoubleClick={onEdgeDoubleClick}
-                onPaneClick={(event) => {
-                    if (event.detail === 2) {
-                        handleCanvasDoubleClick(event);
+                    flexDirection: 'row-reverse',
+                    flex: 1,
+                    padding: '20px',
+                    paddingRight: '30px',
+                    width: '-webkit-fill-available',
+                }}>
+                    <button
+                        style={{
+                            zIndex: 1000,
+                            backgroundColor: '#C1C1C1',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '12px 16px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            transition: 'all 0.2s ease-in-out'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#C1C1C1';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                            e.currentTarget.style.backgroundColor = '#FF894E';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#C1C1C1';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                        }}
+                    >
+                        < Save className='w=4 h=4' />
+                        Salvar
+                    </button>
+
+                    {/* Botão de voltar ao questionario */}
+                    <button
+                        style={{
+                            backgroundColor: '#C1C1C1',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '8px',
+                            padding: '12px 16px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '14px',
+                            fontWeight: '500',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                            transition: 'all 0.2s ease-in-out'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#C1C1C1';
+                            e.currentTarget.style.transform = 'translateY(-1px)';
+                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                            e.currentTarget.style.backgroundColor = '#FF894E';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#C1C1C1';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                        }}
+                    >
+                        < Undo2 className='w=4 h=4' />
+                        Voltar
+                    </button>
+
+                </div>
+
+                <div
+                    style={{
+                        position: 'absolute',
+                        bottom: '20px',
+                        right: '20px',
+                        zIndex: 1000
+                    }}
+                >
+                    <button
+                        style={{
+                            backgroundColor: '#FF894E',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '50%',
+                            width: '50px',
+                            height: '50px',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)',
+                            transition: 'background-color 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.backgroundColor = '#C1C1C1';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.backgroundColor = '#C1C1C1';
+                            e.currentTarget.style.transform = 'translateY(0)';
+                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                        }}
+                    >
+                        < AlignJustify className='w=4 h=4' />
+                    </button>
+
+                </div>
+
+
+                <ReactFlow
+                    nodes={nodes}
+                    edges={edges}
+                    nodeTypes={nodeTypes}
+                    onNodesChange={onNodesChange}
+                    onEdgesChange={onEdgesChange}
+                    onConnect={onConnect}
+                    onEdgeDoubleClick={onEdgeDoubleClick}
+                    onPaneClick={(event) => {
+                        if (event.detail === 2) {
+                            handleCanvasDoubleClick(event);
+                        }
+                    }}
+                    fitView
+                >
+                    <Background color="#FF894E" variant={BackgroundVariant.Dots} />
+                </ReactFlow>
+
+                <SurveysElementModal
+                    open={isModalOpen}
+                    onClose={handleCloseModal}
+                    onConfirm={handleModalConfirm}
+                    initialData={getSelectedNodeData()}
+                />
+
+                <ConfirmDeleteModal
+                    open={isDeleteModalOpen}
+                    onClose={handleCloseDeleteModal}
+                    onConfirm={handleConfirmDelete}
+                    title={deleteItem?.type === 'node' ? 'Deletar Nó' : 'Deletar Conexão'}
+                    message={deleteItem?.type === 'node'
+                        ? `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`
+                        : 'Tem certeza que deseja deletar esta conexão?'
                     }
-                }}
-                fitView
-            >
-                <Background color="#FF894E" variant={BackgroundVariant.Dots} />
-            </ReactFlow>
-
-            <SurveysElementModal
-                open={isModalOpen}
-                onClose={handleCloseModal}
-                onConfirm={handleModalConfirm}
-                initialData={getSelectedNodeData()}
-            />
-
-            <ConfirmDeleteModal
-                open={isDeleteModalOpen}
-                onClose={handleCloseDeleteModal}
-                onConfirm={handleConfirmDelete}
-                title={deleteItem?.type === 'node' ? 'Deletar Nó' : 'Deletar Conexão'}
-                message={deleteItem?.type === 'node'
-                    ? `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`
-                    : 'Tem certeza que deseja deletar esta conexão?'
-                }
-                itemType={deleteItem?.type === 'node' ? 'nó' : 'conexão'}
-            />
+                    itemType={deleteItem?.type === 'node' ? 'nó' : 'conexão'}
+                />
+            </div>
         </div>
     );
 }

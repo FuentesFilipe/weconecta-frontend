@@ -1,6 +1,6 @@
 import { UserRole } from '@/dtos/UserDto';
 import { HomeFilled } from '@mui/icons-material';
-import { FileText, Palette, Plus, BarChart, Users } from 'lucide-react';
+import { BarChart, FileText, Palette, Users } from 'lucide-react';
 import { JSX } from 'react';
 
 export type Page = {
@@ -55,12 +55,13 @@ export const PAGES: Page[] = [
     {
         path: '/questionarios/canva',
         sidebarEnabled: true,
+        topbarDisabled: true,
         requireRoles: [UserRole.ADMIN],
         requireAuth: false,
         name: 'Canva',
         icon: <Palette className='sidebar-icon' />,
     },
- 
+
     {
         path: '/membros',
         sidebarEnabled: true,
