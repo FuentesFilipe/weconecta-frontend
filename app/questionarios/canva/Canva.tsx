@@ -7,6 +7,7 @@ import '@xyflow/react/dist/style.css';
 import { AlignJustify, Save, Undo2, } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import CustomNode from './CustomNode';
+import SpeedDialTooltipOpen from './speeddialtest';
 
 
 const nodeTypes = {
@@ -568,19 +569,20 @@ export default function App() {
                 <div
                     style={{
                         position: 'absolute',
-                        bottom: '20px',
-                        right: '20px',
+                        bottom: '30px',
+                        right: '30px',
                         zIndex: 1000
                     }}
                 >
-                    <button
+                    <SpeedDialTooltipOpen />
+                    {/* <button
                         style={{
                             backgroundColor: '#FF894E',
                             color: 'white',
                             border: 'none',
                             borderRadius: '50%',
-                            width: '50px',
-                            height: '50px',
+                            width: '60px',
+                            height: '60px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
@@ -589,18 +591,16 @@ export default function App() {
                             transition: 'background-color 0.3s ease'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
                             e.currentTarget.style.transform = 'translateY(0)';
                             e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
                             e.currentTarget.style.transform = 'translateY(0)';
                             e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                         }}
                     >
                         < AlignJustify className='w=4 h=4' />
-                    </button>
+                    </button> */}
 
                 </div>
 
