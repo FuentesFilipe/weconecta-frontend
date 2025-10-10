@@ -1,19 +1,17 @@
-import * as React from 'react';
-import Box from '@mui/material/Box';
-import Backdrop from '@mui/material/Backdrop';
-import SpeedDial from '@mui/material/SpeedDial';
-import SpeedDialIcon from '@mui/material/SpeedDialIcon';
-import SpeedDialAction from '@mui/material/SpeedDialAction';
-import FileCopyIcon from '@mui/icons-material/FileCopyOutlined';
 import SaveIcon from '@mui/icons-material/Save';
-import PrintIcon from '@mui/icons-material/Print';
-import ShareIcon from '@mui/icons-material/Share';
+import Backdrop from '@mui/material/Backdrop';
+import Box from '@mui/material/Box';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+import { AlignCenterVertical, Plus } from 'lucide-react';
+import * as React from 'react';
+import './speeddial.css';
 
 const actions = [
-  { icon: <FileCopyIcon />, name: 'Copy' },
-  { icon: <SaveIcon />, name: 'Save' },
-  { icon: <PrintIcon />, name: 'Print' },
-  { icon: <ShareIcon />, name: 'Share' },
+  { icon: <Plus />, name: 'Nova Mensagem' },
+  { icon: <SaveIcon />, name: 'Salvar' },
+  { icon: <AlignCenterVertical />, name: 'Organizar' }
 ];
 
 export default function SpeedDialTooltipOpen() {
@@ -23,7 +21,7 @@ export default function SpeedDialTooltipOpen() {
 
   return (
     <Box style={{
-        zIndex: 1000,
+      zIndex: 1000,
     }}>
       <Backdrop open={open} />
       <SpeedDial
@@ -33,6 +31,7 @@ export default function SpeedDialTooltipOpen() {
         onClose={handleClose}
         onOpen={handleOpen}
         open={open}
+        className="custom-speed-dial"
       >
         {actions.map((action) => (
           <SpeedDialAction

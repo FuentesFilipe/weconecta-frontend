@@ -1,0 +1,22 @@
+.MuiSpeedDial-fab {
+    background-color: #FF894E;
+    color: white;
+}
+
+.MuiSpeedDial-fab:hover {
+    background-color: #FF894E;
+}
+
+.MuiSpeedDialAction-fab {
+    background-color: #FF894E;
+    color: white;
+}
+
+.MuiSpeedDialAction-staticTooltipLabel {
+    background-color: #ffffff;
+    color: black;
+}
+
+.custom-speed-dial .MuiSpeedDialAction-staticTooltipLabel {
+    color: black;
+}

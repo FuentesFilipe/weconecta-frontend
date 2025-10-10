@@ -7,7 +7,7 @@ import '@xyflow/react/dist/style.css';
 import { AlignJustify, Save, Undo2, } from 'lucide-react';
 import { useCallback, useEffect, useState } from 'react';
 import CustomNode from './CustomNode';
-import SpeedDialTooltipOpen from './speeddialtest';
+import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
 
 
 const nodeTypes = {
