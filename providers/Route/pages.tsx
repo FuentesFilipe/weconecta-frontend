@@ -54,7 +54,7 @@ export const PAGES: Page[] = [
     },
     {
         path: '/questionarios/canva',
-        sidebarEnabled: true,
+        sidebarEnabled: false,
         topbarDisabled: true,
         requireRoles: [UserRole.ADMIN],
         requireAuth: false,

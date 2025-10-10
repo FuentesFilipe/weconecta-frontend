@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Filter, Plus, Grid } from 'lucide-react';
+import { Search, Filter, Plus } from 'lucide-react';
 import { NovoQuestionarioModal } from "@/components/Modal/NovoQuestionarioModal";
 import { SurveysElementModal } from "@/components/Modal/SurveysElementModal";
 import { Loading } from "@/components/ui/loading";
@@ -12,8 +12,7 @@ import { Questionario, useQuestionarios } from "@/hooks/useQuestionarios";
 import { toast } from "react-toastify";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
 import styles from './page.module.css';
-import { SearchBox } from '@/components/SearchBox';
-import { Topbar } from '@/components/Topbar';
+import { useRouter } from 'next/navigation';
 
 type QuestionariosPageProps = {
     isLoading?: boolean;
@@ -37,9 +36,11 @@ export default function QuestionariosPage({
         copyUrl
     } = useQuestionarios();
 
+    const router = useRouter();
+
     const isLoading = externalIsLoading || questionariosLoading;
 
-    // Handlers para as operações CRUD
+    // Handlers CRUD
     const handleCreateQuestionario = async (data: { title: string; description: string }) => {
         try {
             createQuestionario({
@@ -49,7 +50,7 @@ export default function QuestionariosPage({
             });
             toast.success('Questionário criado com sucesso!');
             setIsModalOpen(false);
-        } catch (error) {
+        } catch {
             toast.error('Erro ao criar questionário');
         }
     };
@@ -70,7 +71,7 @@ export default function QuestionariosPage({
             toast.success('Questionário atualizado com sucesso!');
             setIsEditModalOpen(false);
             setEditingQuestionario(null);
-        } catch (error) {
+        } catch {
             toast.error('Erro ao atualizar questionário');
         }
     };
@@ -79,7 +80,7 @@ export default function QuestionariosPage({
         try {
             deleteQuestionario(id);
             toast.success('Questionário deletado com sucesso!');
-        } catch (error) {
+        } catch {
             toast.error('Erro ao deletar questionário');
         }
     };
@@ -87,7 +88,7 @@ export default function QuestionariosPage({
     const handleDuplicateQuestionario = (id: number) => {
         try {
             duplicateQuestionario(id);
-        } catch (error) {
+        } catch {
             toast.error('Erro ao duplicar questionário');
         }
     };
@@ -96,18 +97,14 @@ export default function QuestionariosPage({
         copyUrl(url);
     };
 
+    const handleRedirectToCanva = (survey: Questionario) => {
+        router.push(`/questionarios/canva?id=${survey.id}`);
+    };
+
     if (isLoading) {
         return (
             <div className={styles.pageContainer}>
                 <h1 className="text-3xl font-bold">Questionários</h1>
-                
-                {/* Skeleton dos filtros */}
-                <div className={styles.skeletonFilters}>
-                    <div className={styles.skeletonSearch}></div>
-                    <div className={styles.skeletonButton}></div>
-                </div>
-
-                {/* Spinner centralizado */}
                 <div className={styles.loadingContainer}>
                     <Loading />
                 </div>
@@ -117,20 +114,15 @@ export default function QuestionariosPage({
 
     return (
         <div className={styles.pageContainer}>
-            
-            {/* Seção de busca e filtros */}
             <div className={styles.searchSection}>
                 <div className={styles.searchContainer}>
                     <label className={styles.searchLabel}>Busca</label>
                     <div className={styles.searchInputContainer}>
                         <Search className={styles.searchIcon} />
-                        <Input 
-                            placeholder="Procure por um questionário"
-                            className={styles.searchInput}
-                        />
+                        <Input placeholder="Procure por um questionário" className={styles.searchInput} />
                     </div>
                 </div>
-                
+
                 <div className={styles.filterContainer}>
                     <label className={styles.filterLabel}>Filtrar</label>
                     <Button variant="outline" className={styles.filterButton}>
@@ -138,31 +130,27 @@ export default function QuestionariosPage({
                         <Filter className="ml-2 h-4 w-4" />
                     </Button>
                 </div>
-                
-                <Button 
-                    className={styles.newQuestionarioButton}
-                    onClick={() => setIsModalOpen(true)}
-                >
+
+                <Button className={styles.newQuestionarioButton} onClick={() => setIsModalOpen(true)}>
                     <Plus className="mr-2 h-4 w-4" />
                     Novo Questionário
                 </Button>
             </div>
-            
-            {/* Card de questionários */}
+
             <Card className={styles.questionariosCard}>
-                <div className={styles.cardsContainer}>
-                    <div className={styles.cardsGrid}>
-                        {questionarios.map((survey) => (
-                            <SurveyCard
-                                key={survey.id}
-                                survey={survey}
-                                onEdit={handleEditQuestionario}
-                                onDelete={handleDeleteQuestionario}
-                                onDuplicate={handleDuplicateQuestionario}
-                                onCopyUrl={handleCopyUrl}
-                            />
-                        ))}
-                    </div>
+                <div className={styles.cardsGrid}>
+                    {questionarios.map((survey) => (
+                        <SurveyCard
+                            key={survey.id}
+                            survey={survey}
+                            className={styles.surveyCard}
+                            onEdit={handleEditQuestionario}
+                            onDelete={handleDeleteQuestionario}
+                            onDuplicate={handleDuplicateQuestionario}
+                            onCopyUrl={handleCopyUrl}
+                            onClick={handleRedirectToCanva}
+                        />
+                    ))}
                 </div>
             </Card>
 
@@ -179,13 +167,10 @@ export default function QuestionariosPage({
                     setEditingQuestionario(null);
                 }}
                 questionario={editingQuestionario}
-                isEdit={true}
+                isEdit
                 onSuccess={handleUpdateQuestionario}
             />
-            <SurveysElementModal
-                open={isTestModalOpen}
-                onClose={() => setIsTestModalOpen(false)} 
-            />
+            <SurveysElementModal open={isTestModalOpen} onClose={() => setIsTestModalOpen(false)} />
         </div>
     );
 }
