@@ -147,14 +147,67 @@
   background: #B91C1C;
 }
 
+/* Botão de editar */
+.edit-button {
+  position: absolute;
+  top: -8px;
+  left: -8px;
+  width: 24px;
+  height: 24px;
+  border: none;
+  border-radius: 50%;
+  background: #EF4444;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  pointer-events: auto;
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.edit-button svg {
+  width: 12px;
+  height: 12px;
+  pointer-events: none;
+}
+
+.edit-button:hover {
+  background: #DC2626;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.edit-button:active {
+  transform: scale(0.95);
+  background: #B91C1C;
+}
+
 /* Mostrar botão de deletar no hover do nó */
 .custom-node:hover .delete-button {
   opacity: 1;
   transform: scale(1);
 }
 
+/* Mostrar botão de editar no hover do nó */
+.custom-node:hover .edit-button {
+  opacity: 1;
+  transform: scale(1);
+}
+
 /* Efeito hover no botão de deletar */
 .delete-button:hover {
+  opacity: 1 !important;
+  transform: scale(1.1) !important;
+  background: #DC2626 !important;
+}
+
+/* Efeito hover no botão de deletar */
+.edit-button:hover {
   opacity: 1 !important;
   transform: scale(1.1) !important;
   background: #DC2626 !important;
@@ -167,11 +220,11 @@
     min-height: 60px;
     padding: 8px;
   }
-  
+
   .node-main-label {
     font-size: 12px;
   }
-  
+
   .node-type-label {
     font-size: 9px;
   }
@@ -184,6 +237,18 @@
   }
 
   .delete-button svg {
+    width: 10px;
+    height: 10px;
+  }
+
+  .edit-button {
+    width: 20px;
+    height: 20px;
+    top: -6px;
+    left: -6px;
+  }
+
+  .edit-button svg {
     width: 10px;
     height: 10px;
   }

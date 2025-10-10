@@ -32,6 +32,7 @@ export default function SpeedDialTooltipOpen() {
         onOpen={handleOpen}
         open={open}
         className="custom-speed-dial"
+
       >
         {actions.map((action) => (
           <SpeedDialAction
