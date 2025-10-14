@@ -11,6 +11,7 @@ import {
     SelectionMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+<<<<<<< HEAD
 import { useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useMemo } from 'react';
 import CanvasSidebar from '../../../components/CanvasComponents/CanvasSidebar';
@@ -25,6 +26,17 @@ import { queryClient } from '../../../services/query-client';
 import { ensureNodeFunctions } from '../../../utils/canvasUtils';
 import QUERY_KEYS from '../../../utils/contants/queries';
 import './index.css';
+=======
+import { Save, Undo2 } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
+import type { CanvasEdge, CanvasNode } from './CanvaAdapter';
+import { toCanvasModel } from './CanvaAdapter';
+import CustomNode from './CustomNode';
+import { getSurveyGraph } from './Service';
+
+>>>>>>> e448d88 (carregar questionario a partir de um json)
 
 const nodeTypes = {
     customNode: CustomNode,
@@ -38,6 +50,7 @@ export default function Canva() {
     );
 }
 
+<<<<<<< HEAD
 function CanvasContent() {
     const searchParams = useSearchParams();
     const surveyId = parseInt(searchParams.get('id') as string, 10);
@@ -53,6 +66,34 @@ function CanvasContent() {
     const selectedNodeOptions = useMemo(() => {
         if (!selectedNode) {
             return [];
+=======
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [deleteItem, setDeleteItem] = useState<{
+        type: 'node' | 'edge';
+        id: string;
+        label?: string;
+    } | null>(null);
+
+
+
+    const handleGoBack = () => {
+        const segments = pathname.split('/').filter(Boolean); // split into parts
+        segments.pop(); // remove the last part
+        const newPath = '/' + segments.join('/');
+        router.push(newPath || '/');
+    };
+
+
+    const saveToLocalStorage = (nodesData: any[], edgesData: any[]) => {
+        try {
+            localStorage.setItem('weconnecta-canva-nodes', JSON.stringify(nodesData));
+            localStorage.setItem('weconnecta-canva-edges', JSON.stringify(edgesData));
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+>>>>>>> e448d88 (carregar questionario a partir de um json)
         }
 
         const childEdges = canvasOperations.edges.filter(
@@ -136,6 +177,68 @@ function CanvasContent() {
     const { data: survey, isLoading: isSurveyLoading } = useGetSurveysById(surveyId);
 >>>>>>> 791444e (Formataçao + Adiciona botao para limpar armazenamento local)
 
+<<<<<<< HEAD
+=======
+
+        const newNodeId = `node-${Date.now()}`;
+        const newNode = {
+            id: newNodeId,
+            type: 'customNode',
+            position: { x: x - 75, y: y - 40 },
+            data: {
+                label: 'Novo nó',
+                type: 'mensagem' as const,
+                maxEdges: 2,
+                onClick: () => console.log('Clique no novo nó'),
+                onDoubleClick: () => handleNodeDoubleClick(newNodeId),
+                onDelete: () => handleNodeDelete(newNodeId)
+            }
+        };
+
+        const newNodes = [...nodes, newNode];
+        setNodes(newNodes);
+        saveToLocalStorage(newNodes, edges);
+
+
+        setSelectedNodeId(newNodeId);
+        setIsEditMode(false);
+        setIsModalOpen(true);
+    };
+
+
+    const getSelectedNodeData = () => {
+        if (!selectedNodeId) return null;
+        const node = nodes.find((n: any) => n.id === selectedNodeId);
+        return node ? {
+            label: node.data.label,
+            type: node.data.type,
+            maxEdges: node.data.maxEdges
+        } : null;
+    };
+
+
+
+    const handleEdgeDoubleClick = (edgeId: string) => {
+        const edge = edges.find((e: any) => e.id === edgeId);
+        if (edge) {
+            setDeleteItem({
+                type: 'edge',
+                id: edgeId,
+                label: 'Conexão entre nós'
+            });
+            setIsDeleteModalOpen(true);
+        }
+    };
+
+
+    const savedData = loadFromLocalStorage();
+    //const [nodes, setNodes] = useState(savedData?.nodes || []);
+    //const [edges, setEdges] = useState(savedData?.edges || []);
+    const [nodes, setNodes] = useState<CanvasNode[]>(savedData?.nodes as CanvasNode[] || []);
+    const [edges, setEdges] = useState<CanvasEdge[]>(savedData?.edges as CanvasEdge[] || []);
+
+    // Atualizar funções onDelete dos nodes carregados do localStorage
+>>>>>>> e448d88 (carregar questionario a partir de um json)
     useEffect(() => {
         if (survey) {
             const savedFlow = canvasOperations.loadFromLocalStorage();
@@ -169,9 +272,156 @@ function CanvasContent() {
         saveFlow();
     }, [saveFlow]);
 
+<<<<<<< HEAD
     // Função para confirmar deleção
     const handleConfirmDelete = useCallback(() => {
         if (!canvasState.deleteItem) {
+=======
+
+    useEffect (() => {
+        async function bootFromPayloadIfEmpty() {
+            if (nodes.length || edges.length) return;
+
+            const payload = await getSurveyGraph(1);
+            const graph = toCanvasModel(payload);
+
+            const nodesWithHandlers = graph.nodes.map((n: any) => ({
+                ...n,
+                data: {
+                    ...n.data,
+                    onDoubleClick: () => handleNodeDoubleClick(n.id),
+                    onDelete: () => handleNodeDelete(n.id)
+                }
+            }));
+
+            setNodes(nodesWithHandlers);
+            setEdges(graph.edges);
+            saveToLocalStorage(nodesWithHandlers, graph.edges);
+        }
+        void bootFromPayloadIfEmpty();
+    }, []);
+
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedNodeId(null);
+        setIsEditMode(false);
+    };
+
+
+    const handleModalConfirm = (modalData: {
+        titulo: string;
+        tipo: string;
+        alternativas: string[];
+    }) => {
+        if (!selectedNodeId) return;
+
+        const selectedNode = nodes.find((node: any) => node.id === selectedNodeId);
+        if (!selectedNode) return;
+
+
+        const nodeType: 'mensagem' | 'alternativa' | 'input' | 'fim' = 'mensagem';
+
+
+        const updatedNodes = nodes.map((node: any) => {
+            if (node.id === selectedNodeId) {
+                return {
+                    ...node,
+                    data: {
+                        ...node.data,
+                        label: modalData.titulo,
+                        type: nodeType,
+                        maxEdges: modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa'
+                            ? modalData.alternativas.length
+                            : (modalData.tipo === 'Input' ? 1 : node.data.maxEdges)
+                    }
+                };
+            }
+            return node;
+        });
+
+
+        if (modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa') {
+            const newNodes = modalData.alternativas
+                .filter(alt => alt.trim() !== '')
+                .map((alternativa, index) => ({
+                    id: `${selectedNodeId}-alt-${index}`,
+                    type: 'customNode',
+                    position: {
+                        x: selectedNode.position.x + (index * 200),
+                        y: selectedNode.position.y + 150
+                    },
+                    data: {
+                        label: alternativa,
+                        type: 'alternativa' as const,
+                        maxEdges: 1,
+                        onClick: () => console.log('Clique na alternativa:', alternativa),
+                        onDoubleClick: () => handleNodeDoubleClick(`${selectedNodeId}-alt-${index}`),
+                        onDelete: () => handleNodeDelete(`${selectedNodeId}-alt-${index}`)
+                    }
+                }));
+
+
+            const newEdges = newNodes.map((node: any, index: number) => ({
+                id: `${selectedNodeId}-to-${node.id}`,
+                source: selectedNodeId,
+                target: node.id
+            }));
+
+            const newNodesAndEdges = [...updatedNodes, ...newNodes];
+            const newEdgesList = [...edges, ...newEdges];
+
+            setNodes(newNodesAndEdges);
+            setEdges(newEdgesList);
+
+
+            saveToLocalStorage(newNodesAndEdges, newEdgesList);
+        } else if (modalData.tipo === 'Input') {
+
+            const inputNode = {
+                id: `${selectedNodeId}-input`,
+                type: 'customNode',
+                position: {
+                    x: selectedNode.position.x,
+                    y: selectedNode.position.y + 150
+                },
+                data: {
+                    label: 'Campo de entrada',
+                    type: 'input' as const,
+                    maxEdges: 1,
+                    onClick: () => console.log('Clique no input'),
+                    onDoubleClick: () => handleNodeDoubleClick(`${selectedNodeId}-input`),
+                    onDelete: () => handleNodeDelete(`${selectedNodeId}-input`)
+                }
+            };
+
+            const inputEdge = {
+                id: `${selectedNodeId}-to-input`,
+                source: selectedNodeId,
+                target: `${selectedNodeId}-input`
+            };
+
+            const newNodesAndEdges = [...updatedNodes, inputNode];
+            const newEdgesList = [...edges, inputEdge];
+
+            setNodes(newNodesAndEdges);
+            setEdges(newEdgesList);
+
+
+            saveToLocalStorage(newNodesAndEdges, newEdgesList);
+        } else {
+            setNodes(updatedNodes);
+
+            saveToLocalStorage(updatedNodes, edges);
+        }
+
+        handleCloseModal();
+    };
+
+
+    const handleConfirmDelete = () => {
+        if (!deleteItem) {
+>>>>>>> e448d88 (carregar questionario a partir de um json)
             console.error('❌ Nenhum item para deletar!');
             return;
         }
