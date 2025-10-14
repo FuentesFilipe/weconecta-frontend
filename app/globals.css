@@ -124,9 +124,15 @@
     * {
         @apply border-border outline-ring/50;
     }
+
     body {
         @apply bg-background text-foreground;
     }
+}
+
+html,
+body {
+    min-height: 100vh;
 }
 
 /* Estilos padrões para o projeto */

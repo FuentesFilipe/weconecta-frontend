@@ -1,8 +1,8 @@
 'use client';
 
 import { Handle, Position } from '@xyflow/react';
+import { SquarePen, Trash2 } from 'lucide-react';
 import { memo } from 'react';
-import { Trash2 } from 'lucide-react';
 import './CustomNode.css';
 
 export interface CustomNodeProps {
@@ -53,7 +53,7 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     if (e.detail === 1) {
       onClick?.();
     } else if (e.detail === 2) {
@@ -66,7 +66,7 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
     e.preventDefault();
     e.stopPropagation();
     e.nativeEvent.stopImmediatePropagation();
-    
+
     if (onDelete) {
       console.log('✅ Chamando função onDelete...');
       onDelete();
@@ -88,7 +88,7 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
         id="top"
         style={{ background: '#555' }}
       />
-      
+
       {/* Conteúdo do nó */}
       <div className="node-content">
         <div className="node-type-label">{getNodeTypeLabel()}</div>
@@ -107,6 +107,14 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
         <Trash2 size={12} />
       </button>
 
+      {/* Ícone de editar */}
+      <button
+        className="edit-button"
+        title="Editar nó"
+      >
+        <SquarePen size={12} />
+      </button>
+
       {/* Handles de saída (lados e baixo) */}
       {maxEdges >= 1 && (
         <Handle
@@ -116,7 +124,7 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
           style={{ background: '#555' }}
         />
       )}
-      
+
       {maxEdges >= 2 && (
         <Handle
           type="source"
@@ -125,7 +133,7 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
           style={{ background: '#555' }}
         />
       )}
-      
+
       {maxEdges >= 3 && (
         <Handle
           type="source"
