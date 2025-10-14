@@ -4,10 +4,11 @@ import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { AlignJustify, Save, Undo2, } from 'lucide-react';
+import { Save, Undo2 } from 'lucide-react';
+import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from 'react';
-import CustomNode from './CustomNode';
 import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
+import CustomNode from './CustomNode';
 
 
 const nodeTypes = {
@@ -15,6 +16,9 @@ const nodeTypes = {
 };
 
 export default function App() {
+    const pathname = usePathname();
+    const router = useRouter();
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isEditMode, setIsEditMode] = useState(false);
@@ -24,6 +28,15 @@ export default function App() {
         id: string;
         label?: string;
     } | null>(null);
+
+
+
+    const handleGoBack = () => {
+        const segments = pathname.split("/").filter(Boolean); // split into parts
+        segments.pop(); // remove the last part
+        const newPath = "/" + segments.join("/");
+        router.push(newPath || "/");
+    };
 
 
     const saveToLocalStorage = (nodesData: any[], edgesData: any[]) => {
@@ -533,6 +546,7 @@ export default function App() {
 
                     {/* Botão de voltar ao questionario */}
                     <button
+                        onClick={handleGoBack}
                         style={{
                             backgroundColor: '#C1C1C1',
                             color: 'white',
