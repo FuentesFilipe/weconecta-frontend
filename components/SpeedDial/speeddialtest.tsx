@@ -6,7 +6,7 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import { AlignCenterVertical, Plus } from 'lucide-react';
 import * as React from 'react';
-import './speeddial.css';
+import './index.css';
 
 const actions = [
   { icon: <Plus />, name: 'Nova Mensagem' },

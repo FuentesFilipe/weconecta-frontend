@@ -14,9 +14,9 @@
 
 .MuiSpeedDialAction-staticTooltipLabel {
     background-color: #ffffff;
-    color: black;
+    color: black !important;
 }
 
 .custom-speed-dial .MuiSpeedDialAction-staticTooltipLabel {
-    color: black;
+    color: black !important;
 }
