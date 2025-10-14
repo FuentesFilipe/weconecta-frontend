@@ -176,3 +176,11 @@
     grid-template-columns: 1fr;
   }
 }
+.surveyCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  border-color: var(--secondary-color);
+  background: #f9f9f9;
+}
+
+
