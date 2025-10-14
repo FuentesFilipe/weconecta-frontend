@@ -1,14 +1,14 @@
 .MuiSpeedDial-fab {
-    background-color: #FF894E;
+    background-color: var(--primary-color) !important;
     color: white;
 }
 
 .MuiSpeedDial-fab:hover {
-    background-color: #FF894E;
+    background-color: var(--primary-color) !important;
 }
 
 .MuiSpeedDialAction-fab {
-    background-color: #FF894E;
+    background-color: var(--primary-color);
     color: white;
 }
 
