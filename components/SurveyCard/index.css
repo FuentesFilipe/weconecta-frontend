@@ -35,6 +35,10 @@
             fill: var(--secondary-color);
         }
     }
+
+    &:hover {
+        cursor: pointer;
+    }
 }
 
 .survey-card {
