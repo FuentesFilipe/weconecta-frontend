@@ -1,3 +1,4 @@
+import { Tooltip } from '@/components/Tooltip';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Accordion from '@mui/material/Accordion';
 import AccordionDetails from '@mui/material/AccordionDetails';
@@ -21,19 +22,21 @@ export default function AccordionComponent({ description, expandable = true, chi
     }
 
     return (
-        <Accordion
-            expanded={expandable ? expanded : false}
-            onChange={handleExpand}
-            className="custom-accordion"
-        >
-            <AccordionSummary
-                expandIcon={expandable ? <ExpandMoreIcon /> : <></>}
-                aria-controls="panel1-content"
-                id="panel1-header"
+        <Tooltip title={description} placement="top" children={
+            <Accordion
+                expanded={expandable ? expanded : false}
+                onChange={handleExpand}
+                className="custom-accordion"
             >
-                <Typography component="span">{description}</Typography>
-            </AccordionSummary>
-            <AccordionDetails>{children}</AccordionDetails>
-        </Accordion>
+                <AccordionSummary
+                    expandIcon={expandable ? <ExpandMoreIcon /> : <></>}
+                    aria-controls="panel1-content"
+                    id="panel1-header"
+                >
+                    <Typography component="span">{description}</Typography>
+                </AccordionSummary>
+                <AccordionDetails>{children}</AccordionDetails>
+            </Accordion>
+        } />
     );
 }

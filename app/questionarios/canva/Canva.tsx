@@ -3,6 +3,8 @@
 import { Input } from '@/components/Input';
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
+import { ArrowRight as ArrowRightIcon } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Save, Undo2 } from 'lucide-react';
@@ -515,6 +517,24 @@ export default function App() {
         [],
     );
 
+    const handleInsertOnCanva = (element: any) => {
+        console.log(element);
+        const newNodeId = `node-${Date.now()}`;
+        const newNode = {
+            id: newNodeId,
+            type: 'customNode',
+            position: { x: 250, y: 250 },
+            data: {
+                label: element.description,
+                type: 'mensagem' as const,
+                maxEdges: 2,
+                onClick: () => console.log('Clique no novo nó'),
+                onDoubleClick: () => handleNodeDoubleClick(newNodeId),
+                onDelete: () => handleNodeDelete(newNodeId)
+            }
+        };
+    }
+
     return (
         <div className="filter-container">
             {/* <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}> */}
@@ -523,21 +543,31 @@ export default function App() {
                 <Input placeholder='Pesquisar por Elementos do Questionário' onChange={onInputChange} />
                 <div className='options-list'>
                     {surveysElements?.map((element) => (
-                        <Accordion
-                            key={element.id}
-                            description={element.description}
-                            expandable={element.options && element.options.length > 0}
-                        >
-                            {element.options && element.options.length > 0 ? (
-                                <ul>
-                                    {element.options.map((option) => (
-                                        <li key={option.id}>{option.description}</li>
-                                    ))}
-                                </ul>
-                            ) : (
-                                null
-                            )}
-                        </Accordion>
+                        <div key={element.id} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            gap: '8px',
+                        }}>
+                            <Accordion
+                                key={element.id}
+                                description={element.description}
+                                expandable={element.options && element.options.length > 0}
+                            >
+                                {element.options && element.options.length > 0 ? (
+                                    <ul>
+                                        {element.options.map((option) => (
+                                            <li key={option.id}>{option.description}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    null
+                                )}
+                            </Accordion>
+                            <IconButton onClick={() => handleInsertOnCanva(element)}>
+                                <ArrowRightIcon />
+                            </IconButton>
+                        </div>
                     ))}
                 </div>
             </SidebarFilter>
