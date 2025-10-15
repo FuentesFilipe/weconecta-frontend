@@ -1,112 +1,102 @@
-import React, { useState } from 'react';
 import {
-  Delete as DeleteIcon,
-  Edit as EditIcon,
-  CopyAllTwoTone as CopyIcon,
-  Link as CopyUrlIcon,
+    CopyAllTwoTone as CopyIcon,
+    Link as CopyUrlIcon,
+    Delete as DeleteIcon,
+    Edit as EditIcon,
 } from '@mui/icons-material';
+import React, { JSX } from 'react';
 
-import './index.css';
-import { IconButton } from '../IconButton';
+import { SurveyDto } from '@/dtos/SurveyDto';
 import { toast } from 'react-toastify';
-import { Questionario } from '@/hooks/useQuestionarios';
+import { useSurveysCreateMutation, useSurveysDeleteMutation } from '../../services/core/surveys/mutations';
+import { IconButton } from '../IconButton';
+import './index.css';
 
 type SurveyCardProps = {
-  survey: Questionario;
-  onEdit?: (survey: Questionario) => void;
-  onDelete?: (id: number) => void;
-  onDuplicate?: (id: number) => void;
-  onCopyUrl?: (url: string) => void;
-  onClick?: (survey: Questionario) => void;
-  
+    survey: SurveyDto;
+    onEdit?: (surveyId: number) => void;
+    onClick?: (survey: SurveyDto) => void;
+    className?: string;
+
 };
 
 export function SurveyCard({
-  survey,
-  onEdit,
-  onDelete,
-  onDuplicate,
-  onCopyUrl,
-  onClick,
-  className = '',
+    survey,
+    onEdit,
+    onClick,
+    className = '',
 }: SurveyCardProps): JSX.Element {
-  const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
-  const handleCardClick = () => {
-    onClick?.(survey);
-  };
+    const {
+        mutate: deleteQuestionarioMutate,
+    } = useSurveysDeleteMutation(survey);
 
-  const handleEditClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onEdit?.(survey);
-  };
+    const { mutate: createSurveyElement } = useSurveysCreateMutation({
+        ...survey,
+        id: undefined,
+        title: `${survey.title} (Cópia)`,
+        url: ''
+    });
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (showConfirmDelete) {
-      onDelete?.(survey.id);
-      setShowConfirmDelete(false);
-    } else {
-      setShowConfirmDelete(true);
-      setTimeout(() => setShowConfirmDelete(false), 3000);
-    }
-  };
 
-  const handleDuplicateClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    onDuplicate?.(survey.id);
-    toast.success('Questionário duplicado com sucesso!');
-  };
+    const handleCardClick = () => {
+        onClick?.(survey);
+    };
 
-  const localCopyToClipboard = async (url: string) => {
-    try {
-      await navigator.clipboard.writeText(url);
-      toast.info('URL copiada para a área de transferência!');
-    } catch (err) {
-      toast.error('Erro ao copiar URL');
-    }
-  };
+    const handleEditClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        onEdit?.(survey.id!);
+    };
 
-  const handleCopyUrlClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (onCopyUrl) {
-      onCopyUrl(survey.surveyUrl);
-    } else {
-      localCopyToClipboard(survey.surveyUrl);
-    }
-  };
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        setTimeout(() => deleteQuestionarioMutate(), 100);
+    };
 
-  return (
-    <div className={`survey-card ${className}`} onClick={handleCardClick}>
-      <div aria-label="buttons-container">
-        <IconButton onClick={handleEditClick} title="Editar questionário">
-          <EditIcon />
-        </IconButton>
+    const handleDuplicateClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        createSurveyElement();
+        toast.success('Questionário duplicado com sucesso!');
+    };
 
-        <IconButton onClick={handleDuplicateClick} title="Duplicar questionário">
-          <CopyIcon />
-        </IconButton>
+    const handleCopyUrlClick = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        navigator.clipboard
+            .writeText(survey.url)
+            .then(() => {
+                toast.info('URL copiada para a área de transferência!');
+            })
+            .catch((err) => {
+                console.error('Erro ao copiar URL:', err);
+            });
+    };
 
-        <IconButton
-          onClick={handleDeleteClick}
-          title={showConfirmDelete ? 'Clique novamente para confirmar' : 'Deletar questionário'}
-          style={{
-            backgroundColor: showConfirmDelete ? '#ef4444' : 'transparent',
-            color: showConfirmDelete ? 'white' : 'inherit',
-          }}
-        >
-          <DeleteIcon />
-        </IconButton>
+    return (
+        <div className={`survey-card ${className}`} onClick={handleCardClick}>
+            <div aria-label="buttons-container">
+                <IconButton onClick={handleEditClick} title="Editar questionário">
+                    <EditIcon />
+                </IconButton>
 
-        <IconButton onClick={handleCopyUrlClick} title="Copiar URL do questionário">
-          <CopyUrlIcon />
-        </IconButton>
-      </div>
+                <IconButton onClick={handleDuplicateClick} title="Duplicar questionário">
+                    <CopyIcon />
+                </IconButton>
 
-      <div aria-label="text-container">
-        <h3 aria-label="title">{survey.title}</h3>
-        <h3 aria-label="description">{survey.description}</h3>
-      </div>
-    </div>
-  );
+                <IconButton
+                    onClick={handleDeleteClick}
+                >
+                    <DeleteIcon />
+                </IconButton>
+
+                <IconButton onClick={handleCopyUrlClick} title="Copiar URL do questionário">
+                    <CopyUrlIcon />
+                </IconButton>
+            </div>
+
+            <div aria-label="text-container">
+                <h3 aria-label="title">{survey.title}</h3>
+                <h3 aria-label="description">{survey.description}</h3>
+            </div>
+        </div>
+    );
 }
