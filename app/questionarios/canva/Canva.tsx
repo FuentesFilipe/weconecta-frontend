@@ -5,12 +5,14 @@ import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { TreePine, Save, Undo2 } from 'lucide-react';
+import { Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion } from '../../../components/Accordion';
-import CustomNode from './CustomNode';
+import { SidebarFilter } from '../../../components/SidebarFilter';
 import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
+import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
+import CustomNode from './CustomNode';
 import './index.css';
 
 
@@ -515,123 +517,124 @@ export default function App() {
 
     return (
         <div className="filter-container">
-            <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}>
-                <SidebarFilter sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-                    <Input placeholder='Pesquisar por Elementos do Questionário' onChange={onInputChange} />
-                    <div className='options-list'>
-                        {surveysElements?.map((element) => (
-                            <Accordion
-                                key={element.id}
-                                description={element.description}
-                                expandable={element.options && element.options.length > 0}
-                            >
-                                {element.options && element.options.length > 0 ? (
-                                    <ul>
-                                        {element.options.map((option) => (
-                                            <li key={option.id}>{option.description}</li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    null
-                                )}
-                            </Accordion>
-                        ))}
-                    </div>
-                </SidebarFilter>
-            </aside>
-        <div style={{ height: '100%', overflow: 'hidden' }}>
-            {/* Botão de salvar */}
-            <div style={{ height: '97vh' }}>
-                <div style={{
-                    position: 'absolute',
-                    zIndex: 1000,
-                    justifyContent: 'space-between',
-                    display: 'flex',
-                    flexDirection: 'row-reverse',
-                    flex: 1,
-                    padding: '20px',
-                    paddingRight: '30px',
-                    width: '-webkit-fill-available',
-                }}>
-                    <button
-                        style={{
-                            zIndex: 1000,
-                            backgroundColor: '#C1C1C1',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '12px 16px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            transition: 'all 0.2s ease-in-out'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                            e.currentTarget.style.backgroundColor = '#FF894E';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                        }}
-                    >
-                        < Save className='w=4 h=4' />
-                        Salvar
-                    </button>
+            {/* <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}> */}
 
-                    {/* Botão de voltar ao questionario */}
-                    <button
-                        onClick={handleGoBack}
-                        style={{
-                            backgroundColor: '#C1C1C1',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '12px 16px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            transition: 'all 0.2s ease-in-out'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                            e.currentTarget.style.backgroundColor = '#FF894E';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                        }}
-                    >
-                        < Undo2 className='w=4 h=4' />
-                        Voltar
-                    </button>
-
+            <SidebarFilter sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                <Input placeholder='Pesquisar por Elementos do Questionário' onChange={onInputChange} />
+                <div className='options-list'>
+                    {surveysElements?.map((element) => (
+                        <Accordion
+                            key={element.id}
+                            description={element.description}
+                            expandable={element.options && element.options.length > 0}
+                        >
+                            {element.options && element.options.length > 0 ? (
+                                <ul>
+                                    {element.options.map((option) => (
+                                        <li key={option.id}>{option.description}</li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                null
+                            )}
+                        </Accordion>
+                    ))}
                 </div>
-
-                <div
-                    style={{
+            </SidebarFilter>
+            {/* </aside> */}
+            <div style={{ height: '100%', overflow: 'hidden', flex: 1, position: 'relative', width: '90%' }}>
+                {/* Botão de salvar */}
+                <div style={{ height: '97vh' }}>
+                    <div style={{
                         position: 'absolute',
-                        bottom: '30px',
-                        right: '30px',
-                        zIndex: 1000
-                    }}
-                >
-                    <SpeedDialTooltipOpen />
-                    {/* <button
+                        zIndex: 1000,
+                        justifyContent: 'space-between',
+                        display: 'flex',
+                        flexDirection: 'row-reverse',
+                        flex: 1,
+                        padding: '20px',
+                        paddingRight: '30px',
+                        width: '-webkit-fill-available',
+                    }}>
+                        <button
+                            style={{
+                                zIndex: 1000,
+                                backgroundColor: '#C1C1C1',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                transition: 'all 0.2s ease-in-out'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                                e.currentTarget.style.backgroundColor = '#FF894E';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                            }}
+                        >
+                            < Save className='w=4 h=4' />
+                            Salvar
+                        </button>
+
+                        {/* Botão de voltar ao questionario */}
+                        <button
+                            onClick={handleGoBack}
+                            style={{
+                                backgroundColor: '#C1C1C1',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                transition: 'all 0.2s ease-in-out'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                                e.currentTarget.style.backgroundColor = '#FF894E';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                            }}
+                        >
+                            < Undo2 className='w=4 h=4' />
+                            Voltar
+                        </button>
+
+                    </div>
+
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: '30px',
+                            right: '30px',
+                            zIndex: 1000
+                        }}
+                    >
+                        <SpeedDialTooltipOpen />
+                        {/* <button
                         style={{
                             backgroundColor: '#FF894E',
                             color: 'white',
@@ -658,26 +661,26 @@ export default function App() {
                         < AlignJustify className='w=4 h=4' />
                     </button> */}
 
-                </div>
+                    </div>
 
 
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    nodeTypes={nodeTypes}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onConnect={onConnect}
-                    onEdgeDoubleClick={onEdgeDoubleClick}
-                    onPaneClick={(event) => {
-                        if (event.detail === 2) {
-                            handleCanvasDoubleClick(event);
-                        }
-                    }}
-                    fitView
-                >
-                    <Background color="#FF894E" variant={BackgroundVariant.Dots} />
-                </ReactFlow>
+                    <ReactFlow
+                        nodes={nodes}
+                        edges={edges}
+                        nodeTypes={nodeTypes}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        onConnect={onConnect}
+                        onEdgeDoubleClick={onEdgeDoubleClick}
+                        onPaneClick={(event) => {
+                            if (event.detail === 2) {
+                                handleCanvasDoubleClick(event);
+                            }
+                        }}
+                        fitView
+                    >
+                        <Background color="#FF894E" variant={BackgroundVariant.Dots} />
+                    </ReactFlow>
 
                     <SurveysElementModal
                         open={isModalOpen}
@@ -700,6 +703,5 @@ export default function App() {
                 </div>
             </div>
         </div>
-        </div>
-    )
+    );
 }

@@ -5,9 +5,9 @@ body {
 }
 
 #app {
-  width: 100vw;
-  height: 100vh;
-  overflow: hidden;
+    width: 100vw;
+    height: 100vh;
+    /* overflow: hidden; */
 }
 
 .filter-container {
@@ -19,6 +19,7 @@ body {
     /* gap: 0.5rem; */
     overflow: hidden;
     height: 100%;
+    width: 98%;
 }
 
 .sidebar {

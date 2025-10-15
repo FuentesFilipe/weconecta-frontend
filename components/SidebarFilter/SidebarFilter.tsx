@@ -1,6 +1,5 @@
 'use client';
 
-import { Menu } from '@mui/icons-material';
 import { Box, Drawer, Toolbar } from '@mui/material';
 import './index.css';
 
@@ -41,11 +40,11 @@ const SidebarFilter = ({
                         ) : (
                             ''
                         )}
-                        <Menu
+                        {/* <Menu
                             className='hamburguer toggle-btn'
                             onClick={() => setSidebarOpen((prev: any) => !prev)}
                             fontSize='small'
-                        />
+                        /> */}
                     </div>
                 </Toolbar>
                 <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
