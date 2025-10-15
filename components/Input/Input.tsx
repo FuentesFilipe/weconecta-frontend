@@ -12,7 +12,6 @@ export type ButtonProps = {
 };
 
 function Icon({ children }: { children: React.ReactNode }) {
-    console.log(children);
     return (
         <InputAdornment position="start">
             {children}
@@ -36,7 +35,7 @@ export function InputComponent({ type = 'text', placeholder, disabled = false, o
             disabled={disabled}
             onChange={onChange}
             type={type}
-            value={value}
+        // value={value}
         />
     );
 }
