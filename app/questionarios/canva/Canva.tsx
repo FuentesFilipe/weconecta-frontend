@@ -1,14 +1,21 @@
 'use client';
 
+import { Input } from '@/components/Input';
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
+import { ArrowRight as ArrowRightIcon } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from 'react';
-import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Accordion } from '../../../components/Accordion';
+import { SidebarFilter } from '../../../components/SidebarFilter';
+import SpeedDialTooltipOpen, { CanvaActionsType } from '../../../components/SpeedDial/speeddialtest';
+import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import CustomNode from './CustomNode';
+import './index.css';
 
 
 const nodeTypes = {
@@ -18,6 +25,23 @@ const nodeTypes = {
 export default function App() {
     const pathname = usePathname();
     const router = useRouter();
+    // Filter
+    const [sidebarOpen, setSidebarOpen] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+    const typingTimeout = useRef<NodeJS.Timeout | null>(null);
+    const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+
+        if (typingTimeout.current) {
+            clearTimeout(typingTimeout.current);
+        }
+
+        typingTimeout.current = setTimeout(() => {
+            setSearchTerm(value);
+        }, 400);
+    };
+
+    const { data: surveysElements } = useGetAllSurveysElements({ description: searchTerm });
 
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
@@ -29,15 +53,12 @@ export default function App() {
         label?: string;
     } | null>(null);
 
-
-
     const handleGoBack = () => {
         const segments = pathname.split("/").filter(Boolean); // split into parts
         segments.pop(); // remove the last part
         const newPath = "/" + segments.join("/");
         router.push(newPath || "/");
     };
-
 
     const saveToLocalStorage = (nodesData: any[], edgesData: any[]) => {
         try {
@@ -496,100 +517,158 @@ export default function App() {
         [],
     );
 
+    const handleInsertOnCanva = (element: any) => {
+        console.log(element);
+        const newNodeId = `node-${Date.now()}`;
+        const newNode = {
+            id: newNodeId,
+            type: 'customNode',
+            position: { x: 250, y: 250 },
+            data: {
+                label: element.description,
+                type: 'mensagem' as const,
+                maxEdges: 2,
+                onClick: () => console.log('Clique no novo nó'),
+                onDoubleClick: () => handleNodeDoubleClick(newNodeId),
+                onDelete: () => handleNodeDelete(newNodeId)
+            }
+        };
+    }
+
     return (
-        <div style={{ height: '100%', overflow: 'hidden' }}>
-            {/* Botão de salvar */}
-            <div style={{ height: '97vh' }}>
-                <div style={{
-                    position: 'absolute',
-                    zIndex: 1000,
-                    justifyContent: 'space-between',
-                    display: 'flex',
-                    flexDirection: 'row-reverse',
-                    flex: 1,
-                    padding: '20px',
-                    paddingRight: '30px',
-                    width: '-webkit-fill-available',
-                }}>
-                    <button
-                        style={{
-                            zIndex: 1000,
-                            backgroundColor: '#C1C1C1',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '12px 16px',
-                            cursor: 'pointer',
+        <div className="filter-container">
+            {/* <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}> */}
+
+            <SidebarFilter sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
+                <Input placeholder='Pesquisar por Elementos do Questionário' onChange={onInputChange} />
+                <div className='options-list'>
+                    {surveysElements?.map((element) => (
+                        <div key={element.id} style={{
                             display: 'flex',
                             alignItems: 'center',
+                            justifyContent: 'space-between',
                             gap: '8px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            transition: 'all 0.2s ease-in-out'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                            e.currentTarget.style.backgroundColor = '#FF894E';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                        }}
-                    >
-                        < Save className='w=4 h=4' />
-                        Salvar
-                    </button>
-
-                    {/* Botão de voltar ao questionario */}
-                    <button
-                        onClick={handleGoBack}
-                        style={{
-                            backgroundColor: '#C1C1C1',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '8px',
-                            padding: '12px 16px',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px',
-                            fontSize: '14px',
-                            fontWeight: '500',
-                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
-                            transition: 'all 0.2s ease-in-out'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(-1px)';
-                            e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
-                            e.currentTarget.style.backgroundColor = '#FF894E';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.backgroundColor = '#C1C1C1';
-                            e.currentTarget.style.transform = 'translateY(0)';
-                            e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
-                        }}
-                    >
-                        < Undo2 className='w=4 h=4' />
-                        Voltar
-                    </button>
-
+                        }}>
+                            <Accordion
+                                key={element.id}
+                                description={element.description}
+                                expandable={element.options && element.options.length > 0}
+                            >
+                                {element.options && element.options.length > 0 ? (
+                                    <ul>
+                                        {element.options.map((option) => (
+                                            <li key={option.id}>{option.description}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    null
+                                )}
+                            </Accordion>
+                            <IconButton onClick={() => handleInsertOnCanva(element)}>
+                                <ArrowRightIcon />
+                            </IconButton>
+                        </div>
+                    ))}
                 </div>
-
-                <div
-                    style={{
+            </SidebarFilter>
+            {/* </aside> */}
+            <div style={{ height: '100%', overflow: 'hidden', flex: 1, position: 'relative', width: '90%' }}>
+                {/* Botão de salvar */}
+                <div style={{ height: '97vh' }}>
+                    <div style={{
                         position: 'absolute',
-                        bottom: '30px',
-                        right: '30px',
-                        zIndex: 1000
-                    }}
-                >
-                    <SpeedDialTooltipOpen />
-                    {/* <button
+                        zIndex: 1000,
+                        justifyContent: 'space-between',
+                        display: 'flex',
+                        flexDirection: 'row-reverse',
+                        flex: 1,
+                        padding: '20px',
+                        paddingRight: '30px',
+                        width: '-webkit-fill-available',
+                    }}>
+                        <button
+                            style={{
+                                zIndex: 1000,
+                                backgroundColor: '#C1C1C1',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                transition: 'all 0.2s ease-in-out'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                                e.currentTarget.style.backgroundColor = '#FF894E';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                            }}
+                        >
+                            < Save className='w=4 h=4' />
+                            Salvar
+                        </button>
+
+                        {/* Botão de voltar ao questionario */}
+                        <button
+                            onClick={handleGoBack}
+                            style={{
+                                backgroundColor: '#C1C1C1',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '12px 16px',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                                fontSize: '14px',
+                                fontWeight: '500',
+                                boxShadow: '0 2px 4px rgba(0, 0, 0, 0.1)',
+                                transition: 'all 0.2s ease-in-out'
+                            }}
+                            onMouseEnter={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(-1px)';
+                                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.15)';
+                                e.currentTarget.style.backgroundColor = '#FF894E';
+                            }}
+                            onMouseLeave={(e) => {
+                                e.currentTarget.style.backgroundColor = '#C1C1C1';
+                                e.currentTarget.style.transform = 'translateY(0)';
+                                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                            }}
+                        >
+                            < Undo2 className='w=4 h=4' />
+                            Voltar
+                        </button>
+
+                    </div>
+
+                    <div
+                        style={{
+                            position: 'absolute',
+                            bottom: '30px',
+                            right: '30px',
+                            zIndex: 1000
+                        }}
+                    >
+                        <SpeedDialTooltipOpen canvaActions={{
+                            [CanvaActionsType.NEW_MESSAGE]: () => setIsModalOpen(true),
+                            [CanvaActionsType.SAVE_CANVA]: () => console.log('Salvar'),
+                            [CanvaActionsType.ORGANIZE_CANVA]: organizeCanvas,
+                        }} />
+                        {/* <button
                         style={{
                             backgroundColor: '#FF894E',
                             color: 'white',
@@ -616,45 +695,46 @@ export default function App() {
                         < AlignJustify className='w=4 h=4' />
                     </button> */}
 
-                </div>
+                    </div>
 
 
-                <ReactFlow
-                    nodes={nodes}
-                    edges={edges}
-                    nodeTypes={nodeTypes}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onConnect={onConnect}
-                    onEdgeDoubleClick={onEdgeDoubleClick}
-                    onPaneClick={(event) => {
-                        if (event.detail === 2) {
-                            handleCanvasDoubleClick(event);
+                    <ReactFlow
+                        nodes={nodes}
+                        edges={edges}
+                        nodeTypes={nodeTypes}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        onConnect={onConnect}
+                        onEdgeDoubleClick={onEdgeDoubleClick}
+                        onPaneClick={(event) => {
+                            if (event.detail === 2) {
+                                handleCanvasDoubleClick(event);
+                            }
+                        }}
+                        fitView
+                    >
+                        <Background color="#FF894E" variant={BackgroundVariant.Dots} />
+                    </ReactFlow>
+
+                    <SurveysElementModal
+                        open={isModalOpen}
+                        onClose={handleCloseModal}
+                        onConfirm={handleModalConfirm}
+                        initialData={getSelectedNodeData()}
+                    />
+
+                    <ConfirmDeleteModal
+                        open={isDeleteModalOpen}
+                        onClose={handleCloseDeleteModal}
+                        onConfirm={handleConfirmDelete}
+                        title={deleteItem?.type === 'node' ? 'Deletar Nó' : 'Deletar Conexão'}
+                        message={deleteItem?.type === 'node'
+                            ? `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`
+                            : 'Tem certeza que deseja deletar esta conexão?'
                         }
-                    }}
-                    fitView
-                >
-                    <Background color="#FF894E" variant={BackgroundVariant.Dots} />
-                </ReactFlow>
-
-                <SurveysElementModal
-                    open={isModalOpen}
-                    onClose={handleCloseModal}
-                    onConfirm={handleModalConfirm}
-                    initialData={getSelectedNodeData()}
-                />
-
-                <ConfirmDeleteModal
-                    open={isDeleteModalOpen}
-                    onClose={handleCloseDeleteModal}
-                    onConfirm={handleConfirmDelete}
-                    title={deleteItem?.type === 'node' ? 'Deletar Nó' : 'Deletar Conexão'}
-                    message={deleteItem?.type === 'node'
-                        ? `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`
-                        : 'Tem certeza que deseja deletar esta conexão?'
-                    }
-                    itemType={deleteItem?.type === 'node' ? 'nó' : 'conexão'}
-                />
+                        itemType={deleteItem?.type === 'node' ? 'nó' : 'conexão'}
+                    />
+                </div>
             </div>
         </div>
     );
