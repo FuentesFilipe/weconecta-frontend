@@ -12,7 +12,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion } from '../../../components/Accordion';
 import { SidebarFilter } from '../../../components/SidebarFilter';
-import SpeedDialTooltipOpen from '../../../components/SpeedDial/speeddialtest';
+import SpeedDialTooltipOpen, { CanvaActionsType } from '../../../components/SpeedDial/speeddialtest';
 import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import CustomNode from './CustomNode';
 import './index.css';
@@ -663,7 +663,11 @@ export default function App() {
                             zIndex: 1000
                         }}
                     >
-                        <SpeedDialTooltipOpen />
+                        <SpeedDialTooltipOpen canvaActions={{
+                            [CanvaActionsType.NEW_MESSAGE]: () => setIsModalOpen(true),
+                            [CanvaActionsType.SAVE_CANVA]: () => console.log('Salvar'),
+                            [CanvaActionsType.ORGANIZE_CANVA]: organizeCanvas,
+                        }} />
                         {/* <button
                         style={{
                             backgroundColor: '#FF894E',
