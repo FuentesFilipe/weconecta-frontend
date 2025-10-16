@@ -20,9 +20,8 @@ type QuestionariosPageProps = {
 export default function QuestionariosPage({
     isLoading: externalIsLoading = false
 }: QuestionariosPageProps) {
-    const [isModalOpen, setIsModalOpen] = useState(false);
     const [isTestModalOpen, setIsTestModalOpen] = useState(false);
-    const [editingQuestionarioId, setEditingQuestionarioId] = useState<number | null>(null);
+    const [editingQuestionarioId, setEditingQuestionarioId] = useState<{ id: number | null; isOpen: boolean }>({ id: null, isOpen: false });
 
     const [searchTerm, setSearchTerm] = useState('');
 
@@ -70,7 +69,7 @@ export default function QuestionariosPage({
                     </Button>
                 </div>
 
-                <Button className={styles.newQuestionarioButton} onClick={() => setIsModalOpen(true)}>
+                <Button className={styles.newQuestionarioButton} onClick={() => setEditingQuestionarioId({ id: null, isOpen: true })}>
                     <Plus className="mr-2 h-4 w-4" />
                     Novo Questionário
                 </Button>
@@ -84,8 +83,7 @@ export default function QuestionariosPage({
                             survey={survey}
                             className={styles.surveyCard}
                             onEdit={(surveyId: number) => {
-                                setEditingQuestionarioId(surveyId);
-                                setIsModalOpen(true);
+                                setEditingQuestionarioId({ id: surveyId, isOpen: true });
                             }}
                             onClick={handleRedirectToCanva}
                         />
@@ -94,14 +92,13 @@ export default function QuestionariosPage({
             </Card>
 
             {/* Modais */}
-            <SurveysModal
-                open={isModalOpen}
+            {editingQuestionarioId.isOpen && <SurveysModal
+                open={editingQuestionarioId.isOpen}
                 onClose={() => {
-                    setEditingQuestionarioId(null);
-                    setIsModalOpen(false);
+                    setEditingQuestionarioId({ id: null, isOpen: false });
                 }}
-                id={editingQuestionarioId || undefined}
-            />
+                id={editingQuestionarioId.id}
+            />}
             <SurveysElementModal open={isTestModalOpen} onClose={() => setIsTestModalOpen(false)} />
         </div>
     );

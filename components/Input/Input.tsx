@@ -35,7 +35,7 @@ export function InputComponent({ type = 'text', placeholder, disabled = false, o
             disabled={disabled}
             onChange={onChange}
             type={type}
-        // value={value}
+            value={value}
         />
     );
 }

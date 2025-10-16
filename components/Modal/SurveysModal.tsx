@@ -42,6 +42,12 @@ function CreateEditSurvey({ open, onClose, data, id }: { open: boolean, onClose:
     const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysCreateMutation(form);
 
     React.useEffect(() => {
+        if (data) {
+            setForm({ ...data });
+        }
+    }, [data]);
+
+    React.useEffect(() => {
         if (!id) {
             setForm({ ...DEFAULT_DATA });
         }
@@ -56,7 +62,7 @@ function CreateEditSurvey({ open, onClose, data, id }: { open: boolean, onClose:
     };
 
     const handleClose = () => {
-        setForm({ ...DEFAULT_DATA });
+        setForm({ ...data });
         onClose();
     };
 
@@ -129,9 +135,9 @@ export function SurveysModal({
     onClose,
     id
 }: NewSurveyElementProp) {
-    const { data: surveyData, isLoading: surveyLoading } = useGetSurveysById(id);
+    const { data: surveyData, isFetching: surveyLoading } = useGetSurveysById(id);
 
-    if (surveyLoading) {
+    if (surveyLoading || (id && !surveyData)) {
         return (
             <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
                 <Loading />
@@ -139,5 +145,5 @@ export function SurveysModal({
         )
     }
 
-    return <CreateEditSurvey open={open} onClose={onClose} id={id} data={surveyData ?? DEFAULT_DATA} />
+    return <CreateEditSurvey open={open} onClose={onClose} id={id} data={!!id ? surveyData : DEFAULT_DATA} />
 }
