@@ -122,10 +122,8 @@ function CanvasContent() {
             }
         };
 
-        const newNodes = [...nodes, newNode];
-        const nodesWithFunctions = ensureNodeFunctions(newNodes);
-        setNodes(nodesWithFunctions);
-        saveToLocalStorage(nodesWithFunctions, edges);
+        setNodes((prevNodes: any) => [...prevNodes, newNode]);
+        saveToLocalStorage([...nodes, newNode], edges);
 
         setSelectedNodeId(newNodeId);
         setIsEditMode(false);
@@ -170,12 +168,6 @@ function CanvasContent() {
     const [nodes, setNodes] = useState(savedData?.nodes || []);
     const [edges, setEdges] = useState(savedData?.edges || []);
 
-    useEffect(() => {
-        if (nodes.length > 0) {
-            const updatedNodes = ensureNodeFunctions(nodes);
-            setNodes(updatedNodes);
-        }
-    }, []);
 
 
     const ensureNodeFunctions = (nodeList: any[]) => {
@@ -418,9 +410,9 @@ function CanvasContent() {
                 console.log('📊 Depois da deleção - Nodes:', newNodes.length, 'Edges:', newEdges.length);
                 console.log('🔗 Conexões removidas:', connectionsToRemove.length);
 
-                setNodes(ensureNodeFunctions(newNodes));
+                setNodes(newNodes);
                 setEdges(newEdges);
-                saveToLocalStorage(ensureNodeFunctions(newNodes), newEdges);
+                saveToLocalStorage(newNodes, newEdges);
 
                 console.log('✅ Nó e todas as suas conexões foram deletados com sucesso!');
             }
@@ -551,9 +543,8 @@ function CanvasContent() {
             return node;
         });
 
-        const nodesWithFunctions = ensureNodeFunctions(updatedNodes);
-        setNodes(nodesWithFunctions);
-        saveToLocalStorage(nodesWithFunctions, edges);
+        setNodes(updatedNodes);
+        saveToLocalStorage(updatedNodes, edges);
 
         setTimeout(() => {
             fitView({ padding: 0.1, duration: 800 });
@@ -674,12 +665,10 @@ function CanvasContent() {
             });
         }
 
-        const allNodes = [...nodes, ...newNodes];
-        const nodesWithFunctions = ensureNodeFunctions(allNodes);
-        setNodes(nodesWithFunctions);
-        setEdges((prev: any) => [...prev, ...newEdges]);
+        setNodes((prevNodes: any) => [...prevNodes, ...newNodes]);
+        setEdges((prevEdges: any) => [...prevEdges, ...newEdges]);
         
-        saveToLocalStorage(nodesWithFunctions, [...edges, ...newEdges]);
+        saveToLocalStorage([...nodes, ...newNodes], [...edges, ...newEdges]);
 
         console.log('✅ Elemento inserido no canvas na posição:', {
             position,
@@ -730,9 +719,9 @@ function CanvasContent() {
             !selectedNodes.includes(edge.source) && !selectedNodes.includes(edge.target)
         );
 
-        setNodes(ensureNodeFunctions(updatedNodes));
+        setNodes(updatedNodes);
         setEdges(updatedEdges);
-        saveToLocalStorage(ensureNodeFunctions(updatedNodes), updatedEdges);
+        saveToLocalStorage(updatedNodes, updatedEdges);
         
         setSelectedNodes([]);
         setIsDeleteModalOpen(false);
@@ -751,6 +740,8 @@ function CanvasContent() {
 
     const handleInsertOnCanva = (element: any) => {
         console.log('Inserindo elemento no canvas:', element);
+        console.log('Element ID:', element.id);
+        console.log('Element description:', element.description);
         
         const newNodeId = `node-${Date.now()}`;
         const basePosition = { x: 250, y: 250 };
@@ -803,12 +794,10 @@ function CanvasContent() {
             });
         }
 
-        const allNodes = [...nodes, ...newNodes];
-        const nodesWithFunctions = ensureNodeFunctions(allNodes);
-        setNodes(nodesWithFunctions);
-        setEdges((prev: any) => [...prev, ...newEdges]);
+        setNodes((prevNodes: any) => [...prevNodes, ...newNodes]);
+        setEdges((prevEdges: any) => [...prevEdges, ...newEdges]);
         
-        saveToLocalStorage(nodesWithFunctions, [...edges, ...newEdges]);
+        saveToLocalStorage([...nodes, ...newNodes], [...edges, ...newEdges]);
 
         console.log('✅ Elemento inserido no canvas com filhos conectados:', {
             mainNode: newNode,
@@ -876,14 +865,24 @@ function CanvasContent() {
                                 </div>
                                 <div className="canvas-option-actions">
                                     <IconButton 
-                                        onClick={() => handleEditSidebarElement(element)}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            console.log('Botão editar clicado para elemento:', element);
+                                            handleEditSidebarElement(element);
+                                        }}
                                         className="canvas-edit-button"
                                         title="Editar elemento"
                                     >
                                         <EditIcon style={{ width: '1rem', height: '1rem' }}/>
                                     </IconButton>
                                     <IconButton 
-                                        onClick={() => handleInsertOnCanva(element)}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            console.log('Botão clicado para elemento:', element);
+                                            handleInsertOnCanva(element);
+                                        }}
                                         className="canvas-option-button"
                                         title="Adicionar ao canvas"
                                     >
