@@ -88,7 +88,7 @@ function CreateEditSurvey({ open, onClose, data, id }: { open: boolean, onClose:
             <Card style={{ width: '40%', borderRadius: '16px', padding: '24px 16px' }}>
                 <div className="flex justify-between items-center mb-4">
                     <h4 className="text-lg font-semibold text-orange-500">
-                        {id ? 'Editar Mensagem' : 'Nova Mensagem'}
+                        {id ? 'Editar Questionário' : 'Novo Questionário'}
                     </h4>
                     <button
                         onClick={handleClose}
