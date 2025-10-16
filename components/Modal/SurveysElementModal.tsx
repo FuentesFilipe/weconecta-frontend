@@ -4,7 +4,7 @@ import { Button } from '@/components/Button';
 import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/Input';
 import { SurveyElementEnum, SurveyElementOption, SurveyElementType, SurveysElementsCreateDto } from '@/dtos/SurveysElementsDto';
-import { useSurveysElementsCreateMutation } from '@/services/core/surveysElements/mutations';
+import { useSurveysElementsCreateMutation, useSurveysElementsUpdateMutation } from '@/services/core/surveysElements/mutations';
 import { Add as AddIcon, Delete as DeleteIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { Card, CardActions, CardContent, Chip, Modal } from '@mui/material';
 import * as React from 'react';
@@ -42,19 +42,25 @@ function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, o
     const [form, setForm] = React.useState<SurveysElementsCreateDto>({ ...data });
 
     const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation(form);
+    const { mutate: updateSurveyElement, data: updateSurveyElementResponse } = useSurveysElementsUpdateMutation(id || 0, form);
 
     React.useEffect(() => {
         if (!id) {
             setForm({ ...DEFAULT_DATA });
         }
 
-        if (createSurveyElementResponse) {
+        if (createSurveyElementResponse || updateSurveyElementResponse) {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS, id] });
+            onClose();
         }
-    }, [createSurveyElementResponse]);
+    }, [createSurveyElementResponse, updateSurveyElementResponse, id]);
 
     const handleConfirm = () => {
-        createSurveyElement();
+        if (id) {
+            updateSurveyElement();
+        } else {
+            createSurveyElement();
+        }
     };
 
     const handleClose = () => {

@@ -7,24 +7,382 @@ body {
 #app {
     width: 100vw;
     height: 100vh;
-    /* overflow: hidden; */
 }
 
-.filter-container {
-    /* background: linear-gradient(to right, #fcb043, #e8433b); */
+/* Layout Container - seguindo o padrão do ClientLayout */
+.canvas-layout-container {
+    background: linear-gradient(to right, #fcb043, #e8433b);
     display: flex;
     position: relative;
-    /* max-height: 100vh; */
-    padding: 1rem 0rem;
-    /* gap: 0.5rem; */
+    height: 100vh;
+    padding: 0.5rem;
+    gap: 0.5rem;
     overflow: hidden;
-    height: 100%;
-    width: 98%;
 }
 
+/* Sidebar do Canvas */
+.canvas-sidebar {
+    width: 20rem;
+    max-height: 100vh;
+    border-right: 1px solid #ddd;
+    background: #fff;
+    position: sticky;
+    top: 0;
+    left: 0;
+    transition:
+        transform 0.3s ease-in-out,
+        width 0.3s ease-in-out,
+        padding 0.3s ease-in-out;
+    overflow: hidden;
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.canvas-sidebar.closed {
+    width: 5rem;
+    padding: 0;
+    border-right: none;
+}
+
+.canvas-sidebar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+    min-height: 80px;
+}
+
+.canvas-sidebar-logo img {
+    width: 13rem;
+    height: auto;
+}
+
+.canvas-sidebar.closed .canvas-sidebar-logo {
+    display: none;
+}
+
+.canvas-sidebar-toggle {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    transition: background-color 0.2s;
+}
+
+.canvas-sidebar-toggle:hover {
+    background-color: #f3f4f6;
+}
+
+.canvas-sidebar-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.canvas-sidebar-section {
+    padding: 1rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.canvas-sidebar.closed .canvas-sidebar-section {
+    display: none;
+}
+
+.canvas-sidebar-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 1rem;
+}
+
+.canvas-options-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+}
+
+.canvas-sidebar.closed .canvas-options-list {
+    display: none;
+}
+
+.canvas-option-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #ffffff, #f8fafc);
+    border-radius: 0.75rem;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: grab;
+    position: relative;
+    overflow: hidden;
+    user-select: none;
+}
+
+.canvas-option-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(135deg, #ff894e, #ff6b35);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.canvas-option-item:hover {
+    border-color: #ff894e;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 53, 0.15), 0 2px 4px rgba(255, 107, 53, 0.1);
+}
+
+.canvas-option-item:hover::before {
+    opacity: 1;
+}
+
+.canvas-option-item:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(255, 107, 53, 0.2);
+}
+
+.canvas-option-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.canvas-option-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #1f2937;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.canvas-option-subtitle {
+    font-size: 0.75rem;
+    color: #6b7280;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.canvas-option-button {
+    color: #9ca3af !important;
+    background: #f3f4f6 !important;
+    border-radius: 0.5rem !important;
+    padding: 0.5rem !important;
+    min-width: 1rem !important;
+    height: 2rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.canvas-option-button:hover {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #ff894e, #ff6b35) !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3) !important;
+}
+
+.canvas-option-button:active {
+    transform: scale(0.95) !important;
+}
+
+.canvas-option-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.canvas-edit-button {
+    color: #6b7280 !important;
+    background: #f3f4f6 !important;
+    border-radius: 0.5rem !important;
+    padding: 0.5rem !important;
+    min-width: 1rem !important;
+    height: 2rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+.canvas-edit-button:hover {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8) !important;
+    transform: scale(1.05) !important;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3) !important;
+}
+
+.canvas-edit-button:active {
+    transform: scale(0.95) !important;
+}
+
+/* Estados de drag and drop */
+.canvas-option-item:active {
+    cursor: grabbing;
+    transform: rotate(2deg) scale(1.02);
+    box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3), 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.canvas-option-item[draggable="true"]:hover {
+    cursor: grab;
+}
+
+/* Estilo para quando está sendo arrastado */
+.canvas-option-item.dragging {
+    opacity: 0.5;
+    transform: rotate(5deg) scale(1.05);
+    z-index: 1000;
+    box-shadow: 0 12px 30px rgba(255, 107, 53, 0.4), 0 6px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilo para área de drop no canvas */
+.canvas-drop-zone {
+    position: relative;
+}
+
+.canvas-drop-zone::after {
+    content: 'Solte aqui para adicionar ao canvas';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(255, 107, 53, 0.9);
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 0.5rem;
+    font-weight: 600;
+    font-size: 0.875rem;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    z-index: 1000;
+}
+
+.canvas-drop-zone.drag-over::after {
+    opacity: 1;
+}
+
+/* Estilos para seleção múltipla */
+.selection-info {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    backdrop-filter: blur(8px);
+}
+
+.selection-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.selection-count {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+}
+
+.clear-selection-btn {
+    color: #9ca3af !important;
+    padding: 0.25rem !important;
+    min-width: 1.5rem !important;
+    height: 1.5rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.clear-selection-btn:hover {
+    color: #6b7280 !important;
+    background: #f3f4f6 !important;
+}
+
+.delete-selected-btn {
+    width: 100%;
+    color: #ef4444 !important;
+    background: #fef2f2 !important;
+    border: 1px solid #fecaca !important;
+    border-radius: 0.375rem !important;
+    padding: 0.5rem !important;
+    min-width: 2rem !important;
+    height: 2rem !important;
+    transition: all 0.2s ease !important;
+    box-shadow: none !important;
+}
+
+.delete-selected-btn:hover {
+    color: #ffffff !important;
+    background: #ef4444 !important;
+    border-color: #ef4444 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3) !important;
+}
+
+.delete-selected-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 1px 2px rgba(239, 68, 68, 0.2) !important;
+}
+
+.canvas-sidebar-footer {
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+}
+
+.canvas-sidebar.closed .canvas-sidebar-footer {
+    display: none;
+}
+
+.canvas-new-message-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ff894e, #ff6b35);
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.canvas-new-message-btn:hover {
+    background: linear-gradient(135deg, #ff6b35, #ff894e);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 107, 53, 0.3);
+}
+
+/* Área principal do canvas */
+.canvas-main-content {
+    flex: 1;
+    border-radius: 20px;
+    background-color: #f9fafb;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+}
+
+/* Estilos para elementos antigos (compatibilidade) */
 .options-list {
     margin: 1rem 0;
-    div {
-        margin-bottom: 0.5rem;
-    }
+}
+
+.options-list div {
+    margin-bottom: 0.5rem;
 }

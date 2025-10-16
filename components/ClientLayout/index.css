@@ -29,27 +29,27 @@ layout-container {
 }
 
 /* Main Content */
-.main-content {
+/* .main-content {
     flex: 1;
     overflow-y: auto;
     transition: margin-left 0.3s ease;
     background-color: #f4f6f9;
     padding: 1rem;
-}
+} */
 
 /* Layout container */
 .layout-container {
     background: linear-gradient(to right, #fcb043, #e8433b);
     display: flex;
     position: relative;
-    min-height: 100vh;
+    height: 100vh;
     padding: 0.5rem;
     gap: 0.5rem;
     overflow: hidden;
 }
 
 .layout-container-right {
-
+    height: 100%;
     flex: 1;
     border-radius: 20px !important;
     background-color: #f9fafb;
@@ -58,7 +58,6 @@ layout-container {
     align-items: flex-start;
     overflow-y: auto;
     border-radius: 0.5rem;
-    height: 100%;
 }
 
 /* Page Name Header */

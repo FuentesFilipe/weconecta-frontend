@@ -1,9 +1,82 @@
 .custom-accordion {
-    span {
-        color: rgba(0, 0, 0, 0.6) !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    margin: 0 !important;
+    
+    &::before {
+        display: none !important;
     }
 
-    li {
-        color: rgba(0, 0, 0, 0.6) !important;
+    .MuiAccordionSummary-root {
+        padding: 0 !important;
+        min-height: auto !important;
+        background: transparent !important;
+        border-radius: 0 !important;
+        
+        &:hover {
+            background: transparent !important;
+        }
+
+        .MuiAccordionSummary-content {
+            margin: 0 !important;
+            
+            span {
+                font-weight: 600 !important;
+                font-size: 0.875rem !important;
+                color: #1f2937 !important;
+                line-height: 1.25 !important;
+            }
+        }
+
+        .MuiAccordionSummary-expandIconWrapper {
+            color: #6b7280 !important;
+            transition: all 0.2s ease !important;
+            
+            &.Mui-expanded {
+                color: #ff894e !important;
+                transform: rotate(180deg) !important;
+            }
+        }
+    }
+
+    .MuiAccordionDetails-root {
+        padding: 0.5rem 0 0 0 !important;
+        
+        ul {
+            list-style: none !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            
+            li {
+                padding: 0.375rem 0.75rem !important;
+                margin-bottom: 0.25rem !important;
+                background: #f8fafc !important;
+                border-radius: 0.375rem !important;
+                color: #4b5563 !important;
+                font-size: 0.75rem !important;
+                line-height: 1.25 !important;
+                border-left: 2px solid #e2e8f0 !important;
+                transition: all 0.2s ease !important;
+                
+                &:hover {
+                    background: #f1f5f9 !important;
+                    border-left-color: #ff894e !important;
+                    color: #374151 !important;
+                }
+                
+                &:last-child {
+                    margin-bottom: 0 !important;
+                }
+            }
+        }
+    }
+
+    &.Mui-expanded {
+        .MuiAccordionSummary-content {
+            span {
+                color: #ff894e !important;
+            }
+        }
     }
 }

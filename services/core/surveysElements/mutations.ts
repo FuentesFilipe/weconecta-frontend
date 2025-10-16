@@ -20,3 +20,18 @@ export const useSurveysElementsCreateMutation = (
                 queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
             }),
     });
+
+export const useSurveysElementsUpdateMutation = (
+    id: number,
+    payload: SurveysElementsCreateDto,
+) =>
+    useMutation({
+        mutationFn: () =>
+            surveyElementApi
+                .put(`/${id}`, payload)
+                .then((res) => res.data as SurveysElementsResponse),
+        onSuccess: () =>
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+            }),
+    });

@@ -3,15 +3,14 @@
 import { Input } from '@/components/Input';
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
-import { ArrowRight as ArrowRightIcon } from '@mui/icons-material';
+import { ArrowRight as ArrowRightIcon, Edit as EditIcon, Delete as DeleteIcon, Clear as ClearIcon } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow } from '@xyflow/react';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow, useReactFlow, SelectionMode, ReactFlowProvider } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion } from '../../../components/Accordion';
-import { SidebarFilter } from '../../../components/SidebarFilter';
 import SpeedDialTooltipOpen, { CanvaActionsType } from '../../../components/SpeedDial/speeddialtest';
 import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import CustomNode from './CustomNode';
@@ -22,10 +21,18 @@ const nodeTypes = {
     customNode: CustomNode,
 };
 
-export default function App() {
+export default function Canva() {
+    return (
+        <ReactFlowProvider>
+            <CanvasContent />
+        </ReactFlowProvider>
+    );
+}
+
+function CanvasContent() {
     const pathname = usePathname();
     const router = useRouter();
-    // Filter
+    const { fitView } = useReactFlow();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const typingTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -46,7 +53,9 @@ export default function App() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [editingElement, setEditingElement] = useState<any>(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
     const [deleteItem, setDeleteItem] = useState<{
         type: 'node' | 'edge';
         id: string;
@@ -54,8 +63,8 @@ export default function App() {
     } | null>(null);
 
     const handleGoBack = () => {
-        const segments = pathname.split("/").filter(Boolean); // split into parts
-        segments.pop(); // remove the last part
+        const segments = pathname.split("/").filter(Boolean);
+        segments.pop();
         const newPath = "/" + segments.join("/");
         router.push(newPath || "/");
     };
@@ -98,7 +107,6 @@ export default function App() {
         const x = event.clientX - rect.left;
         const y = event.clientY - rect.top;
 
-
         const newNodeId = `node-${Date.now()}`;
         const newNode = {
             id: newNodeId,
@@ -115,9 +123,9 @@ export default function App() {
         };
 
         const newNodes = [...nodes, newNode];
-        setNodes(newNodes);
-        saveToLocalStorage(newNodes, edges);
-
+        const nodesWithFunctions = ensureNodeFunctions(newNodes);
+        setNodes(nodesWithFunctions);
+        saveToLocalStorage(nodesWithFunctions, edges);
 
         setSelectedNodeId(newNodeId);
         setIsEditMode(false);
@@ -126,6 +134,14 @@ export default function App() {
 
 
     const getSelectedNodeData = () => {
+        if (editingElement) {
+            return {
+                label: editingElement.description,
+                type: editingElement.type,
+                maxEdges: editingElement.options?.length || 2
+            };
+        }
+        
         if (!selectedNodeId) return null;
         const node = nodes.find((n: any) => n.id === selectedNodeId);
         return node ? {
@@ -154,20 +170,24 @@ export default function App() {
     const [nodes, setNodes] = useState(savedData?.nodes || []);
     const [edges, setEdges] = useState(savedData?.edges || []);
 
-    // Atualizar funções onDelete dos nodes carregados do localStorage
     useEffect(() => {
         if (nodes.length > 0) {
-            const updatedNodes = nodes.map((node: any) => ({
-                ...node,
-                data: {
-                    ...node.data,
-                    onDelete: () => handleNodeDelete(node.id)
-                }
-            }));
+            const updatedNodes = ensureNodeFunctions(nodes);
             setNodes(updatedNodes);
         }
-    }, []); // Executa apenas uma vez na montagem
+    }, []);
 
+
+    const ensureNodeFunctions = (nodeList: any[]) => {
+        return nodeList.map((node: any) => ({
+            ...node,
+            data: {
+                ...node.data,
+                onDelete: () => handleNodeDelete(node.id),
+                onDoubleClick: () => handleNodeDoubleClick(node.id)
+            }
+        }));
+    };
 
     const handleNodeDelete = (nodeId: string) => {
         console.log('🗑️ handleNodeDelete chamado para:', nodeId);
@@ -195,6 +215,7 @@ export default function App() {
         setIsModalOpen(false);
         setSelectedNodeId(null);
         setIsEditMode(false);
+        setEditingElement(null);
     };
 
 
@@ -203,105 +224,165 @@ export default function App() {
         tipo: string;
         alternativas: string[];
     }) => {
-        if (!selectedNodeId) return;
+        if (editingElement) {
+            console.log('Atualizando elemento da sidebar:', editingElement);
+            setEditingElement(null);
+            handleCloseModal();
+            return;
+        }
+        
+        if (selectedNodeId && isEditMode) {
+            const selectedNode = nodes.find((node: any) => node.id === selectedNodeId);
+            if (!selectedNode) return;
 
-        const selectedNode = nodes.find((node: any) => node.id === selectedNodeId);
-        if (!selectedNode) return;
+            const nodeType: 'mensagem' | 'alternativa' | 'input' | 'fim' = 'mensagem';
 
+            const updatedNodes = nodes.map((node: any) => {
+                if (node.id === selectedNodeId) {
+                    return {
+                        ...node,
+                        data: {
+                            ...node.data,
+                            label: modalData.titulo,
+                            type: nodeType,
+                            maxEdges: modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa'
+                                ? modalData.alternativas.length
+                                : (modalData.tipo === 'Input' ? 1 : node.data.maxEdges)
+                        }
+                    };
+                }
+                return node;
+            });
 
-        const nodeType: 'mensagem' | 'alternativa' | 'input' | 'fim' = 'mensagem';
+            if (modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa') {
+                const newNodes = modalData.alternativas
+                    .filter(alt => alt.trim() !== '')
+                    .map((alternativa, index) => ({
+                        id: `${selectedNodeId}-alt-${index}`,
+                        type: 'customNode',
+                        position: {
+                            x: selectedNode.position.x + (index * 200),
+                            y: selectedNode.position.y + 150
+                        },
+                        data: {
+                            label: alternativa,
+                            type: 'alternativa' as const,
+                            maxEdges: 1,
+                            onClick: () => console.log('Clique na alternativa:', alternativa),
+                            onDoubleClick: () => handleNodeDoubleClick(`${selectedNodeId}-alt-${index}`),
+                            onDelete: () => handleNodeDelete(`${selectedNodeId}-alt-${index}`)
+                        }
+                    }));
 
+                const newEdges = newNodes.map((node: any, index: number) => ({
+                    id: `${selectedNodeId}-to-${node.id}`,
+                    source: selectedNodeId,
+                    target: node.id
+                }));
 
-        const updatedNodes = nodes.map((node: any) => {
-            if (node.id === selectedNodeId) {
-                return {
-                    ...node,
-                    data: {
-                        ...node.data,
-                        label: modalData.titulo,
-                        type: nodeType,
-                        maxEdges: modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa'
-                            ? modalData.alternativas.length
-                            : (modalData.tipo === 'Input' ? 1 : node.data.maxEdges)
-                    }
-                };
-            }
-            return node;
-        });
+                const newNodesAndEdges = [...updatedNodes, ...newNodes];
+                const newEdgesList = [...edges, ...newEdges];
 
-
-        if (modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa') {
-            const newNodes = modalData.alternativas
-                .filter(alt => alt.trim() !== '')
-                .map((alternativa, index) => ({
-                    id: `${selectedNodeId}-alt-${index}`,
+                setNodes(newNodesAndEdges);
+                setEdges(newEdgesList);
+                saveToLocalStorage(newNodesAndEdges, newEdgesList);
+            } else if (modalData.tipo === 'Input') {
+                const inputNode = {
+                    id: `${selectedNodeId}-input`,
                     type: 'customNode',
                     position: {
-                        x: selectedNode.position.x + (index * 200),
+                        x: selectedNode.position.x,
                         y: selectedNode.position.y + 150
                     },
                     data: {
-                        label: alternativa,
-                        type: 'alternativa' as const,
+                        label: 'Campo de entrada',
+                        type: 'input' as const,
                         maxEdges: 1,
-                        onClick: () => console.log('Clique na alternativa:', alternativa),
-                        onDoubleClick: () => handleNodeDoubleClick(`${selectedNodeId}-alt-${index}`),
-                        onDelete: () => handleNodeDelete(`${selectedNodeId}-alt-${index}`)
+                        onClick: () => console.log('Clique no input'),
+                        onDoubleClick: () => handleNodeDoubleClick(`${selectedNodeId}-input`),
+                        onDelete: () => handleNodeDelete(`${selectedNodeId}-input`)
                     }
-                }));
+                };
 
+                const inputEdge = {
+                    id: `${selectedNodeId}-to-input`,
+                    source: selectedNodeId,
+                    target: `${selectedNodeId}-input`
+                };
 
-            const newEdges = newNodes.map((node: any, index: number) => ({
-                id: `${selectedNodeId}-to-${node.id}`,
-                source: selectedNodeId,
-                target: node.id
-            }));
+                const newNodesAndEdges = [...updatedNodes, inputNode];
+                const newEdgesList = [...edges, inputEdge];
 
-            const newNodesAndEdges = [...updatedNodes, ...newNodes];
-            const newEdgesList = [...edges, ...newEdges];
-
-            setNodes(newNodesAndEdges);
-            setEdges(newEdgesList);
-
-
-            saveToLocalStorage(newNodesAndEdges, newEdgesList);
-        } else if (modalData.tipo === 'Input') {
-
-            const inputNode = {
-                id: `${selectedNodeId}-input`,
+                setNodes(newNodesAndEdges);
+                setEdges(newEdgesList);
+                saveToLocalStorage(newNodesAndEdges, newEdgesList);
+            } else {
+                setNodes(updatedNodes);
+                saveToLocalStorage(updatedNodes, edges);
+            }
+        } else {
+            const newNodeId = `node-${Date.now()}`;
+            const nodeType: 'mensagem' | 'alternativa' | 'input' | 'fim' = 'mensagem';
+            
+            const newNode = {
+                id: newNodeId,
                 type: 'customNode',
-                position: {
-                    x: selectedNode.position.x,
-                    y: selectedNode.position.y + 150
-                },
+                position: { x: Math.random() * 400 + 100, y: Math.random() * 300 + 100 },
                 data: {
-                    label: 'Campo de entrada',
-                    type: 'input' as const,
-                    maxEdges: 1,
-                    onClick: () => console.log('Clique no input'),
-                    onDoubleClick: () => handleNodeDoubleClick(`${selectedNodeId}-input`),
-                    onDelete: () => handleNodeDelete(`${selectedNodeId}-input`)
+                    label: modalData.titulo,
+                    type: nodeType,
+                    maxEdges: modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa'
+                        ? modalData.alternativas.length
+                        : (modalData.tipo === 'Input' ? 1 : 2),
+                    onClick: () => console.log('Clique no novo nó'),
+                    onDoubleClick: () => handleNodeDoubleClick(newNodeId),
+                    onDelete: () => handleNodeDelete(newNodeId)
                 }
             };
 
-            const inputEdge = {
-                id: `${selectedNodeId}-to-input`,
-                source: selectedNodeId,
-                target: `${selectedNodeId}-input`
-            };
+            if (modalData.tipo === 'MultiplaEscolha' || modalData.tipo === 'Alternativa') {
+                const alternativeNodes = modalData.alternativas
+                    .filter(alt => alt.trim() !== '')
+                    .map((alternativa, index) => ({
+                        id: `${newNodeId}-alt-${index}`,
+                        type: 'customNode',
+                        position: {
+                            x: newNode.position.x + (index * 200),
+                            y: newNode.position.y + 150
+                        },
+                        data: {
+                            label: alternativa,
+                            type: 'alternativa' as const,
+                            maxEdges: 1,
+                            onClick: () => console.log('Clique na alternativa:', alternativa),
+                            onDoubleClick: () => handleNodeDoubleClick(`${newNodeId}-alt-${index}`),
+                            onDelete: () => handleNodeDelete(`${newNodeId}-alt-${index}`)
+                        }
+                    }));
 
-            const newNodesAndEdges = [...updatedNodes, inputNode];
-            const newEdgesList = [...edges, inputEdge];
+                const alternativeEdges = alternativeNodes.map((node: any) => ({
+                    id: `${newNodeId}-to-${node.id}`,
+                    source: newNodeId,
+                    target: node.id
+                }));
 
-            setNodes(newNodesAndEdges);
-            setEdges(newEdgesList);
+                const allNewNodes = [newNode, ...alternativeNodes];
+                const allNewEdges = alternativeEdges;
 
+                setNodes((prev: any) => [...prev, ...allNewNodes]);
+                setEdges((prev: any) => [...prev, ...allNewEdges]);
+                saveToLocalStorage([...nodes, ...allNewNodes], [...edges, ...allNewEdges]);
+            } else {
+                setNodes((prev: any) => [...prev, newNode]);
+                saveToLocalStorage([...nodes, newNode], edges);
+            }
 
-            saveToLocalStorage(newNodesAndEdges, newEdgesList);
-        } else {
-            setNodes(updatedNodes);
-
-            saveToLocalStorage(updatedNodes, edges);
+            console.log('✅ Novo elemento criado e inserido no canvas:', {
+                id: newNodeId,
+                titulo: modalData.titulo,
+                tipo: modalData.tipo,
+                alternativas: modalData.alternativas,
+            });
         }
 
         handleCloseModal();
@@ -317,29 +398,32 @@ export default function App() {
         console.log('🗑️ Confirmando deleção de:', deleteItem);
 
         if (deleteItem.type === 'node') {
-            console.log('🗑️ Deletando nó:', deleteItem.id);
+            if (deleteItem.id === 'multiple') {
+                handleConfirmMultipleDelete();
+                return;
+            } else {
+                console.log('🗑️ Deletando nó:', deleteItem.id);
 
-            // Mostrar conexões que serão removidas
-            const connectionsToRemove = edges.filter((edge: any) =>
-                edge.source === deleteItem.id || edge.target === deleteItem.id
-            );
-            console.log('🔗 Conexões que serão removidas:', connectionsToRemove);
+                const connectionsToRemove = edges.filter((edge: any) =>
+                    edge.source === deleteItem.id || edge.target === deleteItem.id
+                );
+                console.log('🔗 Conexões que serão removidas:', connectionsToRemove);
 
-            // Filtrar o nó e suas conexões
-            const newNodes = nodes.filter((node: any) => node.id !== deleteItem.id);
-            const newEdges = edges.filter((edge: any) =>
-                edge.source !== deleteItem.id && edge.target !== deleteItem.id
-            );
+                const newNodes = nodes.filter((node: any) => node.id !== deleteItem.id);
+                const newEdges = edges.filter((edge: any) =>
+                    edge.source !== deleteItem.id && edge.target !== deleteItem.id
+                );
 
-            console.log('📊 Antes da deleção - Nodes:', nodes.length, 'Edges:', edges.length);
-            console.log('📊 Depois da deleção - Nodes:', newNodes.length, 'Edges:', newEdges.length);
-            console.log('🔗 Conexões removidas:', connectionsToRemove.length);
+                console.log('📊 Antes da deleção - Nodes:', nodes.length, 'Edges:', edges.length);
+                console.log('📊 Depois da deleção - Nodes:', newNodes.length, 'Edges:', newEdges.length);
+                console.log('🔗 Conexões removidas:', connectionsToRemove.length);
 
-            setNodes(newNodes);
-            setEdges(newEdges);
-            saveToLocalStorage(newNodes, newEdges);
+                setNodes(ensureNodeFunctions(newNodes));
+                setEdges(newEdges);
+                saveToLocalStorage(ensureNodeFunctions(newNodes), newEdges);
 
-            console.log('✅ Nó e todas as suas conexões foram deletados com sucesso!');
+                console.log('✅ Nó e todas as suas conexões foram deletados com sucesso!');
+            }
         } else if (deleteItem.type === 'edge') {
             console.log('🗑️ Deletando conexão:', deleteItem.id);
 
@@ -364,12 +448,10 @@ export default function App() {
     const organizeCanvas = () => {
         console.log('Organizando canvas em formato de árvore...');
 
-
         const NODE_WIDTH = 200;
         const NODE_HEIGHT = 100;
         const LEVEL_HEIGHT = 200;
         const SIBLING_SPACING = 250;
-
 
         const rootNodes = nodes.filter((node: any) =>
             !edges.some((edge: any) => edge.target === node.id)
@@ -383,7 +465,6 @@ export default function App() {
                 rootNodes.push(nodes[0]);
             }
         }
-
 
         const positionedNodes = new Map();
 
@@ -399,12 +480,10 @@ export default function App() {
             let x, y;
 
             if (children.length === 0) {
-
                 x = parentX + (siblingIndex * SIBLING_SPACING);
                 y = level * LEVEL_HEIGHT;
                 positionedNodes.set(nodeId, { x, y });
             } else {
-
                 children.forEach((childId: string, index: number) => {
                     positionLeafNodes(childId, level + 1, index, parentX);
                 });
@@ -421,9 +500,7 @@ export default function App() {
                 .map((edge: any) => edge.target);
 
             if (children.length > 0) {
-
                 children.forEach((childId: any) => positionParentNodes(childId));
-
 
                 const childPositions = children.map((childId: any) => positionedNodes.get(childId)).filter(Boolean);
 
@@ -431,7 +508,6 @@ export default function App() {
                     const minX = Math.min(...childPositions.map((pos: any) => pos.x));
                     const maxX = Math.max(...childPositions.map((pos: any) => pos.x));
                     const centerX = (minX + maxX) / 2;
-
 
                     const parentLevel = Math.min(...childPositions.map((pos: any) => pos.y)) - LEVEL_HEIGHT;
 
@@ -445,7 +521,6 @@ export default function App() {
             rootNodes.forEach((rootNode: any, index: number) => {
                 const startX = index * SIBLING_SPACING * 3;
 
-
                 const children = edges
                     .filter((edge: any) => edge.source === rootNode.id)
                     .map((edge: any) => edge.target);
@@ -454,9 +529,7 @@ export default function App() {
                     positionLeafNodes(childId, 1, childIndex, startX);
                 });
 
-
                 positionParentNodes(rootNode.id);
-
 
                 if (children.length === 0) {
                     positionedNodes.set(rootNode.id, { x: startX, y: 0 });
@@ -478,8 +551,13 @@ export default function App() {
             return node;
         });
 
-        setNodes(updatedNodes);
-        saveToLocalStorage(updatedNodes, edges);
+        const nodesWithFunctions = ensureNodeFunctions(updatedNodes);
+        setNodes(nodesWithFunctions);
+        saveToLocalStorage(nodesWithFunctions, edges);
+
+        setTimeout(() => {
+            fitView({ padding: 0.1, duration: 800 });
+        }, 100);
 
         console.log('Canvas organizado em formato de árvore!');
     };
@@ -517,63 +595,342 @@ export default function App() {
         [],
     );
 
-    const handleInsertOnCanva = (element: any) => {
-        console.log(element);
+    const handleDrop = useCallback((event: any) => {
+        event.preventDefault();
+        
+        try {
+            const elementData = JSON.parse(event.dataTransfer.getData('application/json'));
+            
+            const reactFlowBounds = event.currentTarget.getBoundingClientRect();
+            const position = {
+                x: event.clientX - reactFlowBounds.left,
+                y: event.clientY - reactFlowBounds.top
+            };
+
+            console.log('Drop realizado em:', position, 'com elemento:', elementData);
+            
+            handleInsertOnCanvaAtPosition(elementData, position);
+            
+        } catch (error) {
+            console.error('Erro ao processar drop:', error);
+        }
+    }, []);
+
+    const handleDragOver = useCallback((event: any) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = 'copy';
+    }, []);
+
+    const handleInsertOnCanvaAtPosition = (element: any, position: { x: number, y: number }) => {
+        console.log('Inserindo elemento na posição:', position);
+        
         const newNodeId = `node-${Date.now()}`;
+        
         const newNode = {
             id: newNodeId,
             type: 'customNode',
-            position: { x: 250, y: 250 },
+            position: position,
             data: {
                 label: element.description,
                 type: 'mensagem' as const,
-                maxEdges: 2,
+                maxEdges: element.options?.length > 0 ? element.options.length : 2,
                 onClick: () => console.log('Clique no novo nó'),
                 onDoubleClick: () => handleNodeDoubleClick(newNodeId),
                 onDelete: () => handleNodeDelete(newNodeId)
             }
         };
+
+        const newNodes = [newNode];
+        const newEdges: any[] = [];
+
+        if (element.options && element.options.length > 0) {
+            element.options.forEach((option: any, index: number) => {
+                const childNodeId = `${newNodeId}-child-${index}`;
+                const childNode = {
+                    id: childNodeId,
+                    type: 'customNode',
+                    position: {
+                        x: position.x + (index * 200),
+                        y: position.y + 150
+                    },
+                    data: {
+                        label: option.description,
+                        type: 'alternativa' as const,
+                        maxEdges: 1,
+                        onClick: () => console.log('Clique na alternativa:', option.description),
+                        onDoubleClick: () => handleNodeDoubleClick(childNodeId),
+                        onDelete: () => handleNodeDelete(childNodeId)
+                    }
+                };
+
+                const edge = {
+                    id: `${newNodeId}-to-${childNodeId}`,
+                    source: newNodeId,
+                    target: childNodeId
+                };
+
+                newNodes.push(childNode as any);
+                newEdges.push(edge);
+            });
+        }
+
+        const allNodes = [...nodes, ...newNodes];
+        const nodesWithFunctions = ensureNodeFunctions(allNodes);
+        setNodes(nodesWithFunctions);
+        setEdges((prev: any) => [...prev, ...newEdges]);
+        
+        saveToLocalStorage(nodesWithFunctions, [...edges, ...newEdges]);
+
+        console.log('✅ Elemento inserido no canvas na posição:', {
+            position,
+            mainNode: newNode,
+            childNodes: newNodes.slice(1),
+            edges: newEdges
+        });
+    };
+
+    const handleKeyDown = useCallback((event: KeyboardEvent) => {
+        if ((event.key === 'Delete' || event.key === 'Backspace') && selectedNodes.length > 0) {
+            handleDeleteMultipleNodes();
+        }
+    }, [selectedNodes]);
+
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown);
+        
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleKeyDown]);
+
+    const handleSelectionChange = useCallback(({ nodes: selectedNodesList }: { nodes: any[] }) => {
+        const selectedIds = selectedNodesList.map(node => node.id);
+        setSelectedNodes(selectedIds);
+        console.log('Nós selecionados:', selectedIds);
+    }, []);
+
+    const handleDeleteMultipleNodes = () => {
+        if (selectedNodes.length === 0) return;
+
+        const nodesToDelete = nodes.filter((node: any) => selectedNodes.includes(node.id));
+        const nodeLabels = nodesToDelete.map((node: any) => node.data.label).join(', ');
+        
+        setDeleteItem({
+            type: 'node',
+            id: 'multiple',
+            label: `Múltiplos nós: ${nodeLabels}`
+        });
+        setIsDeleteModalOpen(true);
+    };
+
+    const handleConfirmMultipleDelete = () => {
+        const updatedNodes = nodes.filter((node: any) => !selectedNodes.includes(node.id));
+        
+        const updatedEdges = edges.filter((edge: any) => 
+            !selectedNodes.includes(edge.source) && !selectedNodes.includes(edge.target)
+        );
+
+        setNodes(ensureNodeFunctions(updatedNodes));
+        setEdges(updatedEdges);
+        saveToLocalStorage(ensureNodeFunctions(updatedNodes), updatedEdges);
+        
+        setSelectedNodes([]);
+        setIsDeleteModalOpen(false);
+        setDeleteItem(null);
+        
+        console.log(`✅ ${selectedNodes.length} nós deletados com sucesso!`);
+    };
+
+    const handleEditSidebarElement = (element: any) => {
+        console.log('Editando elemento da sidebar:', element);
+        setEditingElement(element);
+        setSelectedNodeId(null);
+        setIsEditMode(false);
+        setIsModalOpen(true);
+    };
+
+    const handleInsertOnCanva = (element: any) => {
+        console.log('Inserindo elemento no canvas:', element);
+        
+        const newNodeId = `node-${Date.now()}`;
+        const basePosition = { x: 250, y: 250 };
+        
+        const newNode = {
+            id: newNodeId,
+            type: 'customNode',
+            position: basePosition,
+            data: {
+                label: element.description,
+                type: 'mensagem' as const,
+                maxEdges: element.options?.length > 0 ? element.options.length : 2,
+                onClick: () => console.log('Clique no novo nó'),
+                onDoubleClick: () => handleNodeDoubleClick(newNodeId),
+                onDelete: () => handleNodeDelete(newNodeId)
+            }
+        };
+
+        const newNodes = [newNode];
+        const newEdges: any[] = [];
+
+        if (element.options && element.options.length > 0) {
+            element.options.forEach((option: any, index: number) => {
+                const childNodeId = `${newNodeId}-child-${index}`;
+                const childNode = {
+                    id: childNodeId,
+                    type: 'customNode',
+                    position: {
+                        x: basePosition.x + (index * 200),
+                        y: basePosition.y + 150
+                    },
+                    data: {
+                        label: option.description,
+                        type: 'alternativa' as const,
+                        maxEdges: 1,
+                        onClick: () => console.log('Clique na alternativa:', option.description),
+                        onDoubleClick: () => handleNodeDoubleClick(childNodeId),
+                        onDelete: () => handleNodeDelete(childNodeId)
+                    }
+                };
+
+                const edge = {
+                    id: `${newNodeId}-to-${childNodeId}`,
+                    source: newNodeId,
+                    target: childNodeId
+                };
+
+                newNodes.push(childNode as any);
+                newEdges.push(edge);
+            });
+        }
+
+        const allNodes = [...nodes, ...newNodes];
+        const nodesWithFunctions = ensureNodeFunctions(allNodes);
+        setNodes(nodesWithFunctions);
+        setEdges((prev: any) => [...prev, ...newEdges]);
+        
+        saveToLocalStorage(nodesWithFunctions, [...edges, ...newEdges]);
+
+        console.log('✅ Elemento inserido no canvas com filhos conectados:', {
+            mainNode: newNode,
+            childNodes: newNodes.slice(1),
+            edges: newEdges
+        });
     }
 
     return (
-        <div className="filter-container">
-            {/* <aside className={`sidebar ${sidebarOpen ? "open" : "closed"}`}> */}
-
-            <SidebarFilter sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}>
-                <Input placeholder='Pesquisar por Elementos do Questionário' onChange={onInputChange} />
-                <div className='options-list'>
-                    {surveysElements?.map((element) => (
-                        <div key={element.id} style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '8px',
-                        }}>
-                            <Accordion
-                                key={element.id}
-                                description={element.description}
-                                expandable={element.options && element.options.length > 0}
-                            >
-                                {element.options && element.options.length > 0 ? (
-                                    <ul>
-                                        {element.options.map((option) => (
-                                            <li key={option.id}>{option.description}</li>
-                                        ))}
-                                    </ul>
-                                ) : (
-                                    null
-                                )}
-                            </Accordion>
-                            <IconButton onClick={() => handleInsertOnCanva(element)}>
-                                <ArrowRightIcon />
-                            </IconButton>
-                        </div>
-                    ))}
+        <div className="canvas-layout-container">
+            <aside className={`canvas-sidebar ${sidebarOpen ? "open" : "closed"}`}>
+                <div className="canvas-sidebar-header">
+                    <div className="canvas-sidebar-logo">
+                        <img src='/logo_padrao_horizontal.png' alt="WeConecta" />
+                    </div>
+                    <button 
+                        className="canvas-sidebar-toggle"
+                        onClick={() => setSidebarOpen(!sidebarOpen)}
+                    >
+                        {sidebarOpen ? '←' : '→'}
+                    </button>
                 </div>
-            </SidebarFilter>
-            {/* </aside> */}
-            <div style={{ height: '100%', overflow: 'hidden', flex: 1, position: 'relative', width: '90%' }}>
-                {/* Botão de salvar */}
+                
+                <div className="canvas-sidebar-content">
+                    <div className="canvas-sidebar-section">
+                        <h3 className="canvas-sidebar-title">Mensagem</h3>
+                        <Input 
+                            placeholder='Pesquisar por Elementos do Questionário' 
+                            onChange={onInputChange} 
+                        />
+                    </div>
+                    
+                    <div className='canvas-options-list'>
+                        {surveysElements?.map((element) => (
+                            <div 
+                                key={element.id} 
+                                className="canvas-option-item"
+                                draggable
+                                onDragStart={(e) => {
+                                    e.dataTransfer.setData('application/json', JSON.stringify(element));
+                                    e.dataTransfer.effectAllowed = 'copy';
+                                }}
+                            >
+                                <div className="canvas-option-content">
+                                    <Accordion
+                                        key={element.id}
+                                        description={element.description}
+                                        expandable={element.options && element.options.length > 0}
+                                    >
+                                        {element.options && element.options.length > 0 ? (
+                                            <ul>
+                                                {element.options.map((option) => (
+                                                    <li key={option.id}>{option.description}</li>
+                                                ))}
+                                            </ul>
+                                        ) : (
+                                            <div className="canvas-option-subtitle">
+                                                {element.type === 'OPTION' ? 'Alternativa' : 
+                                                 element.type === 'MULTIPLE_CHOICE' ? 'Múltipla escolha' :
+                                                 element.type === 'INPUT' ? 'Campo de entrada' : 
+                                                 element.type === 'MESSAGE' ? 'Mensagem' : 'Elemento'}
+                                            </div>
+                                        )}
+                                    </Accordion>
+                                </div>
+                                <div className="canvas-option-actions">
+                                    <IconButton 
+                                        onClick={() => handleEditSidebarElement(element)}
+                                        className="canvas-edit-button"
+                                        title="Editar elemento"
+                                    >
+                                        <EditIcon style={{ width: '1rem', height: '1rem' }}/>
+                                    </IconButton>
+                                    <IconButton 
+                                        onClick={() => handleInsertOnCanva(element)}
+                                        className="canvas-option-button"
+                                        title="Adicionar ao canvas"
+                                    >
+                                        <ArrowRightIcon />
+                                    </IconButton>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    
+                    <div className="canvas-sidebar-footer">
+                        {selectedNodes.length > 0 && (
+                            <div className="selection-info">
+                                <div className="selection-header">
+                                    <div className="selection-count">
+                                        {selectedNodes.length} selecionado{selectedNodes.length > 1 ? 's' : ''}
+                                    </div>
+                                    <IconButton 
+                                        className="clear-selection-btn"
+                                        onClick={() => setSelectedNodes([])}
+                                        title="Limpar seleção"
+                                        size="small"
+                                    >
+                                        <ClearIcon />
+                                    </IconButton>
+                                </div>
+                                <IconButton 
+                                    className="delete-selected-btn"
+                                    onClick={handleDeleteMultipleNodes}
+                                    title="Deletar selecionados (Delete/Backspace)"
+                                    size="small"
+                                >
+                                    <DeleteIcon />
+                                </IconButton>
+                            </div>
+                        )}
+                        <button 
+                            className="canvas-new-message-btn"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Nova Mensagem
+                        </button>
+                    </div>
+                </div>
+            </aside>
+
+            <div className="canvas-main-content">
                 <div style={{ height: '97vh' }}>
                     <div style={{
                         position: 'absolute',
@@ -711,6 +1068,12 @@ export default function App() {
                                 handleCanvasDoubleClick(event);
                             }
                         }}
+                        onDrop={handleDrop}
+                        onDragOver={handleDragOver}
+                        onSelectionChange={handleSelectionChange}
+                        selectionMode={SelectionMode.Partial}
+                        multiSelectionKeyCode={['Shift']}
+                        deleteKeyCode={['Delete', 'Backspace']}
                         fitView
                     >
                         <Background color="#FF894E" variant={BackgroundVariant.Dots} />
@@ -721,15 +1084,21 @@ export default function App() {
                         onClose={handleCloseModal}
                         onConfirm={handleModalConfirm}
                         initialData={getSelectedNodeData()}
+                        id={editingElement?.id}
                     />
 
                     <ConfirmDeleteModal
                         open={isDeleteModalOpen}
                         onClose={handleCloseDeleteModal}
                         onConfirm={handleConfirmDelete}
-                        title={deleteItem?.type === 'node' ? 'Deletar Nó' : 'Deletar Conexão'}
+                        title={deleteItem?.type === 'node' 
+                            ? (deleteItem?.id === 'multiple' ? 'Deletar Nós Selecionados' : 'Deletar Nó')
+                            : 'Deletar Conexão'
+                        }
                         message={deleteItem?.type === 'node'
-                            ? `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`
+                            ? (deleteItem?.id === 'multiple' 
+                                ? `Tem certeza que deseja deletar ${selectedNodes.length} nós selecionados?\n\n${deleteItem?.label}`
+                                : `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`)
                             : 'Tem certeza que deseja deletar esta conexão?'
                         }
                         itemType={deleteItem?.type === 'node' ? 'nó' : 'conexão'}

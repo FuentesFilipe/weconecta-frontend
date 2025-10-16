@@ -23,9 +23,9 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
   const getNodeColor = () => {
     switch (type) {
       case 'mensagem':
-        return '#3B82F6'; // Azul
-      case 'alternativa':
         return '#F97316'; // Laranja
+      case 'alternativa':
+        return '#3B82F6'; // Azul
       case 'input':
         return '#6B7280'; // Cinza
       case 'fim':
