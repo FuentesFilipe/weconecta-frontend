@@ -22,13 +22,6 @@ body {
     width: 98%;
 }
 
-.sidebar {
-    width: 30rem;
-    top: 0.5rem;
-    left: 0.5rem;
-    height: 98%;
-}
-
 .options-list {
     margin: 1rem 0;
     div {
