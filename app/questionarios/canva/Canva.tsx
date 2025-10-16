@@ -7,7 +7,7 @@ import { ArrowRight as ArrowRightIcon, Clear as ClearIcon, Delete as DeleteIcon,
 import { IconButton } from '@mui/material';
 import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Save, Undo2 } from 'lucide-react';
+import { AlignCenterVertical, Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion } from '../../../components/Accordion';
@@ -1014,20 +1014,16 @@ function CanvasContent() {
 
                     </div>
 
-                    <div
-                        style={{
-                            position: 'absolute',
-                            bottom: '30px',
-                            right: '30px',
-                            zIndex: 1000
-                        }}
-                    >
-                        <SpeedDialTooltipOpen canvaActions={{
-                            [CanvaActionsType.NEW_MESSAGE]: () => setEditingElementModal({ isOpen: true, surveyElement: null as any }),
-                            [CanvaActionsType.SAVE_CANVA]: () => console.log('Salvar'),
-                            [CanvaActionsType.ORGANIZE_CANVA]: organizeCanvas,
-                        }} />
-                        {/* <button
+                <div
+                    style={{
+                        position: 'absolute',
+                        bottom: '30px',
+                        right: '30px',
+                        zIndex: 1000
+                    }}
+                >
+                    <button
+                        onClick={organizeCanvas}
                         style={{
                             backgroundColor: '#FF894E',
                             color: 'white',
@@ -1045,14 +1041,16 @@ function CanvasContent() {
                         onMouseEnter={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)';
                             e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
+                            e.currentTarget.style.backgroundColor = '#FF894E';
                         }}
                         onMouseLeave={(e) => {
                             e.currentTarget.style.transform = 'translateY(0)';
                             e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.1)';
                         }}
                     >
-                        < AlignJustify className='w=4 h=4' />
-                    </button> */}
+                        < AlignCenterVertical className='w=4 h=4' />
+
+                    </button>
 
                     </div>
 
