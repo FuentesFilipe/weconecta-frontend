@@ -45,9 +45,9 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const isLogged = () => !!getAuthToken()
 
     const setAuthToken = (token?: string, rememberMe?: boolean) => {
-
         setToken(token)
         if (token) {
+            removeAuthToken()
             setStoreAuthToken(token, rememberMe)
         } else {
             removeAuthToken()
