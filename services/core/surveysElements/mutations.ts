@@ -5,6 +5,7 @@ import {
 import { queryClient } from '@/services/query-client';
 import QUERY_KEYS from '@/utils/contants/queries';
 import { useMutation } from '@tanstack/react-query';
+import { toast } from 'react-toastify';
 import { surveyElementApi } from '.';
 
 export const useSurveysElementsCreateMutation = (
@@ -15,10 +16,12 @@ export const useSurveysElementsCreateMutation = (
             surveyElementApi
                 .post('', payload)
                 .then((res) => res.data as SurveysElementsResponse),
-        onSuccess: () =>
+        onSuccess: () => {
+            toast.success('Elemento criado com sucesso!');
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
-            }),
+            });
+        },
     });
 
 export const useSurveysElementsUpdateMutation = (
@@ -28,10 +31,12 @@ export const useSurveysElementsUpdateMutation = (
     useMutation({
         mutationFn: () =>
             surveyElementApi
-                .put(`/${id}`, payload)
+                .patch(`/${id}`, payload)
                 .then((res) => res.data as SurveysElementsResponse),
-        onSuccess: () =>
+        onSuccess: () => {
+            toast.success('Elemento atualizado com sucesso!');
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
-            }),
+            });
+        },
     });
