@@ -9,7 +9,7 @@ import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVari
 import '@xyflow/react/dist/style.css';
 import { Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion } from '../../../components/Accordion';
 import SpeedDialTooltipOpen, { CanvaActionsType } from '../../../components/SpeedDial/speeddialtest';
 import { SurveyElementDto } from '../../../dtos/SurveysElementsDto';
@@ -853,7 +853,7 @@ function CanvasContent() {
                                         {element.options && element.options.length > 0 ? (
                                             <ul>
                                                 {element.options.map((option) => {
-                                                    if (option.deletedAt) return <></>;
+                                                    if (option.deletedAt) return <React.Fragment key={option.id}></React.Fragment>;
                                                     return <li key={option.id}>{option.description}</li>;
                                                 })}
                                             </ul>
