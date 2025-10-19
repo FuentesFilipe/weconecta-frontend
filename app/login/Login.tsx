@@ -16,7 +16,7 @@ import { useAuth } from '../../providers/Auth/AuthProvider';
 import './index.css';
 
 export default function Login() {
-    const { setAuthToken } = useAuth();
+    const { setAuthToken, removeAuthToken } = useAuth();
     const router = useRouter();
 
     const [form, setForm] = useState<AuthPayload>({
@@ -40,6 +40,7 @@ export default function Login() {
 
     useEffect(() => {
         if (loginData && loginData.accessToken) {
+            removeAuthToken();
             setAuthToken(loginData.accessToken, rememberMe);
             toast.success('Login realizado com sucesso!');
             router.push('/');

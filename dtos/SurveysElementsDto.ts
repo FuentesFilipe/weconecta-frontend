@@ -1,3 +1,11 @@
+export type SurveyElementDto = {
+    id: number;
+    description: string;
+    type: SurveyElementType;
+    options: SurveyElementOption[];
+    deletedAt: Date | null;
+};
+
 export type SurveysElementsCreateDto = {
     description: string;
     type: SurveyElementType;

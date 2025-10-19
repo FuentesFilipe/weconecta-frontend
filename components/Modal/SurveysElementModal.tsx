@@ -3,7 +3,7 @@
 import { Button } from '@/components/Button';
 import { IconButton } from '@/components/IconButton';
 import { Input } from '@/components/Input';
-import { SurveyElementEnum, SurveyElementOption, SurveyElementType, SurveysElementsCreateDto } from '@/dtos/SurveysElementsDto';
+import { SurveyElementDto, SurveyElementEnum, SurveyElementOption, SurveyElementType, SurveysElementsCreateDto } from '@/dtos/SurveysElementsDto';
 import { useSurveysElementsCreateMutation, useSurveysElementsUpdateMutation } from '@/services/core/surveysElements/mutations';
 import { Add as AddIcon, Delete as DeleteIcon, Remove as RemoveIcon } from '@mui/icons-material';
 import { Card, CardActions, CardContent, Chip, Modal } from '@mui/material';
@@ -38,7 +38,7 @@ const DEFAULT_DATA = {
     options: [{ description: '' }, { description: '' }],
 }
 
-function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, onClose: VoidFunction, data: SurveysElementsCreateDto, id?: number }) {
+function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, onClose: VoidFunction, data: SurveyElementDto, id?: number }) {
     const [form, setForm] = React.useState<SurveysElementsCreateDto>({ ...data });
 
     const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation(form);
@@ -281,7 +281,7 @@ export function SurveysElementModal({
 }: NewSurveyElementProp) {
     const { data: surveyElementData, isLoading: surveyElementLoading } = useGetSurveysElementById(id);
 
-    if (surveyElementLoading) {
+    if (surveyElementLoading || (id && !surveyElementData)) {
         return (
             <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
                 <Loading />
@@ -289,5 +289,5 @@ export function SurveysElementModal({
         )
     }
 
-    return <CreateEditSurveyElement open={open} onClose={onClose} id={id} data={surveyElementData ?? DEFAULT_DATA} />
+    return <CreateEditSurveyElement open={open} onClose={onClose} id={id} data={!!id ? surveyElementData : DEFAULT_DATA} />
 }

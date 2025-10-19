@@ -11,13 +11,15 @@ interface AuthProviderProps {
     isLogged: (() => boolean)
     setAuthToken: ((token?: string, rememberMe?: boolean) => void)
     logout: (() => void)
+    removeAuthToken: (() => void)
 }
 
 const AuthContext = createContext<AuthProviderProps>({
     user: null,
     isLogged: () => false,
     setAuthToken: () => { },
-    logout: () => { }
+    logout: () => { },
+    removeAuthToken: () => { }
 })
 
 const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
@@ -47,7 +49,6 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
     const setAuthToken = (token?: string, rememberMe?: boolean) => {
         setToken(token)
         if (token) {
-            removeAuthToken()
             setStoreAuthToken(token, rememberMe)
         } else {
             removeAuthToken()
@@ -64,7 +65,8 @@ const AuthProvider: React.FC<{ children?: ReactNode }> = ({ children }) => {
         user,
         isLogged,
         setAuthToken,
-        logout
+        logout,
+        removeAuthToken,
     }
 
     return (
