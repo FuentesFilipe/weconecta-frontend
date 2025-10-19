@@ -3,15 +3,16 @@
 import { Input } from '@/components/Input';
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
-import { ArrowRight as ArrowRightIcon, Edit as EditIcon, Delete as DeleteIcon, Clear as ClearIcon } from '@mui/icons-material';
+import { ArrowRight as ArrowRightIcon, Clear as ClearIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
-import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow, useReactFlow, SelectionMode, ReactFlowProvider } from '@xyflow/react';
+import { addEdge, applyEdgeChanges, applyNodeChanges, Background, BackgroundVariant, ReactFlow, ReactFlowProvider, SelectionMode, useReactFlow } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion } from '../../../components/Accordion';
 import SpeedDialTooltipOpen, { CanvaActionsType } from '../../../components/SpeedDial/speeddialtest';
+import { SurveyElementDto } from '../../../dtos/SurveysElementsDto';
 import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import CustomNode from './CustomNode';
 import './index.css';
@@ -53,7 +54,8 @@ function CanvasContent() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [editingElement, setEditingElement] = useState<any>(null);
+    const [editingElementModal, setEditingElementModal] = useState<{ isOpen: boolean; surveyElement: SurveyElementDto }>
+        ({ isOpen: false, surveyElement: null as any });
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
     const [deleteItem, setDeleteItem] = useState<{
@@ -126,20 +128,19 @@ function CanvasContent() {
         saveToLocalStorage([...nodes, newNode], edges);
 
         setSelectedNodeId(newNodeId);
-        setIsEditMode(false);
-        setIsModalOpen(true);
+        setEditingElementModal({ isOpen: false, surveyElement: null as any });
     };
 
 
     const getSelectedNodeData = () => {
-        if (editingElement) {
+        if (editingElementModal.isOpen && editingElementModal.surveyElement) {
             return {
-                label: editingElement.description,
-                type: editingElement.type,
-                maxEdges: editingElement.options?.length || 2
+                label: editingElementModal.surveyElement.description,
+                type: editingElementModal.surveyElement.type,
+                maxEdges: editingElementModal.surveyElement.options?.length || 2
             };
         }
-        
+
         if (!selectedNodeId) return null;
         const node = nodes.find((n: any) => n.id === selectedNodeId);
         return node ? {
@@ -206,8 +207,7 @@ function CanvasContent() {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedNodeId(null);
-        setIsEditMode(false);
-        setEditingElement(null);
+        setEditingElementModal({ isOpen: false, surveyElement: null as any });
     };
 
 
@@ -216,13 +216,13 @@ function CanvasContent() {
         tipo: string;
         alternativas: string[];
     }) => {
-        if (editingElement) {
-            console.log('Atualizando elemento da sidebar:', editingElement);
-            setEditingElement(null);
+        if (editingElementModal.isOpen && editingElementModal.surveyElement) {
+            console.log('Atualizando elemento da sidebar:', editingElementModal.surveyElement);
+            setEditingElementModal({ isOpen: false, surveyElement: null as any });
             handleCloseModal();
             return;
         }
-        
+
         if (selectedNodeId && isEditMode) {
             const selectedNode = nodes.find((node: any) => node.id === selectedNodeId);
             if (!selectedNode) return;
@@ -315,7 +315,7 @@ function CanvasContent() {
         } else {
             const newNodeId = `node-${Date.now()}`;
             const nodeType: 'mensagem' | 'alternativa' | 'input' | 'fim' = 'mensagem';
-            
+
             const newNode = {
                 id: newNodeId,
                 type: 'customNode',
@@ -379,6 +379,10 @@ function CanvasContent() {
 
         handleCloseModal();
     };
+
+    useEffect(() => {
+        console.log(editingElementModal)
+    }, [editingElementModal])
 
 
     const handleConfirmDelete = () => {
@@ -588,10 +592,10 @@ function CanvasContent() {
 
     const handleDrop = useCallback((event: any) => {
         event.preventDefault();
-        
+
         try {
             const elementData = JSON.parse(event.dataTransfer.getData('application/json'));
-            
+
             const reactFlowBounds = event.currentTarget.getBoundingClientRect();
             const position = {
                 x: event.clientX - reactFlowBounds.left,
@@ -599,9 +603,9 @@ function CanvasContent() {
             };
 
             console.log('Drop realizado em:', position, 'com elemento:', elementData);
-            
+
             handleInsertOnCanvaAtPosition(elementData, position);
-            
+
         } catch (error) {
             console.error('Erro ao processar drop:', error);
         }
@@ -614,9 +618,9 @@ function CanvasContent() {
 
     const handleInsertOnCanvaAtPosition = (element: any, position: { x: number, y: number }) => {
         console.log('Inserindo elemento na posição:', position);
-        
+
         const newNodeId = `node-${Date.now()}`;
-        
+
         const newNode = {
             id: newNodeId,
             type: 'customNode',
@@ -667,7 +671,7 @@ function CanvasContent() {
 
         setNodes((prevNodes: any) => [...prevNodes, ...newNodes]);
         setEdges((prevEdges: any) => [...prevEdges, ...newEdges]);
-        
+
         saveToLocalStorage([...nodes, ...newNodes], [...edges, ...newEdges]);
 
         console.log('✅ Elemento inserido no canvas na posição:', {
@@ -686,7 +690,7 @@ function CanvasContent() {
 
     useEffect(() => {
         document.addEventListener('keydown', handleKeyDown);
-        
+
         return () => {
             document.removeEventListener('keydown', handleKeyDown);
         };
@@ -703,7 +707,7 @@ function CanvasContent() {
 
         const nodesToDelete = nodes.filter((node: any) => selectedNodes.includes(node.id));
         const nodeLabels = nodesToDelete.map((node: any) => node.data.label).join(', ');
-        
+
         setDeleteItem({
             type: 'node',
             id: 'multiple',
@@ -714,38 +718,37 @@ function CanvasContent() {
 
     const handleConfirmMultipleDelete = () => {
         const updatedNodes = nodes.filter((node: any) => !selectedNodes.includes(node.id));
-        
-        const updatedEdges = edges.filter((edge: any) => 
+
+        const updatedEdges = edges.filter((edge: any) =>
             !selectedNodes.includes(edge.source) && !selectedNodes.includes(edge.target)
         );
 
         setNodes(updatedNodes);
         setEdges(updatedEdges);
         saveToLocalStorage(updatedNodes, updatedEdges);
-        
+
         setSelectedNodes([]);
         setIsDeleteModalOpen(false);
         setDeleteItem(null);
-        
+
         console.log(`✅ ${selectedNodes.length} nós deletados com sucesso!`);
     };
 
     const handleEditSidebarElement = (element: any) => {
         console.log('Editando elemento da sidebar:', element);
-        setEditingElement(element);
+        setEditingElementModal({ isOpen: true, surveyElement: element });
         setSelectedNodeId(null);
         setIsEditMode(false);
-        setIsModalOpen(true);
     };
 
     const handleInsertOnCanva = (element: any) => {
         console.log('Inserindo elemento no canvas:', element);
         console.log('Element ID:', element.id);
         console.log('Element description:', element.description);
-        
+
         const newNodeId = `node-${Date.now()}`;
         const basePosition = { x: 250, y: 250 };
-        
+
         const newNode = {
             id: newNodeId,
             type: 'customNode',
@@ -796,7 +799,7 @@ function CanvasContent() {
 
         setNodes((prevNodes: any) => [...prevNodes, ...newNodes]);
         setEdges((prevEdges: any) => [...prevEdges, ...newEdges]);
-        
+
         saveToLocalStorage([...nodes, ...newNodes], [...edges, ...newEdges]);
 
         console.log('✅ Elemento inserido no canvas com filhos conectados:', {
@@ -813,27 +816,27 @@ function CanvasContent() {
                     <div className="canvas-sidebar-logo">
                         <img src='/logo_padrao_horizontal.png' alt="WeConecta" />
                     </div>
-                    <button 
+                    <button
                         className="canvas-sidebar-toggle"
                         onClick={() => setSidebarOpen(!sidebarOpen)}
                     >
                         {sidebarOpen ? '←' : '→'}
                     </button>
                 </div>
-                
+
                 <div className="canvas-sidebar-content">
                     <div className="canvas-sidebar-section">
                         <h3 className="canvas-sidebar-title">Mensagem</h3>
-                        <Input 
-                            placeholder='Pesquisar por Elementos do Questionário' 
-                            onChange={onInputChange} 
+                        <Input
+                            placeholder='Pesquisar por Elementos do Questionário'
+                            onChange={onInputChange}
                         />
                     </div>
-                    
+
                     <div className='canvas-options-list'>
                         {surveysElements?.map((element) => (
-                            <div 
-                                key={element.id} 
+                            <div
+                                key={element.id}
                                 className="canvas-option-item"
                                 draggable
                                 onDragStart={(e) => {
@@ -855,28 +858,27 @@ function CanvasContent() {
                                             </ul>
                                         ) : (
                                             <div className="canvas-option-subtitle">
-                                                {element.type === 'OPTION' ? 'Alternativa' : 
-                                                 element.type === 'MULTIPLE_CHOICE' ? 'Múltipla escolha' :
-                                                 element.type === 'INPUT' ? 'Campo de entrada' : 
-                                                 element.type === 'MESSAGE' ? 'Mensagem' : 'Elemento'}
+                                                {element.type === 'OPTION' ? 'Alternativa' :
+                                                    element.type === 'MULTIPLE_CHOICE' ? 'Múltipla escolha' :
+                                                        element.type === 'INPUT' ? 'Campo de entrada' :
+                                                            element.type === 'MESSAGE' ? 'Mensagem' : 'Elemento'}
                                             </div>
                                         )}
                                     </Accordion>
                                 </div>
                                 <div className="canvas-option-actions">
-                                    <IconButton 
+                                    <IconButton
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
-                                            console.log('Botão editar clicado para elemento:', element);
                                             handleEditSidebarElement(element);
                                         }}
                                         className="canvas-edit-button"
                                         title="Editar elemento"
                                     >
-                                        <EditIcon style={{ width: '1rem', height: '1rem' }}/>
+                                        <EditIcon style={{ width: '1rem', height: '1rem' }} />
                                     </IconButton>
-                                    <IconButton 
+                                    <IconButton
                                         onClick={(e) => {
                                             e.preventDefault();
                                             e.stopPropagation();
@@ -892,7 +894,7 @@ function CanvasContent() {
                             </div>
                         ))}
                     </div>
-                    
+
                     <div className="canvas-sidebar-footer">
                         {selectedNodes.length > 0 && (
                             <div className="selection-info">
@@ -900,7 +902,7 @@ function CanvasContent() {
                                     <div className="selection-count">
                                         {selectedNodes.length} selecionado{selectedNodes.length > 1 ? 's' : ''}
                                     </div>
-                                    <IconButton 
+                                    <IconButton
                                         className="clear-selection-btn"
                                         onClick={() => setSelectedNodes([])}
                                         title="Limpar seleção"
@@ -909,7 +911,7 @@ function CanvasContent() {
                                         <ClearIcon />
                                     </IconButton>
                                 </div>
-                                <IconButton 
+                                <IconButton
                                     className="delete-selected-btn"
                                     onClick={handleDeleteMultipleNodes}
                                     title="Deletar selecionados (Delete/Backspace)"
@@ -919,15 +921,15 @@ function CanvasContent() {
                                 </IconButton>
                             </div>
                         )}
-                        <button 
+                        <button
                             className="canvas-new-message-btn"
-                            onClick={() => setIsModalOpen(true)}
+                            onClick={() => setEditingElementModal({ isOpen: true, surveyElement: null as any })}
                         >
                             Nova Mensagem
                         </button>
                     </div>
                 </div>
-            </aside>
+            </aside >
 
             <div className="canvas-main-content">
                 <div style={{ height: '97vh' }}>
@@ -1020,7 +1022,7 @@ function CanvasContent() {
                         }}
                     >
                         <SpeedDialTooltipOpen canvaActions={{
-                            [CanvaActionsType.NEW_MESSAGE]: () => setIsModalOpen(true),
+                            [CanvaActionsType.NEW_MESSAGE]: () => setEditingElementModal({ isOpen: true, surveyElement: null as any }),
                             [CanvaActionsType.SAVE_CANVA]: () => console.log('Salvar'),
                             [CanvaActionsType.ORGANIZE_CANVA]: organizeCanvas,
                         }} />
@@ -1078,24 +1080,24 @@ function CanvasContent() {
                         <Background color="#FF894E" variant={BackgroundVariant.Dots} />
                     </ReactFlow>
 
-                    <SurveysElementModal
-                        open={isModalOpen}
-                        onClose={handleCloseModal}
-                        onConfirm={handleModalConfirm}
-                        initialData={getSelectedNodeData()}
-                        id={editingElement?.id}
-                    />
+                    {editingElementModal.isOpen &&
+                        <SurveysElementModal
+                            open={editingElementModal.isOpen}
+                            onClose={handleCloseModal}
+                            onConfirm={handleModalConfirm}
+                            id={editingElementModal?.surveyElement ? editingElementModal?.surveyElement?.id : undefined}
+                        />}
 
                     <ConfirmDeleteModal
                         open={isDeleteModalOpen}
                         onClose={handleCloseDeleteModal}
                         onConfirm={handleConfirmDelete}
-                        title={deleteItem?.type === 'node' 
+                        title={deleteItem?.type === 'node'
                             ? (deleteItem?.id === 'multiple' ? 'Deletar Nós Selecionados' : 'Deletar Nó')
                             : 'Deletar Conexão'
                         }
                         message={deleteItem?.type === 'node'
-                            ? (deleteItem?.id === 'multiple' 
+                            ? (deleteItem?.id === 'multiple'
                                 ? `Tem certeza que deseja deletar ${selectedNodes.length} nós selecionados?\n\n${deleteItem?.label}`
                                 : `Tem certeza que deseja deletar o nó "${deleteItem?.label}"?`)
                             : 'Tem certeza que deseja deletar esta conexão?'
@@ -1104,6 +1106,6 @@ function CanvasContent() {
                     />
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
