@@ -852,9 +852,10 @@ function CanvasContent() {
                                     >
                                         {element.options && element.options.length > 0 ? (
                                             <ul>
-                                                {element.options.map((option) => (
-                                                    <li key={option.id}>{option.description}</li>
-                                                ))}
+                                                {element.options.map((option) => {
+                                                    if (option.deletedAt) return <></>;
+                                                    return <li key={option.id}>{option.description}</li>;
+                                                })}
                                             </ul>
                                         ) : (
                                             <div className="canvas-option-subtitle">
