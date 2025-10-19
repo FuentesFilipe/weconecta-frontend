@@ -281,8 +281,6 @@ export function SurveysElementModal({
 }: NewSurveyElementProp) {
     const { data: surveyElementData, isLoading: surveyElementLoading } = useGetSurveysElementById(id);
 
-    console.log('surveyElementData', id);
-
     if (surveyElementLoading || (id && !surveyElementData)) {
         return (
             <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
