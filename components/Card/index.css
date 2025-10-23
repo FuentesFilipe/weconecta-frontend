@@ -1,0 +1,96 @@
+.card-box{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    height: 15rem;
+    width: 100%;
+    max-width: 13rem;
+    padding: 0.2rem;
+    border-color: #ff894e ;
+    border-width: 3px;
+    text-align: center;
+    gap: 0.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.top-icons {
+    color: #ff894e;
+    cursor: pointer;
+
+}
+.top-button-alignment{
+    margin-top: 0.7rem;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    justify-items: center;
+    align-items: center;
+    gap: 2.5rem;
+}
+
+
+.center-icon-alignment{
+    color: #ff894e;
+    cursor: pointer;
+    height: 4.5rem;
+    width: 4.5rem;
+    justify-self: center;
+    align-self: center;
+}
+
+
+.footer-icon-alignment{
+    color: #ff894e;
+    height: 1.2rem;
+    width: 1.2rem;
+    cursor: pointer;
+    margin-bottom: 0.7rem;
+}
+
+.footer-text h3{
+    font-size: 0.8rem;
+    color: #ff894e;
+}
+
+.footer-text h2 {
+    color: #FF894e;
+    background: linear-gradient(to bottom, #FF894e, #FF5500);
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.footer-text h2 {
+    font-size: 1rem;
+    font-weight: bold;
+    max-width: 13rem;
+    max-height: 5.5rem;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
+.h2-input {
+  color: #ff894e;
+  font-weight: bold;
+  font-size: 1.25rem;
+  width: 13rem;
+
+  border: none;
+  border-bottom: 2px solid #ff894e;
+  background-color: transparent;
+
+}
+
+h2 {
+  color: #ff894e;
+  font-weight: bold;
+  font-size: 1rem;
+}
+
+.cards-display{
+    display: grid;
+    gap: 1.5rem;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    justify-items: center;
+    padding: 1rem 0;
+}

@@ -1,0 +1,23 @@
+# Base image
+FROM node:24-alpine
+
+# Instalar pnpm globalmente
+RUN npm install -g pnpm
+
+# Criar diretório da aplicação
+WORKDIR /app
+
+# Copiar apenas package.json e lockfile para instalar deps primeiro (cache eficiente)
+COPY package.json ./
+
+# Instalar dependências
+RUN pnpm install --force
+
+# Copiar todo o código
+COPY . .
+
+# Expor porta do Next.js
+EXPOSE 3000
+
+# Comando padrão para rodar em dev
+CMD ["pnpm", "dev"]

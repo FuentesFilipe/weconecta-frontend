@@ -1,0 +1,212 @@
+/* Sidebar Styles */
+
+.menuItemWrapper {
+    .active {
+        svg {
+            color: #0c8bfc;
+        }
+    }
+}
+
+.custom-drawer {
+    .MuiDrawer-paper {
+        background: #fff;
+    }
+}
+
+.sidebarWrapper {
+    display: flex;
+    height: 100%;
+}
+
+.drawerPaper {
+    position: relative;
+    background-color: #343a40 !important;
+}
+
+/* Toolbar/Header */
+.toolbar {
+    min-height: 80px !important;
+    height: 80px;
+    padding: 0 !important;
+    width: 100%;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.toolbar-inner {
+    height: 100%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 0 1rem;
+    gap: 1rem;
+    transition: all 0.3s ease-in-out;
+}
+
+.toolbar-inner.closed {
+    padding: 0;
+    justify-content: center;
+}
+
+.logo-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.weconecta-logo {
+    width: 11rem;
+    height: auto;
+    object-fit: contain;
+}
+
+.hamburguer-icon {
+    cursor: pointer;
+    color: #4c4c4c !important;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+    &:hover {
+        color: #0c8bfc !important;
+    }
+}
+
+/* Menu Items */
+.menuItemWrapper {
+    padding: 0.25rem 1rem;
+    cursor: pointer;
+    transition: padding 0.3s ease-in-out;
+}
+
+.menuItemWrapper.closed {
+    padding: 0.25rem 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.menuItem {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    color: #4c4c4c;
+    transition: all 0.3s ease-in-out;
+    width: 100%;
+    
+    svg {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+    }
+    
+    &:hover {
+        background-color: #f0f0f0;
+    }
+}
+
+.menuItem.closed {
+    padding: 0.75rem;
+    width: 56px;
+    height: 56px;
+    gap: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menuItem.active {
+    background-color: #ebecfc;
+    
+    &:hover {
+        background-color: #e1e3fc;
+    }
+}
+
+.menuIcon {
+    min-width: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menuText {
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    color: #4c4c4c;
+    white-space: nowrap;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.menuText.active {
+    color: #0c8bfc;
+    font-weight: 500;
+}
+
+/* Footer/User Section */
+.weconecta-sidebar-footer {
+    padding: 1.25rem 1rem;
+    border-top: 1px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    background: #fff;
+    margin-top: auto;
+    transition: all 0.3s ease-in-out;
+    height: 95px;
+}
+
+.weconecta-sidebar-footer.closed {
+    padding: 1rem 0;
+    justify-content: center;
+}
+
+.weconecta-sidebar-user {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.weconecta-sidebar-footer:not(.closed) .weconecta-sidebar-user {
+    width: 100%;
+}
+
+.weconecta-sidebar-user-avatar {
+    min-width: 24px;
+    color: #4c4c4c;
+    flex-shrink: 0;
+}
+
+.weconecta-sidebar-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.125rem;
+    overflow: hidden;
+    opacity: 1;
+    transition: opacity 0.3s ease-in-out;
+}
+
+.weconecta-sidebar-user-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.weconecta-sidebar-user-email {
+    font-size: 0.8rem;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

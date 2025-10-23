@@ -1,0 +1,24 @@
+.modal-survey-element {
+    [aria-label='options-list'] {
+        padding: 1rem 0;
+        [aria-label='crossed-option'] {
+            input {
+                border: none;
+                text-decoration: line-through;
+                color: gray;
+            }
+        }
+    }
+}
+
+.delete-option[aria-label='delete-option'] {
+    svg {
+        fill: var(--secondary-color);
+    }
+}
+
+.delete-option[aria-label='add-option'] {
+    svg {
+        fill: var(--primary-color);
+    }
+}

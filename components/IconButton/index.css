@@ -1,0 +1,19 @@
+.custom-icon-button:hover {
+    cursor: pointer;
+}
+
+.custom-icon-button {
+    height: 2.5rem;
+    width: 2rem;
+
+    background-color: transparent;
+}
+
+.custom-icon-button:disabled {
+    background: rgba(200, 200, 200, 0.5);
+    cursor: not-allowed;
+
+    span {
+        color: rgba(0, 0, 0, 0.8);
+    }
+}

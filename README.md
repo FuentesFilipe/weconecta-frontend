@@ -1,85 +1,94 @@
-# Frontend - WeConecta
+# Execução (Atualizado)
 
-Repo frontend do time, desenvolvido com [Next.js](https://nextjs.org/) (React + App Router).
+- make install
+- docker compose up
 
-## 📋 Pré-requisitos
+# Executando com docker
 
-- [Node.js](https://nodejs.org/) >= 20
-- [npm](https://www.npmjs.com/) (já incluído na instalação do Node)
-- (Opcional) [VS Code](https://code.visualstudio.com/) + extensões para React/TS/ESLint/Prettier
+Instalar docker desktop (windows ou mac). Para ubuntu nao é necessário o docker desktop, apenas docker.
+Executar o seguinte comando, na pasta raiz do projeto frontend:
 
-> **OBS:**
-> É **fortemente recomendado** utilizar **Linux** ou **[WSL2 no Windows](https://learn.microsoft.com/windows/wsl/install)** para trabalhar neste projeto.
->
-> Em geral a DX é mais fluida em ambientes Unix-like devido a:
->
-> - Maior compatibilidade com ferramentas e scripts de linha de comando
-> - Instalação mais simples de dependências nativas e bibliotecas C/C++
-> - Menos problemas com diferenças de paths (`/` vs `\`) e permissões de arquivos
-> - Melhor integração com Docker e automações de build
->
-> Caso seja realmente não queira utilizar Linux ou WSL 😔:
->
-> - Utilize um terminal compatível com bash/zsh (Git Bash, PowerShell 7+)
-> - Considere gerenciadores como [Chocolatey](https://chocolatey.org/) ou [Scoop](https://scoop.sh/)
+- docker compose up
 
-## Instalação do projeto
+# Executando sem docker
 
-Clone o repositório e instale as dependências:
+## Instalação do Node Version Manager
 
-```bash
-git clone <url-do-repositorio>
-cd <nome-do-projeto-frontend>
+### Instalação windows
 
-pnpm install
+No windows, baixar a ultima versão por aqui https://github.com/coreybutler/nvm-windows/releases
+Durante a instação, só permitir que o NVM controle as versões do Node que já estão instaladas.
 
-```
+### Instalação bash
 
-## Executando o projeto
+No terminal executar:
 
-### Modo desenvolvimento
+- curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/master/install.sh | bash
+- export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+- source ~/.bashrc
+
+### Usando nvm
+
+No terminal, nvm install 23, para instalar a versão 23 do node. Após isso, será necessário executar apenas nvm use 23.
+Lembrando que o comando nvm use deverá sempre ser executado antes de rodar o projeto. Para evitar isso, poderá ser definida uma versão default
+do node com o comando abaixo:
+
+- nvm alias default 23
+
+### Execução do projeto
+
+No terminal, deve-se atualizar as dependencias através do comando:
+
+- npm install
+
+Para rodar o projeto local, deve-se executar o comando abaixo:
+
+- npm run dev
+
+## NextJs
+
+### Documentação
+
+https://nextjs.org/docs/app/api-reference/cli/create-next-app
+
+### Getting Started
+
+First, run the development server:
 
 ```bash
 npm run dev
-# ou: pnpm dev <----
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-A aplicação ficará disponível (por padrão) em http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-### Build de produção
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-```bash
-npm run build
-```
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-### Servir build de produção
+# Commits
 
-```bash
-npm run start
-```
+Os commits do projeto passam por verificação antes de sairem do local. Por isso, podem aparecer mensagens de erro ao tentar realizar commit. É importante
+que a versão do node esteja atualizada e que o código, sendo commitado, esteja formatado. Isso pode ser verificado através do comando:
 
-## Scripts úteis
+- npm run lint
 
-```bash
-npm run dev       # iniciar em desenvolvimento
-npm run build     # gerar build de produção
-npm run start     # servir build
-npm run lint      # checar lint (ESLint)
-npm run typecheck # checar tipos (se configurado com tsc)
-```
+Qualquer dúvida, é só clicar em 'show command output' e enviar um print do erro no discord.
 
-## Dicas rápidas do Next.js
+## Extensões recomendadas para o VSCode
 
-- **Rotas (App Router)**: arquivos em `app/` definem rotas automaticamente. Ex.: `app/page.tsx` → `/`, `app/dashboard/page.tsx` → `/dashboard`
-- **Variáveis de ambiente**: use `.env.local` (NÃO COMMITAR PLS). Prefixo `NEXT_PUBLIC_` para expor no client
-- **Imagens**: prefira `<Image />` de `next/image` para otimização automática
+- tailwind css intellisense
+- npm intellisense
+- prettier code formatter
+- eslint
 
-## Links úteis
+## Formatação de código
 
-- [Documentação do Next.js](https://nextjs.org/docs)
-- [App Router](https://nextjs.org/docs/app)
-- [Configuração de ESLint](https://nextjs.org/docs/app/building-your-application/configuring/eslint)
-- [Ambientes e variáveis](https://nextjs.org/docs/app/building-your-application/configuring/environment-variables)
-- [Next.js CLI](https://nextjs.org/docs/app/api-reference/next-cli)
-
----
+- Utilizar sempre o prettier como formatador padrão
+- Alterar configuração do VSCode para formatar ao salvar (format on save)

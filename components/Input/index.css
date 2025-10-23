@@ -1,0 +1,36 @@
+.custom-input {
+    width: 100%;
+
+    input {
+        height: 1rem;
+    }
+}
+
+.custom-input {
+    input:-webkit-autofill {
+        -webkit-box-shadow: 0 0 0px 1000px white inset; /* força fundo */
+        -webkit-text-fill-color: #000; /* cor do texto */
+        transition: background-color 5000s ease-in-out 0s; /* hack de longo prazo */
+    }
+
+    label {
+        font-size: 0.8rem;
+    }
+}
+
+.custom-input label.Mui-focused {
+    /* Altera cor do label flutuante */
+    color: var(--primary-color);
+}
+
+.custom-input .MuiOutlinedInput-root.Mui-focused {
+    & fieldset {
+        /* Altera cor da borda do input */
+        border-color: var(--primary-color);
+    }
+
+    svg {
+        /* Altera cor do svg */
+        color: var(--primary-color);
+    }
+}
