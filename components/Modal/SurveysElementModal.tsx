@@ -38,7 +38,7 @@ const DEFAULT_DATA = {
     options: [{ description: '' }, { description: '' }],
 }
 
-function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, onClose: VoidFunction, data: SurveyElementDto, id?: number }) {
+function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, onClose: VoidFunction, data: SurveyElementDto | SurveysElementsCreateDto, id?: number }) {
     const [form, setForm] = React.useState<SurveysElementsCreateDto>({ ...data });
 
     const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation(form);
@@ -289,5 +289,5 @@ export function SurveysElementModal({
         )
     }
 
-    return <CreateEditSurveyElement open={open} onClose={onClose} id={id} data={!!id ? surveyElementData : DEFAULT_DATA} />
+    return <CreateEditSurveyElement open={open} onClose={onClose} id={id} data={!!id ? (surveyElementData || DEFAULT_DATA) : DEFAULT_DATA} />
 }

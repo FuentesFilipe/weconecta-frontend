@@ -26,7 +26,7 @@ export default function AdicionarMembroModal({
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.USER);
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.COLLABORATOR);
 
   // Fechar modal com ESC
   useEffect(() => {
@@ -71,7 +71,7 @@ export default function AdicionarMembroModal({
     setNome('');
     setEmail('');
     setTelefone('');
-    setSelectedRole(UserRole.USER);
+    setSelectedRole(UserRole.COLLABORATOR);
     onClose();
   };
 
@@ -80,7 +80,7 @@ export default function AdicionarMembroModal({
     setNome('');
     setEmail('');
     setTelefone('');
-    setSelectedRole(UserRole.USER);
+    setSelectedRole(UserRole.COLLABORATOR);
     onClose();
   };
 
@@ -112,9 +112,9 @@ export default function AdicionarMembroModal({
           <div className={styles.roleButtons}>
             <button
               className={`${styles.roleButton} ${
-                selectedRole === UserRole.USER ? styles.roleButtonSelected : ''
+                selectedRole === UserRole.COLLABORATOR ? styles.roleButtonSelected : ''
               }`}
-              onClick={() => setSelectedRole(UserRole.USER)}
+              onClick={() => setSelectedRole(UserRole.COLLABORATOR)}
             >
               Usuário
             </button>
@@ -125,14 +125,6 @@ export default function AdicionarMembroModal({
               onClick={() => setSelectedRole(UserRole.ADMIN)}
             >
               Admin
-            </button>
-            <button
-              className={`${styles.roleButton} ${
-                selectedRole === 'OUTRO' ? styles.roleButtonSelected : ''
-              }`}
-              onClick={() => setSelectedRole('OUTRO' as UserRole)}
-            >
-              Outro
             </button>
           </div>
         </div>

@@ -145,5 +145,5 @@ export function SurveysModal({
         )
     }
 
-    return <CreateEditSurvey open={open} onClose={onClose} id={id} data={!!id ? surveyData : DEFAULT_DATA} />
+    return <CreateEditSurvey open={open} onClose={onClose} id={id} data={!!id ? (surveyData || DEFAULT_DATA) : DEFAULT_DATA} />
 }

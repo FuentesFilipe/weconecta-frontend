@@ -11,7 +11,7 @@ import { AlignCenterVertical, Save, Undo2 } from 'lucide-react';
 import { usePathname, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Accordion } from '../../../components/Accordion';
-import SpeedDialTooltipOpen, { CanvaActionsType } from '../../../components/SpeedDial/speeddialtest';
+import SpeedDialTooltipOpen, { CanvasActions } from '../../../components/SpeedDial/speeddialtest';
 import { SurveyElementDto } from '../../../dtos/SurveysElementsDto';
 import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import CustomNode from './CustomNode';

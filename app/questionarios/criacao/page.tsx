@@ -5,11 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Topbar } from '@/components/Topbar';
 import './index.css';
 
-interface CriacaoDeQuestionariosPageProps {
-  onSave?: () => void;
-}
-
-export default function CriacaoDeQuestionariosPage({ onSave }: CriacaoDeQuestionariosPageProps) {
+export default function CriacaoDeQuestionariosPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
   const router = useRouter();
@@ -29,7 +25,7 @@ export default function CriacaoDeQuestionariosPage({ onSave }: CriacaoDeQuestion
       console.log('Salvando questionário...');
       await new Promise(resolve => setTimeout(resolve, 2000));
 
-      if (onSave) onSave();
+      // Questionário salvo com sucesso
 
       console.log('Questionário salvo com sucesso!');
     } catch (error) {

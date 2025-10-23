@@ -13,13 +13,7 @@ import { SurveyDto } from "../../dtos/SurveyDto";
 import { useGetAllSurveys } from "../../services/core/surveys/queries";
 import styles from './page.module.css';
 
-type QuestionariosPageProps = {
-    isLoading?: boolean;
-}
-
-export default function QuestionariosPage({
-    isLoading: externalIsLoading = false
-}: QuestionariosPageProps) {
+export default function QuestionariosPage() {
     const [isTestModalOpen, setIsTestModalOpen] = useState(false);
     const [editingQuestionarioId, setEditingQuestionarioId] = useState<{ id: number | null; isOpen: boolean }>({ id: null, isOpen: false });
 
@@ -97,7 +91,7 @@ export default function QuestionariosPage({
                 onClose={() => {
                     setEditingQuestionarioId({ id: null, isOpen: false });
                 }}
-                id={editingQuestionarioId.id}
+                id={editingQuestionarioId.id || undefined}
             />}
             <SurveysElementModal open={isTestModalOpen} onClose={() => setIsTestModalOpen(false)} />
         </div>

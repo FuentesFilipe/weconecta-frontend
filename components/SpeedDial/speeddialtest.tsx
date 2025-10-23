@@ -53,7 +53,7 @@ export default function SpeedDialTooltipOpen({ canvasActions }: {
               },
             }}
             onClick={() => {
-              canvasActions[CanvasActions[key]]()
+              canvasActions[CanvasActions[key as keyof typeof CanvasActions]]()
               handleClose();
             }}
           />
