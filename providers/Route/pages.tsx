@@ -1,6 +1,6 @@
 import { UserRole } from '@/dtos/UserDto';
 import { HomeFilled } from '@mui/icons-material';
-import { BarChart, FileText, Palette, Users } from 'lucide-react';
+import { BarChart, FileText, Palette, Users, MessageCircle } from 'lucide-react';
 import { JSX } from 'react';
 
 export type Page = {
@@ -38,13 +38,6 @@ export const PAGES: Page[] = [
         name: 'Login',
     },
     {
-        path: '/teste',
-        sidebarEnabled: false,
-        requireRoles: [],
-        requireAuth: false,
-        name: 'Página de Teste',
-    },
-    {
         path: '/questionarios',
         sidebarEnabled: true,
         requireRoles: [UserRole.ADMIN],
@@ -52,6 +45,7 @@ export const PAGES: Page[] = [
         name: 'Questionários',
         icon: <FileText className='sidebar-icon' />,
     },
+    
     {
         path: '/questionarios/canva',
         sidebarEnabled: false,
@@ -61,7 +55,6 @@ export const PAGES: Page[] = [
         name: 'Canva',
         icon: <Palette className='sidebar-icon' />,
     },
-
     {
         path: '/membros',
         sidebarEnabled: true,
@@ -69,5 +62,14 @@ export const PAGES: Page[] = [
         requireAuth: true,
         name: 'Membros',
         icon: <Users className='sidebar-icon' />,
+    },
+    {
+        path: '/chatbot',
+        sidebarEnabled: false,
+        requireRoles: [],
+        requireAuth: false,
+        name: 'Chatbot',
+        icon: <MessageCircle className='sidebar-icon' />,
+        topbarDisabled: true,
     },
 ];
