@@ -3,9 +3,10 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { ArrowRight, Paperclip } from "lucide-react";
 import { useState } from 'react';
 import './index.css';
-import { Icon } from 'lucide-react';
+
 
 interface ChatbotProps {
   questionarioId?: string;
@@ -45,7 +46,7 @@ export default function Chatbot({ questionarioId }: ChatbotProps) {
               size="icon"
               className="attachment-icon"
             >
-              
+              <Paperclip className="w-5 h-5 icon-orange" />
             </Button>
 
             <Input
@@ -54,6 +55,16 @@ export default function Chatbot({ questionarioId }: ChatbotProps) {
               placeholder="Digite sua resposta aqui..."
               className="chatbot-input"
             />
+
+            <Button
+              type="submit"
+              variant="ghost"
+              size="icon"
+              className="send-icon"
+            >
+              <ArrowRight className="w-5 h-5" color="#e46f2c" />
+            </Button>
+            
           </form>
         </CardFooter>
       </Card>
