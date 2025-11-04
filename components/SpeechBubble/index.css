@@ -65,7 +65,7 @@
     height: 18px;
 }
 .sb-option-text {
-    color: #222;
+    color: #222 !important;
     font-size: 14px;
 }
 
