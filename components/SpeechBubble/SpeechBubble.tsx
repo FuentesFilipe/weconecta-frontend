@@ -6,7 +6,6 @@ import {
 import { surveyApi } from '@/services/core/surveys';
 import React, { useMemo, useState } from 'react';
 import './index.css';
-
 type SendPayload = {
     surveyId?: number;
     elementId?: number;

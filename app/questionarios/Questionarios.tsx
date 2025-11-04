@@ -1,25 +1,29 @@
 'use client';
 
-import { SurveysElementModal } from "@/components/Modal/SurveysElementModal";
+import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
+import SpeechBubble from '@/components/SpeechBubble';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { SurveyElementType } from '@/dtos/SurveysElementsDto';
 import { Filter, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { SurveysModal } from "../../components/Modal/SurveysModal";
-import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
-import { SurveyDto } from "../../dtos/SurveyDto";
-import { useGetAllSurveys } from "../../services/core/surveys/queries";
+import { SurveysModal } from '../../components/Modal/SurveysModal';
+import { SurveyCard } from '../../components/SurveyCard/SurveyCard';
+import { SurveyDto } from '../../dtos/SurveyDto';
+import { useGetAllSurveys } from '../../services/core/surveys/queries';
 import styles from './page.module.css';
 
 export default function QuestionariosPage() {
     const [isTestModalOpen, setIsTestModalOpen] = useState(false);
-    const [editingQuestionarioId, setEditingQuestionarioId] = useState<{ id: number | null; isOpen: boolean }>({ id: null, isOpen: false });
+    const [editingQuestionarioId, setEditingQuestionarioId] = useState<{
+        id: number | null;
+        isOpen: boolean;
+    }>({ id: null, isOpen: false });
 
     const [inputValue, setInputValue] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
-
 
     const typingTimeout = useRef<NodeJS.Timeout | null>(null);
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -36,11 +40,8 @@ export default function QuestionariosPage() {
         }, 400);
     };
 
-
-    const {
-        data: questionarios,
-        isLoading: questionariosLoading,
-    } = useGetAllSurveys({ search: searchTerm });
+    const { data: questionarios, isLoading: questionariosLoading } =
+        useGetAllSurveys({ search: searchTerm });
 
     const router = useRouter();
 
@@ -50,7 +51,6 @@ export default function QuestionariosPage() {
 
     return (
         <div className={styles.pageContainer}>
-
             {/* Seção de busca e filtros */}
             <div className={styles.searchSection}>
                 <div className={styles.searchContainer}>
@@ -59,50 +59,93 @@ export default function QuestionariosPage() {
                         <Input
                             placeholder='Pesquisar por Questionários'
                             onChange={onInputChange}
-                            value={inputValue}
                         />
                     </div>
                 </div>
 
                 <div className={styles.filterContainer}>
-                    <label className={styles.filterLabel}></label>
-                    <Button variant="outline" className={styles.filterButton}>
+                    <label className={styles.filterLabel}>Filtrar</label>
+                    <Button variant='outline' className={styles.filterButton}>
                         Adicionar Filtros
-                        <Filter className="ml-2 h-4 w-4" />
+                        <Filter className='ml-2 h-4 w-4' />
                     </Button>
                 </div>
 
-                <Button className={styles.newQuestionarioButton} onClick={() => setEditingQuestionarioId({ id: null, isOpen: true })}>
-                    <Plus className="mr-2 h-4 w-4" />
+                <Button
+                    className={styles.newQuestionarioButton}
+                    onClick={() =>
+                        setEditingQuestionarioId({ id: null, isOpen: true })
+                    }
+                >
+                    <Plus className='mr-2 h-4 w-4' />
                     Novo Questionário
                 </Button>
             </div>
 
             <Card className={styles.questionariosCard}>
                 <div className={styles.cardsGrid}>
-                    {questionarios && questionarios[0].length ? questionarios[0].map((survey) => (
-                        <SurveyCard
-                            key={survey.id}
-                            survey={survey}
-                            className={styles.surveyCard}
-                            onEdit={(surveyId: number) => {
-                                setEditingQuestionarioId({ id: surveyId, isOpen: true });
-                            }}
-                            onClick={handleRedirectToCanva}
-                        />
-                    )) : <></>}
+                    {questionarios && questionarios[0].length ? (
+                        questionarios[0].map((survey) => (
+                            <SurveyCard
+                                key={survey.id}
+                                survey={survey}
+                                className={styles.surveyCard}
+                                onEdit={(surveyId: number) => {
+                                    setEditingQuestionarioId({
+                                        id: surveyId,
+                                        isOpen: true,
+                                    });
+                                }}
+                                onClick={handleRedirectToCanva}
+                            />
+                        ))
+                    ) : (
+                        <></>
+                    )}
                 </div>
             </Card>
 
             {/* Modais */}
-            {editingQuestionarioId.isOpen && <SurveysModal
-                open={editingQuestionarioId.isOpen}
-                onClose={() => {
-                    setEditingQuestionarioId({ id: null, isOpen: false });
-                }}
-                id={editingQuestionarioId.id || undefined}
-            />}
-            <SurveysElementModal open={isTestModalOpen} onClose={() => setIsTestModalOpen(false)} />
+            {editingQuestionarioId.isOpen && (
+                <SurveysModal
+                    open={editingQuestionarioId.isOpen}
+                    onClose={() => {
+                        setEditingQuestionarioId({ id: null, isOpen: false });
+                    }}
+                    id={editingQuestionarioId.id || undefined}
+                />
+            )}
+            <SurveysElementModal
+                open={isTestModalOpen}
+                onClose={() => setIsTestModalOpen(false)}
+            />
+            {/* Overlay SpeechBubble (dev/test) - fixed on top of everything */}
+            <div
+                style={{ position: 'fixed', right: 24, top: 24, zIndex: 99999 }}
+            >
+                <SpeechBubble
+                    element={
+                        {
+                            id: 500,
+                            description:
+                                'Você possui alguma dor na região da lombar?',
+                            type: SurveyElementType.OPTION,
+                            options: [
+                                { id: 1, description: 'Sim' },
+                                { id: 2, description: 'Não' },
+                            ],
+                        } as any
+                    }
+                    isQuestion
+                    surveyId={123}
+                    onSend={(p) => {
+                        // quick dev handler
+                        // eslint-disable-next-line no-console
+                        console.log('SpeechBubble onSend', p);
+                    }}
+                    align='right'
+                />
+            </div>
         </div>
     );
 }

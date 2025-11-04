@@ -1,1 +1,1 @@
-export { SpeechBubble, SpeechBubble as default } from './SpeechBubble';
+export { default, SpeechBubble } from './SpeechBubble';
