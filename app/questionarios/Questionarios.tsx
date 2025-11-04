@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { SurveyElementType } from '@/dtos/SurveysElementsDto';
+import { sendSurveyResponse } from '@/services/core/surveys';
 import { Filter, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -67,16 +68,33 @@ export default function QuestionariosPage() {
         options: [],
     } as const;
 
-    const [userResponses, setUserResponses] = useState<{
-        text: string;
-        align: 'left' | 'right';
-    }[]>([]);
+    const [userResponses, setUserResponses] = useState<
+        {
+            text: string;
+            align: 'left' | 'right';
+        }[]
+    >([]);
 
     const questionAlign: 'left' | 'right' = 'right';
 
-    const oppositeAlign = (a: 'left' | 'right') => (a === 'left' ? 'right' : 'left');
+    const oppositeAlign = (a: 'left' | 'right') =>
+        a === 'left' ? 'right' : 'left';
 
-    const handleOptionBubbleSend = (payload: unknown) => {
+    const handleOptionBubbleSend = async (payload: unknown) => {
+        // explicitly POST to backend before rendering local response bubble
+        try {
+            const p = payload as { elementId?: number; value?: unknown };
+            const payloadToSend = {
+                elementId: p.elementId ?? optionBubbleElement.id,
+                value: p.value as string | number | number[],
+            };
+            await sendSurveyResponse(123, payloadToSend);
+        } catch (err) {
+            // keep UX flow but log the error — you can replace with toast/error UI
+            // eslint-disable-next-line no-console
+            console.error('Failed to send survey response', err);
+        }
+
         const val = (payload as { value?: unknown }).value;
         let text = '';
         if (typeof val === 'number') {
@@ -84,20 +102,42 @@ export default function QuestionariosPage() {
             text = opt?.description ?? String(val);
         } else if (Array.isArray(val)) {
             text = (val as number[])
-                .map((id) => optionBubbleElement.options.find((o) => o.id === id)?.description ?? String(id))
+                .map(
+                    (id) =>
+                        optionBubbleElement.options.find((o) => o.id === id)
+                            ?.description ?? String(id),
+                )
                 .join(', ');
         } else if (typeof val === 'string') {
             text = val;
         } else {
             text = '';
         }
-        setUserResponses((prev) => [...prev, { text, align: oppositeAlign(questionAlign) }]);
+        setUserResponses((prev) => [
+            ...prev,
+            { text, align: oppositeAlign(questionAlign) },
+        ]);
     };
 
-    const handleInputBubbleSend = (payload: unknown) => {
+    const handleInputBubbleSend = async (payload: unknown) => {
+        try {
+            const p = payload as { elementId?: number; value?: unknown };
+            const payloadToSend = {
+                elementId: p.elementId ?? inputBubbleElement.id,
+                value: p.value as string | number | number[],
+            };
+            await sendSurveyResponse(123, payloadToSend);
+        } catch (err) {
+            // eslint-disable-next-line no-console
+            console.error('Failed to send survey response', err);
+        }
+
         const val = (payload as { value?: unknown }).value;
         const text = typeof val === 'string' ? val : '';
-        setUserResponses((prev) => [...prev, { text, align: oppositeAlign(questionAlign) }]);
+        setUserResponses((prev) => [
+            ...prev,
+            { text, align: oppositeAlign(questionAlign) },
+        ]);
     };
 
     return (
@@ -199,9 +239,7 @@ export default function QuestionariosPage() {
                     }
                     isQuestion
                     surveyId={123}
-                    onSend={(p) => {
-                        handleOptionBubbleSend(p);
-                    }}
+                    onSend={handleOptionBubbleSend}
                     align='right'
                 />
 
@@ -216,14 +254,16 @@ export default function QuestionariosPage() {
                     }
                     isQuestion
                     surveyId={123}
-                    onSend={(p) => {
-                        handleInputBubbleSend(p);
-                    }}
+                    onSend={handleInputBubbleSend}
                     align='right'
                 />
                 {userResponses.map((r, i) => (
                     <div key={`resp-${i}`} style={{ width: '100%' }}>
-                        <SpeechBubble isQuestion={false} responseText={r.text} align={r.align} />
+                        <SpeechBubble
+                            isQuestion={false}
+                            responseText={r.text}
+                            align={r.align}
+                        />
                     </div>
                 ))}
             </div>
