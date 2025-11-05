@@ -9,65 +9,82 @@ import './index.css';
 
 
 interface ChatbotProps {
-  questionarioId?: string;
+    questionarioId: number;
+    clientId: string;
 }
 
-export default function Chatbot({ questionarioId }: ChatbotProps) {
-  const [input, setInput] = useState('');
+export default function ChatbotWrapper() {
+    const params = new URLSearchParams(window.location.search);
+    // Id do questionário
+    const questionarioId = Number(params.get('s'));
+    // Id de quem gerou o link para o questionário
+    const clientId = params.get('c');
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (input.trim()) {
-      console.log('Mensagem enviada:', input, 'Questionário ID:', questionarioId);
-      setInput('');
+    if (!questionarioId || !clientId) {
+        return <div>Parâmetros do questionário inválidos.</div>;
     }
-  };
 
-  return (
-    <div className="chatbot-container">
-      <Card className="chatbot-main">
-        <CardHeader className="chatbot-header">
-         <div aria-label='logo-group'>
-          <img 
-              src="/logo_padrao_horizontal.png" 
-              className="weconecta-logo" />
-          </div>
-        </CardHeader>
+    return (
+        <Chatbot questionarioId={questionarioId} clientId={clientId} />
+    );
+}
 
-        <CardContent className="chatbot-messages">
-          {/* Área das mensagens */}
-        </CardContent>
+function Chatbot({ questionarioId, clientId }: ChatbotProps) {
+    const [input, setInput] = useState('');
 
-        <CardFooter className="chatbot-input-container">
-          <form onSubmit={handleSubmit} className="chatbot-input-wrapper">
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              className="attachment-icon"
-            >
-              <Paperclip className="w-5 h-5 icon-orange" />
-            </Button>
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (input.trim()) {
+            console.log('Mensagem enviada:', input, 'Questionário ID:', questionarioId);
+            setInput('');
+        }
+    };
 
-            <Input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Digite sua resposta aqui..."
-              className="chatbot-input"
-            />
+    return (
+        <div className="chatbot-container">
+            <Card className="chatbot-main">
+                <CardHeader className="chatbot-header">
+                    <div aria-label='logo-group'>
+                        <img
+                            src="/logo_padrao_horizontal.png"
+                            className="weconecta-logo" />
+                    </div>
+                </CardHeader>
 
-            <Button
-              type="submit"
-              variant="ghost"
-              size="icon"
-              className="send-icon"
-            >
-              <ArrowRight className="w-5 h-5" color="#e46f2c" />
-            </Button>
-            
-          </form>
-        </CardFooter>
-      </Card>
-    </div>
-  );
+                <CardContent className="chatbot-messages">
+                    {/* Área das mensagens */}
+                </CardContent>
+
+                <CardFooter className="chatbot-input-container">
+                    <form onSubmit={handleSubmit} className="chatbot-input-wrapper">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="attachment-icon"
+                        >
+                            <Paperclip className="w-5 h-5 icon-orange" />
+                        </Button>
+
+                        <Input
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Digite sua resposta aqui..."
+                            className="chatbot-input"
+                        />
+
+                        <Button
+                            type="submit"
+                            variant="ghost"
+                            size="icon"
+                            className="send-icon"
+                        >
+                            <ArrowRight className="w-5 h-5" color="#e46f2c" />
+                        </Button>
+
+                    </form>
+                </CardFooter>
+            </Card>
+        </div>
+    );
 }
