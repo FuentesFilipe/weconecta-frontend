@@ -5,37 +5,48 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input';
 import { ArrowRight, Paperclip } from "lucide-react";
 import { useState } from 'react';
+import { Loading } from '../../components/ui';
+import { SurveyDto } from '../../dtos/SurveyDto';
+import { useGetSurveyByIdAndClientId } from '../../services/core/surveys/queries';
 import './index.css';
-
-
-interface ChatbotProps {
-    questionarioId: number;
-    clientId: string;
-}
 
 export default function ChatbotWrapper() {
     const params = new URLSearchParams(window.location.search);
     // Id do questionário
-    const questionarioId = Number(params.get('s'));
+    const questionarioId = Number(params.get('s')) ?? undefined;
     // Id de quem gerou o link para o questionário
-    const clientId = params.get('c');
+    const clientId = params.get('c') ?? undefined;
+
+    const { data: survey, isLoading, error } = useGetSurveyByIdAndClientId(questionarioId, clientId);
 
     if (!questionarioId || !clientId) {
         return <div>Parâmetros do questionário inválidos.</div>;
     }
 
+    if (error) {
+        return <div>Erro ao carregar o questionário.</div>;
+    }
+
+    if (isLoading) {
+        return <Loading />;
+    }
+
+    if (!survey) {
+        return <></>;
+    }
+
     return (
-        <Chatbot questionarioId={questionarioId} clientId={clientId} />
+        <Chatbot survey={survey} clientId={clientId} />
     );
 }
 
-function Chatbot({ questionarioId, clientId }: ChatbotProps) {
+function Chatbot({ survey, clientId }: { survey: SurveyDto, clientId: string }) {
     const [input, setInput] = useState('');
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (input.trim()) {
-            console.log('Mensagem enviada:', input, 'Questionário ID:', questionarioId);
+            console.log('Mensagem enviada:', input, 'Questionário ID:', survey.id, 'Client ID:', clientId);
             setInput('');
         }
     };

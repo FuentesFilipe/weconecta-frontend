@@ -21,3 +21,15 @@ export const useGetSurveysById = (surveyId?: number) =>
             (await surveyApi.get<SurveyDto>(`/${surveyId}`)).data,
         enabled: !!surveyId,
     });
+
+export const useGetSurveyByIdAndClientId = (
+    surveyId?: number,
+    clientId?: string,
+) =>
+    useQuery({
+        queryKey: [QUERY_KEYS.SURVEYS, surveyId, clientId],
+        queryFn: async () =>
+            (await surveyApi.get<SurveyDto>(`/${surveyId}/client/${clientId}`))
+                .data,
+        enabled: !!surveyId && !!clientId,
+    });
