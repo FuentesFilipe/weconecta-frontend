@@ -8,6 +8,7 @@ import React, { JSX } from 'react';
 
 import { SurveyDto } from '@/dtos/SurveyDto';
 import { toast } from 'react-toastify';
+import { useAuth } from '../../providers/Auth/AuthProvider';
 import { useSurveysCreateMutation, useSurveysDeleteMutation } from '../../services/core/surveys/mutations';
 import { IconButton } from '../IconButton';
 import './index.css';
@@ -26,6 +27,8 @@ export function SurveyCard({
     onClick,
     className = '',
 }: SurveyCardProps): JSX.Element {
+
+    const { user } = useAuth();
 
     const {
         mutate: deleteQuestionarioMutate,
@@ -62,7 +65,7 @@ export function SurveyCard({
     const handleCopyUrlClick = (e: React.MouseEvent) => {
         e.stopPropagation();
         navigator.clipboard
-            .writeText(survey.url)
+            .writeText(window.location.origin + '/chatbot/' + '?s=' + survey.id + '&c=' + user?.userId)
             .then(() => {
                 toast.info('URL copiada para a área de transferência!');
             })
