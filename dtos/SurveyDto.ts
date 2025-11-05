@@ -7,6 +7,8 @@ export type SurveyDto = {
     title: string;
     description: string;
     url: string;
+    flow: string | null;
+    firstSurveyElement: number | null;
 };
 
 export type SurveyResponse = {
