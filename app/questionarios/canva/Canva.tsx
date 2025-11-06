@@ -4,14 +4,14 @@ import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
 import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider, SelectionMode } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import React, { useCallback } from 'react';
-import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
-import CustomNode from '../../../components/CanvasComponents/CustomNode';
+import { useCallback } from 'react';
 import CanvasSidebar from '../../../components/CanvasComponents/CanvasSidebar';
 import CanvasToolbar from '../../../components/CanvasComponents/CanvasToolbar';
-import { useCanvasState } from '../../../hooks/useCanvasState';
-import { useCanvasOperations } from '../../../hooks/useCanvasOperations';
+import CustomNode from '../../../components/CanvasComponents/CustomNode';
 import { useCanvasHandlers } from '../../../hooks/useCanvasHandlers';
+import { useCanvasOperations } from '../../../hooks/useCanvasOperations';
+import { useCanvasState } from '../../../hooks/useCanvasState';
+import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import { ensureNodeFunctions } from '../../../utils/canvasUtils';
 import './index.css';
 
@@ -175,6 +175,16 @@ function CanvasContent() {
                 onClearSelection={canvasState.handleClearSelection}
                 onDeleteMultipleNodes={canvasHandlers.handleDeleteMultipleNodes}
                 onNewMessage={canvasState.handleNewMessage}
+                onDeleteSidebarElement={(deletedElement) => {
+                    console.log(`🗑️ Elemento excluído: ${deletedElement.id}`);
+
+                    // ✅ mantém padrão e evita erro de tipagem
+                    const fakeEvent = {
+                        target: { value: canvasState.searchTerm },
+                    } as React.ChangeEvent<HTMLInputElement>;
+
+                    canvasState.onInputChange(fakeEvent);
+                }}
             />
 
             <div className="canvas-main-content">

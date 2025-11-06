@@ -1,11 +1,11 @@
 'use client';
 
-import { Input } from '@/components/Input';
 import { Accordion } from '@/components/Accordion';
-import { IconButton } from '@mui/material';
-import { ArrowRight as ArrowRightIcon, Clear as ClearIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
-import React from 'react';
+import { Input } from '@/components/Input';
 import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
+import { ArrowRight as ArrowRightIcon, Clear as ClearIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
+import { IconButton } from '@mui/material';
+import React from 'react';
 
 interface CanvasSidebarProps {
   sidebarOpen: boolean;
@@ -19,6 +19,7 @@ interface CanvasSidebarProps {
   onClearSelection: () => void;
   onDeleteMultipleNodes: () => void;
   onNewMessage: () => void;
+  onDeleteSidebarElement: (element: SurveyElementDto) => void;
 }
 
 export default function CanvasSidebar({
@@ -91,6 +92,36 @@ export default function CanvasSidebar({
                   )}
                 </Accordion>
               </div>
+              <IconButton
+                onClick={async (e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  if (!element.id) return;
+
+                  try {
+                    const response = await fetch(`/api/surveys-elements/${element.id}`, {
+                      method: 'DELETE',
+                    });
+
+                    if (!response.ok) {
+                      console.error('Erro ao deletar o elemento:', response.statusText);
+                      alert('Erro ao deletar o elemento.');
+                      return;
+                    }
+
+                    console.log(`Elemento ${element.id} deletado com sucesso.`);
+                    onEditSidebarElement(element);
+                  } catch (error) {
+                    console.error('Erro ao tentar deletar o elemento:', error);
+                    alert('Erro ao tentar deletar o elemento.');
+                  }
+                }}
+                className="canvas-delete-button"
+                title="Excluir elemento"
+              >
+                <DeleteIcon style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
+              </IconButton>
+
               <div className="canvas-option-actions">
                 <IconButton
                   onClick={(e) => {
