@@ -3,6 +3,7 @@
 import { Accordion } from '@/components/Accordion';
 import { Input } from '@/components/Input';
 import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
+import { useSurveysElementsDeleteMutation } from '@/services/core/surveysElements/mutations';
 import { ArrowRight as ArrowRightIcon, Clear as ClearIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import React from 'react';
@@ -19,7 +20,6 @@ interface CanvasSidebarProps {
   onClearSelection: () => void;
   onDeleteMultipleNodes: () => void;
   onNewMessage: () => void;
-  onDeleteSidebarElement: (element: SurveyElementDto) => void;
 }
 
 export default function CanvasSidebar({
@@ -35,6 +35,16 @@ export default function CanvasSidebar({
   onDeleteMultipleNodes,
   onNewMessage
 }: CanvasSidebarProps) {
+
+  const { mutate: deleteSurveyElement, isPending } = useSurveysElementsDeleteMutation();
+
+  const handleDelete = (element: SurveyElementDto) => {
+    if (!element.id) return;
+    if (!confirm('Tem certeza que deseja deletar este elemento?')) return;
+
+    deleteSurveyElement(element.id);
+  };
+
   return (
     <aside className={`canvas-sidebar ${sidebarOpen ? "open" : "closed"}`}>
       <div className="canvas-sidebar-header">
@@ -92,32 +102,17 @@ export default function CanvasSidebar({
                   )}
                 </Accordion>
               </div>
+
+              {/* 🧹 Botão de deletar usando mutation */}
               <IconButton
-                onClick={async (e) => {
+                onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  if (!element.id) return;
-
-                  try {
-                    const response = await fetch(`/api/surveys-elements/${element.id}`, {
-                      method: 'DELETE',
-                    });
-
-                    if (!response.ok) {
-                      console.error('Erro ao deletar o elemento:', response.statusText);
-                      alert('Erro ao deletar o elemento.');
-                      return;
-                    }
-
-                    console.log(`Elemento ${element.id} deletado com sucesso.`);
-                    onEditSidebarElement(element);
-                  } catch (error) {
-                    console.error('Erro ao tentar deletar o elemento:', error);
-                    alert('Erro ao tentar deletar o elemento.');
-                  }
+                  handleDelete(element);
                 }}
                 className="canvas-delete-button"
                 title="Excluir elemento"
+                disabled={isPending}
               >
                 <DeleteIcon style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
               </IconButton>
@@ -138,7 +133,6 @@ export default function CanvasSidebar({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    console.log('Botão clicado para elemento:', element);
                     onInsertOnCanva(element);
                   }}
                   className="canvas-option-button"

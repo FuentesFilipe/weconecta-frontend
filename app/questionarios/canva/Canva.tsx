@@ -175,17 +175,8 @@ function CanvasContent() {
                 onClearSelection={canvasState.handleClearSelection}
                 onDeleteMultipleNodes={canvasHandlers.handleDeleteMultipleNodes}
                 onNewMessage={canvasState.handleNewMessage}
-                onDeleteSidebarElement={(deletedElement) => {
-                    console.log(`🗑️ Elemento excluído: ${deletedElement.id}`);
-
-                    // ✅ mantém padrão e evita erro de tipagem
-                    const fakeEvent = {
-                        target: { value: canvasState.searchTerm },
-                    } as React.ChangeEvent<HTMLInputElement>;
-
-                    canvasState.onInputChange(fakeEvent);
-                }}
             />
+
 
             <div className="canvas-main-content">
                 <div style={{ height: '97vh' }}>

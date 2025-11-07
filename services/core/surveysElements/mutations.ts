@@ -40,3 +40,21 @@ export const useSurveysElementsUpdateMutation = (
             });
         },
     });
+
+export const useSurveysElementsDeleteMutation = () =>
+    useMutation({
+        mutationFn: async (id: number) => {
+            const response = await surveyElementApi.delete(`/${id}`);
+            return response.data as SurveysElementsResponse;
+        },
+        onSuccess: () => {
+            toast.success('Elemento deletado com sucesso!');
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+            });
+        },
+        onError: () => {
+            toast.error('Erro ao deletar elemento!');
+        },
+    });
+
