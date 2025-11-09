@@ -50,6 +50,47 @@ function CanvasContent() {
     const isNodeModalOpen = canvasState.isModalOpen;
     const isSidebarModalOpen = canvasState.editingElementModal.isOpen;
 
+    // 👇 IMPLEMENTAÇÃO DA FUNÇÃO QUE REMOVE O NÓ APÓS DELEÇÃO DO DB (AJUSTE PRINCIPAL)
+    const handleDeleteSurveyElement = useCallback((deletedElementId: number) => {
+        console.log(`🗑️ Removendo nós do canvas para o elemento: ${deletedElementId}`);
+
+        // IMPORTANTE: Assumindo que o ID do elemento é salvo em 'node.data.id'
+        const flowNodeIdsToDelete = canvasOperations.nodes
+            .filter((node: any) => node.data?.id === deletedElementId)
+            .map((node: any) => node.id); // Este é o ID único do nó no React Flow
+
+        if (flowNodeIdsToDelete.length === 0) {
+            console.log('ℹ️ Nenhum nó no canvas para remover.');
+            return; // Nenhum nó no canvas usava este elemento
+        }
+
+        // 1. Filtra os nós (mantém apenas os que NÃO serão deletados)
+        const updatedNodes = canvasOperations.nodes.filter((node: any) =>
+            !flowNodeIdsToDelete.includes(node.id)
+        );
+
+        // 2. Filtra as arestas conectadas a esses nós
+        const updatedEdges = canvasOperations.edges.filter((edge: any) =>
+            !flowNodeIdsToDelete.includes(edge.source) && !flowNodeIdsToDelete.includes(edge.target)
+        );
+
+        // 3. Atualiza o estado do canvas e Local Storage
+        canvasOperations.setNodes(updatedNodes);
+        canvasOperations.setEdges(updatedEdges);
+        canvasOperations.saveToLocalStorage(updatedNodes, updatedEdges);
+
+        console.log(`✅ ${flowNodeIdsToDelete.length} nó(s) removido(s) do canvas.`);
+
+    }, [
+        canvasOperations.nodes,
+        canvasOperations.edges,
+        canvasOperations.setNodes,
+        canvasOperations.setEdges,
+        canvasOperations.saveToLocalStorage
+    ]);
+    // 👆 FIM DA IMPLEMENTAÇÃO
+
+
     const canvasHandlers = useCanvasHandlers({
         nodes: canvasOperations.nodes,
         edges: canvasOperations.edges,
@@ -175,8 +216,9 @@ function CanvasContent() {
                 onClearSelection={canvasState.handleClearSelection}
                 onDeleteMultipleNodes={canvasHandlers.handleDeleteMultipleNodes}
                 onNewMessage={canvasState.handleNewMessage}
-            />
+                onDeleteSurveyElement={handleDeleteSurveyElement} // <-- FUNÇÃO DELEÇÃO DB -> CANVAS
 
+            />
 
             <div className="canvas-main-content">
                 <div style={{ height: '97vh' }}>

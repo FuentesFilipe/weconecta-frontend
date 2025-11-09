@@ -20,6 +20,7 @@ interface CanvasSidebarProps {
   onClearSelection: () => void;
   onDeleteMultipleNodes: () => void;
   onNewMessage: () => void;
+  onDeleteSurveyElement: (elementId: number) => void;
 }
 
 export default function CanvasSidebar({
@@ -33,16 +34,28 @@ export default function CanvasSidebar({
   onInsertOnCanva,
   onClearSelection,
   onDeleteMultipleNodes,
-  onNewMessage
+  onNewMessage,
+  onDeleteSurveyElement
 }: CanvasSidebarProps) {
 
-  const { mutate: deleteSurveyElement, isPending } = useSurveysElementsDeleteMutation();
+  const deleteSurveyElementMutation = useSurveysElementsDeleteMutation();
+  const { mutateAsync: deleteSurveyElement } = deleteSurveyElementMutation;
+  const isLoading = deleteSurveyElementMutation?.status === 'pending';
+
 
   const handleDelete = (element: SurveyElementDto) => {
     if (!element.id) return;
     if (!confirm('Tem certeza que deseja deletar este elemento?')) return;
 
-    deleteSurveyElement(element.id);
+    // 1. Chama a mutação para deletar no backend
+    deleteSurveyElement(element.id)
+      .then(() => {
+        // 2. SUCESSO: Chama a função que remove o nó do canvas.
+        onDeleteSurveyElement(element.id!);
+      })
+      .catch((err) => {
+        console.error('Erro ao deletar elemento:', err);
+      });
   };
 
   return (
@@ -58,7 +71,6 @@ export default function CanvasSidebar({
           {sidebarOpen ? '←' : '→'}
         </button>
       </div>
-
       <div className="canvas-sidebar-content">
         <div className="canvas-sidebar-section">
           <h3 className="canvas-sidebar-title">Mensagem</h3>
@@ -67,7 +79,6 @@ export default function CanvasSidebar({
             onChange={onInputChange}
           />
         </div>
-
         <div className='canvas-options-list'>
           {surveysElements?.map((element) => (
             <div
@@ -103,7 +114,6 @@ export default function CanvasSidebar({
                 </Accordion>
               </div>
 
-              {/* 🧹 Botão de deletar usando mutation */}
               <IconButton
                 onClick={(e) => {
                   e.preventDefault();
@@ -112,7 +122,7 @@ export default function CanvasSidebar({
                 }}
                 className="canvas-delete-button"
                 title="Excluir elemento"
-                disabled={isPending}
+                disabled={isLoading}
               >
                 <DeleteIcon style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
               </IconButton>
@@ -133,6 +143,7 @@ export default function CanvasSidebar({
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
+                    console.log('Botão clicado para elemento:', element);
                     onInsertOnCanva(element);
                   }}
                   className="canvas-option-button"
@@ -144,7 +155,6 @@ export default function CanvasSidebar({
             </div>
           ))}
         </div>
-
         <div className="canvas-sidebar-footer">
           {selectedNodes.length > 0 && (
             <div className="selection-info">
