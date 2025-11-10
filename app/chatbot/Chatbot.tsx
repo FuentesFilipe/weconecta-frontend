@@ -14,6 +14,8 @@ import { sendSurveyResponse } from '@/services/core/surveys';
 import { useGetSurveysElementById } from '@/services/core/surveysElements/queries';
 import { ArrowRight, Paperclip } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { SurveyElementType } from '@/dtos/SurveysElementsDto';
+import { useSurveyConvo } from '@/hooks/useSurveyConvo';
 import { Loading } from '../../components/ui';
 import { SurveyDto } from '../../dtos/SurveyDto';
 import { useCompleteSurveyMutation } from '../../services/core/surveys/mutations';
@@ -33,11 +35,8 @@ export default function ChatbotWrapper() {
     // Id de quem gerou o link para o questionário
     const clientId = params.get('c') ?? undefined;
 
-    const {
-        data: survey,
-        isLoading,
-        error,
-    } = useGetSurveyByIdAndClientId(questionarioId, clientId);
+    // busca metadados antes de montar o chat
+    const { data: survey, isLoading, error } = useGetSurveyByIdAndClientId(questionarioId, clientId);
 
     if (!questionarioId || !clientId) {
         return <div>Parâmetros do questionário inválidos.</div>;
@@ -210,6 +209,11 @@ function Chatbot({
     const { mutate: completeSurvey, isPending: isCompleting } =
         useCompleteSurveyMutation();
 
+    // hook central, carrega historico, envia resposta e gerencia estado
+    const { messages, loading, error, sendText, sendOptions, sending, bottomRef}
+     = useSurveyConvo({ surveyId: survey.id!, clientId});
+
+    // envia texto ao backend via hook
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (input.trim()) {
@@ -231,6 +235,10 @@ function Chatbot({
 
             setInput('');
         }
+        const text = input.trim();
+        if (!text) return;
+        void sendText(text);
+        setInput('');
     };
 
     const handleCompleteSurvey = () => {
@@ -254,66 +262,45 @@ function Chatbot({
                     </div>
                 </CardHeader>
 
-                <CardContent className='chatbot-messages'>
-                    {/* Área das mensagens */}
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            gap: '1rem',
-                        }}
-                    >
-                        {messages.length === 0 && (
-                            <div
-                                style={{
-                                    textAlign: 'center',
-                                    color: '#999',
-                                    padding: '2rem',
-                                }}
-                            >
-                                Nenhuma mensagem ainda. Digite sua resposta
-                                abaixo.
-                            </div>
-                        )}
 
-                        {messages.map((msg, idx) => {
-                            if (msg.kind === 'question') {
-                                return (
-                                    <SpeechBubble
-                                        key={`q-${msg.element.id}-${idx}`}
-                                        element={msg.element}
-                                        isQuestion
-                                        surveyId={survey.id}
-                                        align={'left'}
-                                        onSend={(payload: SendPayload) =>
-                                            handleQuestionSend(payload)
-                                        }
-                                    />
-                                );
-                            }
-                            return (
-                                <SpeechBubble
-                                    key={`r-${idx}`}
-                                    isQuestion={false}
-                                    responseText={msg.text}
-                                    align={
-                                        msg.align === 'right' ? 'right' : 'left'
-                                    }
-                                />
-                            );
-                        })}
-                    </div>
+                <CardContent className="chatbot-messages">
+                    {loading && messages.length === 0 && <div>Carregando histórico...</div>}
+                    {error && <div className="text-red-500 text-sm">{error}</div>}
+
+                    {messages.map(m => (
+                        <div key={m.id} className={`mb-2 flex ${m.role === 'USER' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`${m.role === 'USER' ? 'bg-orange-500 text-white' : 'bg-neutral-200 text-neutral-900'} rounded-lg px-3 py-2 max-w-[75%] text-sm whitespace-pre-wrap`}>
+                                <div>{m.content}</div>
+
+                                {/* Renderiza opções quando a pergunta do BOT é de múltipla escolha */}
+                                {m.role !== 'USER' && m.options?.length && (m.type === SurveyElementType.OPTION || m.type === SurveyElementType.MULTIPLE_CHOICE) ? (
+                                    <div className="mt-2 flex flex-wrap gap-2">
+                                        {m.options.map(opt => (
+                                            <Button
+                                                key={opt.id}
+                                                size="sm"
+                                                variant="secondary"
+                                                onClick={() => sendOptions([opt.id!], m.surveyElementId)}
+                                            >
+                                                {opt.description}
+                                            </Button>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                        </div>
+                    ))}
+                    <div ref={bottomRef} />
                 </CardContent>
 
-                <CardFooter className='chatbot-input-container'>
-                    {isLastQuestion ? (
-                        <div
-                            className='chatbot-finish-wrapper'
-                            style={{
-                                width: '100%',
-                                display: 'flex',
-                                justifyContent: 'center',
-                            }}
+
+                <CardFooter className="chatbot-input-container">
+                    <form onSubmit={handleSubmit} className="chatbot-input-wrapper">
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="attachment-icon"
                         >
                             <Button
                                 onClick={handleCompleteSurvey}
