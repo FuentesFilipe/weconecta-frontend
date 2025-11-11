@@ -26,9 +26,10 @@ type NewSurveyElementProp = {
         alternativas: string[];
     }) => void
     initialData?: {
-        label: string;
-        type: string;
+        label?: string;
+        type?: string;
         maxEdges?: number;
+        options?: string[];
     } | null
 }
 
@@ -38,24 +39,97 @@ const DEFAULT_DATA = {
     options: [{ description: '' }, { description: '' }],
 }
 
-function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, onClose: VoidFunction, data: SurveyElementDto | SurveysElementsCreateDto, id?: number }) {
+function mapNodeTypeToSurveyElementType(nodeType?: string): SurveyElementType {
+    switch (nodeType) {
+        case 'alternativa':
+            return SurveyElementType.OPTION;
+        case 'input':
+            return SurveyElementType.INPUT;
+        case 'fim':
+            return SurveyElementType.MESSAGE;
+        case 'mensagem':
+        default:
+            return SurveyElementType.MESSAGE;
+    }
+}
+
+function resolveInitialType(nodeType?: string, optionsLength = 0) {
+    if (optionsLength > 0) {
+        return optionsLength > 1 ? SurveyElementType.MULTIPLE_CHOICE : SurveyElementType.OPTION;
+    }
+    return mapNodeTypeToSurveyElementType(nodeType);
+}
+
+function CreateEditSurveyElement({
+    open,
+    onClose,
+    data,
+    id,
+    onConfirm,
+    initialData
+}: {
+    open: boolean,
+    onClose: VoidFunction,
+    data: SurveyElementDto | SurveysElementsCreateDto,
+    id?: number,
+    onConfirm?: (data: { titulo: string; tipo: string; alternativas: string[] }) => void
+    initialData?: NewSurveyElementProp['initialData']
+}) {
     const [form, setForm] = React.useState<SurveysElementsCreateDto>({ ...data });
 
     const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation(form);
     const { mutate: updateSurveyElement, data: updateSurveyElementResponse } = useSurveysElementsUpdateMutation(id || 0, form);
 
     React.useEffect(() => {
+        if (initialData) {
+            const sanitizedOptions = (initialData.options || [])
+                .map((option) => option?.trim())
+                .filter((option): option is string => !!option && option.length > 0);
+
+            const resolvedType = resolveInitialType(initialData.type, sanitizedOptions.length);
+            const options =
+                resolvedType === SurveyElementType.MULTIPLE_CHOICE || resolvedType === SurveyElementType.OPTION
+                    ? (sanitizedOptions.length > 0
+                        ? sanitizedOptions.map((description) => ({ description }))
+                        : [...DEFAULT_DATA.options])
+                    : [];
+
+            setForm({
+                description: initialData.label || '',
+                type: resolvedType,
+                options
+            });
+            return;
+        }
+
         if (!id) {
             setForm({ ...DEFAULT_DATA });
         }
+    }, [initialData, id]);
 
+    React.useEffect(() => {
         if (createSurveyElementResponse || updateSurveyElementResponse) {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS, id] });
             onClose();
         }
-    }, [createSurveyElementResponse, updateSurveyElementResponse, id]);
+    }, [createSurveyElementResponse, updateSurveyElementResponse, id, onClose]);
 
     const handleConfirm = () => {
+        if (onConfirm) {
+            const alternativas = form.options
+                .filter((option) => !option.deletedAt && option.description.trim() !== '')
+                .map((option) => option.description);
+
+            onConfirm({
+                titulo: form.description,
+                tipo: SurveyElementEnum[form.type],
+                alternativas
+            });
+
+            onClose();
+            return;
+        }
+
         if (id) {
             updateSurveyElement();
         } else {
@@ -277,11 +351,13 @@ function CreateEditSurveyElement({ open, onClose, data, id }: { open: boolean, o
 export function SurveysElementModal({
     open,
     onClose,
-    id
+    id,
+    onConfirm,
+    initialData
 }: NewSurveyElementProp) {
     const { data: surveyElementData, isLoading: surveyElementLoading } = useGetSurveysElementById(id);
 
-    if (surveyElementLoading || (id && !surveyElementData)) {
+    if (!onConfirm && (surveyElementLoading || (id && !surveyElementData))) {
         return (
             <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
                 <Loading />
@@ -289,5 +365,14 @@ export function SurveysElementModal({
         )
     }
 
-    return <CreateEditSurveyElement open={open} onClose={onClose} id={id} data={!!id ? (surveyElementData || DEFAULT_DATA) : DEFAULT_DATA} />
+    return (
+        <CreateEditSurveyElement
+            open={open}
+            onClose={onClose}
+            id={id}
+            data={!!id ? (surveyElementData || DEFAULT_DATA) : DEFAULT_DATA}
+            onConfirm={onConfirm}
+            initialData={initialData}
+        />
+    );
 }

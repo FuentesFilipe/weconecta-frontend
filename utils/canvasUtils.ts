@@ -3,13 +3,18 @@
 import { SurveyElementDto } from "@/dtos/SurveysElementsDto";
 
 
-export const ensureNodeFunctions = (nodeList: any[], handleNodeDelete: (nodeId: string) => void, handleNodeDoubleClick: (nodeId: string) => void) => {
+export const ensureNodeFunctions = (
+  nodeList: any[],
+  handleNodeDelete: (nodeId: string) => void,
+  handleNodeDoubleClick: (nodeId: string) => void
+) => {
   return nodeList.map((node: any) => ({
     ...node,
     data: {
       ...node.data,
       onDelete: () => handleNodeDelete(node.id),
-      onDoubleClick: () => handleNodeDoubleClick(node.id)
+      onDoubleClick: () => handleNodeDoubleClick(node.id),
+      onEdit: () => handleNodeDoubleClick(node.id)
     }
   }));
 };
@@ -32,6 +37,7 @@ export const createNewNode = (
     maxEdges,
     onClick: () => console.log('Clique no novo nó'),
     onDoubleClick: () => handleNodeDoubleClick(id),
+    onEdit: () => handleNodeDoubleClick(id),
     onDelete: () => handleNodeDelete(id)
   }
 });
@@ -58,6 +64,7 @@ export const createAlternativeNodes = (
         maxEdges: 1,
         onClick: () => console.log('Clique na alternativa:', alternativa),
         onDoubleClick: () => handleNodeDoubleClick(`${parentNodeId}-alt-${index}`),
+        onEdit: () => handleNodeDoubleClick(`${parentNodeId}-alt-${index}`),
         onDelete: () => handleNodeDelete(`${parentNodeId}-alt-${index}`)
       }
     }));
@@ -92,6 +99,7 @@ export const createInputNode = (
         maxEdges: 1,
         onClick: () => console.log('Clique no input'),
         onDoubleClick: () => handleNodeDoubleClick(inputNodeId),
+        onEdit: () => handleNodeDoubleClick(inputNodeId),
         onDelete: () => handleNodeDelete(inputNodeId)
       }
     },

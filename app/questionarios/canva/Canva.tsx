@@ -33,6 +33,22 @@ function CanvasContent() {
     const canvasState = useCanvasState();
     const canvasOperations = useCanvasOperations();
     const { data: surveysElements } = useGetAllSurveysElements({ description: canvasState.searchTerm });
+    const selectedNode = canvasOperations.nodes.find((node: any) => node.id === canvasState.selectedNodeId);
+    const selectedNodeOptions = React.useMemo(() => {
+        if (!selectedNode) {
+            return [];
+        }
+
+        const childEdges = canvasOperations.edges.filter((edge: any) => edge.source === selectedNode.id);
+
+        return childEdges
+            .map((edge: any) => canvasOperations.nodes.find((node: any) => node.id === edge.target))
+            .filter((node: any) => !!node && typeof node.data?.label === 'string')
+            .map((node: any) => node.data.label.trim())
+            .filter((label: string) => label.length > 0);
+    }, [selectedNode, canvasOperations.edges, canvasOperations.nodes]);
+    const isNodeModalOpen = canvasState.isModalOpen;
+    const isSidebarModalOpen = canvasState.editingElementModal.isOpen;
 
     const canvasHandlers = useCanvasHandlers({
         nodes: canvasOperations.nodes,
@@ -67,14 +83,33 @@ function CanvasContent() {
             } else {
                 console.log('🗑️ Deletando nó:', canvasState.deleteItem.id);
 
-                const connectionsToRemove = canvasOperations.edges.filter((edge: any) =>
-                    edge.source === canvasState.deleteItem!.id || edge.target === canvasState.deleteItem!.id
+                const nodesToRemove = new Set<string>();
+                const collectDescendants = (nodeId: string) => {
+                    canvasOperations.edges.forEach((edge: any) => {
+                        if (edge.source === nodeId && !nodesToRemove.has(edge.target)) {
+                            nodesToRemove.add(edge.target);
+                            collectDescendants(edge.target);
+                        }
+                    });
+                };
+
+                nodesToRemove.add(canvasState.deleteItem.id);
+                collectDescendants(canvasState.deleteItem.id);
+
+                const connectionsToRemove = canvasOperations.edges.filter(
+                    (edge: any) =>
+                        nodesToRemove.has(edge.source) || nodesToRemove.has(edge.target)
                 );
+
+                console.log('🧹 Nós que serão removidos (incluindo descendentes):', Array.from(nodesToRemove));
                 console.log('🔗 Conexões que serão removidas:', connectionsToRemove);
 
-                const newNodes = canvasOperations.nodes.filter((node: any) => node.id !== canvasState.deleteItem!.id);
-                const newEdges = canvasOperations.edges.filter((edge: any) =>
-                    edge.source !== canvasState.deleteItem!.id && edge.target !== canvasState.deleteItem!.id
+                const newNodes = canvasOperations.nodes.filter(
+                    (node: any) => !nodesToRemove.has(node.id)
+                );
+                const newEdges = canvasOperations.edges.filter(
+                    (edge: any) =>
+                        !nodesToRemove.has(edge.source) && !nodesToRemove.has(edge.target)
                 );
 
                 console.log('📊 Antes da deleção - Nodes:', canvasOperations.nodes.length, 'Edges:', canvasOperations.edges.length);
@@ -162,11 +197,6 @@ function CanvasContent() {
                             event.stopPropagation();
                             canvasHandlers.handleEdgeDoubleClick(edge.id);
                         }}
-                        onPaneClick={(event) => {
-                            if (event.detail === 2) {
-                                canvasHandlers.handleCanvasDoubleClick(event);
-                            }
-                        }}
                         onDrop={canvasHandlers.handleDrop}
                         onDragOver={canvasHandlers.handleDragOver}
                         onSelectionChange={canvasHandlers.handleSelectionChange}
@@ -177,6 +207,23 @@ function CanvasContent() {
                     >
                         <Background color="#FF894E" variant={BackgroundVariant.Dots} />
                     </ReactFlow>
+
+                    {isNodeModalOpen && (
+                        <SurveysElementModal
+                            open={isNodeModalOpen}
+                            onClose={canvasState.handleCloseModal}
+                            onConfirm={canvasHandlers.handleModalConfirm}
+                            initialData={selectedNode
+                                ? {
+                                    label: selectedNode.data?.label,
+                                    type: selectedNode.data?.type,
+                                    maxEdges: selectedNode.data?.maxEdges,
+                                    options: selectedNodeOptions
+                                }
+                                : undefined
+                            }
+                        />
+                    )}
 
                     {canvasState.editingElementModal.isOpen &&
                         <SurveysElementModal

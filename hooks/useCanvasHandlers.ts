@@ -48,28 +48,6 @@ export function useCanvasHandlers({
     router.push(newPath || "/");
   }, [pathname, router]);
 
-  const handleCanvasDoubleClick = useCallback((event: any) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-
-    const newNodeId = `node-${Date.now()}`;
-    const newNode = createNewNode(
-      newNodeId,
-      { x: x - 75, y: y - 40 },
-      'Novo nó',
-      'mensagem',
-      2,
-      handleNodeDelete,
-      handleNodeDoubleClick
-    );
-
-    setNodes((prevNodes: any) => [...prevNodes, newNode]);
-    saveToLocalStorage([...nodes, newNode], edges);
-
-    handleNodeDoubleClick(newNodeId);
-  }, [nodes, edges, setNodes, saveToLocalStorage, handleNodeDoubleClick]);
-
   const handleNodeDelete = useCallback((nodeId: string) => {
     console.log('🗑️ handleNodeDelete chamado para:', nodeId);
     console.log('📋 Nodes atuais:', nodes.map((n: any) => ({ id: n.id, label: n.data.label })));
@@ -369,7 +347,6 @@ export function useCanvasHandlers({
 
   return {
     handleGoBack,
-    handleCanvasDoubleClick,
     handleNodeDelete,
     handleEdgeDoubleClick,
     handleModalConfirm,

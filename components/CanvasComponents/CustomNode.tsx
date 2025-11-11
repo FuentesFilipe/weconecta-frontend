@@ -13,12 +13,13 @@ export interface CustomNodeProps {
     maxEdges?: number;
     onClick?: () => void;
     onDoubleClick?: () => void;
+    onEdit?: () => void;
     onDelete?: () => void;
   };
 }
 
 const CustomNode = memo(({ id, data }: CustomNodeProps) => {
-  const { label, type, maxEdges = 2, onClick, onDoubleClick, onDelete } = data;
+  const { label, type, maxEdges = 2, onClick, onDoubleClick, onDelete, onEdit } = data;
 
   const getNodeColor = () => {
     switch (type) {
@@ -111,6 +112,16 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
       <button
         className="edit-button"
         title="Editar nó"
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          e.nativeEvent.stopImmediatePropagation();
+          if (onEdit) {
+            onEdit();
+            return;
+          }
+          onDoubleClick?.();
+        }}
       >
         <SquarePen size={12} />
       </button>
