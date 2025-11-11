@@ -4,7 +4,7 @@ import AdicionarMembroModal from '@/components/Modal/AdicionarMembroModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Filter, Plus } from 'lucide-react';
+import { Ban, Filter, Plus, UserPen } from 'lucide-react';
 import { useState } from 'react';
 import styles from './page.module.css';
 
@@ -109,6 +109,7 @@ export default function MembrosContent() {
                 <th className={styles.tableHeader}>Bloqueado</th>
                 <th className={styles.tableHeader}>Conta criada</th>
                 <th className={styles.tableHeader}>Questionários</th>
+                <th className={styles.tableHeader}>Ações</th>
               </tr>
             </thead>
             <tbody>
@@ -120,6 +121,17 @@ export default function MembrosContent() {
                   <td className={styles.tableCell}>{membro.bloqueado}</td>
                   <td className={styles.tableCell}>{membro.contaCriada}</td>
                   <td className={styles.tableCell}>{membro.questionarios}</td>
+                  <td className={styles.tableCell}>
+                    <div className={styles.actionButtonSpacer} >
+                      <Button variant="outline" className={styles.button}>
+                        <UserPen className="h-4 w-4" />
+                      </Button>
+
+                      <Button variant='destructive' className={styles.button}>
+                        <Ban className="  h-4 w-4" />
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
