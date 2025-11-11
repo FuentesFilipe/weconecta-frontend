@@ -43,9 +43,7 @@ export interface CompleteSurveyDTO {
 export const useCompleteSurveyMutation = () =>
     useMutation({
         mutationFn: (payload: CompleteSurveyDTO) =>
-            surveyApi
-                .post('/complete', payload)
-                .then((res) => res.data),
+            surveyApi.post('/complete', payload).then((res) => res.data),
         onSuccess: () => {
             toast.success('Questionário finalizado com sucesso!');
         },

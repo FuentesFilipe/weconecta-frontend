@@ -10,6 +10,7 @@ import {
     SelectionMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import { useSearchParams } from 'next/navigation';
 import React, { useCallback } from 'react';
 import CanvasSidebar from '../../../components/CanvasComponents/CanvasSidebar';
 import CanvasToolbar from '../../../components/CanvasComponents/CanvasToolbar';
@@ -34,6 +35,7 @@ export default function Canva() {
 }
 
 function CanvasContent() {
+    const searchParams = useSearchParams();
     // Hooks customizados
     const canvasState = useCanvasState();
     const canvasOperations = useCanvasOperations();
@@ -132,6 +134,11 @@ function CanvasContent() {
         handleNodeDoubleClick: canvasState.handleNodeDoubleClick,
     });
 
+    const handleFlowSave = useCallback(() => {
+        saveFlow();
+    }, [saveFlow]);
+
+    // Função para confirmar deleção
     const handleConfirmDelete = useCallback(() => {
         if (!canvasState.deleteItem) {
             console.error('❌ Nenhum item para deletar!');
@@ -301,7 +308,7 @@ function CanvasContent() {
             <div className='canvas-main-content'>
                 <div style={{ height: '97vh' }}>
                     <CanvasToolbar
-                        onSave={() => console.log('Salvar canvas')}
+                        onSave={() => handleFlowSave()}
                         onGoBack={canvasHandlers.handleGoBack}
                         onOrganizeCanvas={canvasOperations.organizeCanvas}
                     />
