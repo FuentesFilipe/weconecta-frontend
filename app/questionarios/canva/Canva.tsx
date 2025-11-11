@@ -278,7 +278,7 @@ function CanvasContent() {
     const nodesWithFunctions = ensureNodeFunctions(
         canvasOperations.nodes,
         canvasHandlers.handleNodeDelete,
-        canvasState.handleNodeDoubleClick,
+        (el) => canvasState.handleEditSidebarElement(el),
     );
 
     return (
