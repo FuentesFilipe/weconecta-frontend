@@ -1,11 +1,11 @@
 'use client';
 
-import React, { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Filter, Plus } from 'lucide-react';
 import AdicionarMembroModal from '@/components/Modal/AdicionarMembroModal';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Ban, Filter, Plus, UserPen } from 'lucide-react';
+import { useState } from 'react';
 import styles from './page.module.css';
 
 // Dados mockados para demonstração
@@ -42,6 +42,12 @@ const membrosData = [
 export default function MembrosContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   const handleAddMember = (membroData: {
     nome: string;
     email: string;
@@ -53,31 +59,36 @@ export default function MembrosContent() {
     alert('Membro adicionado com sucesso!');
   };
 
+  const filteredMembros = membrosData.filter(membro =>
+    membro.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    membro.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className={styles.pageContainer}>
-      
+
       {/* Seção de busca e filtros */}
       <div className={styles.searchSection}>
         <div className={styles.searchContainer}>
-          <label className={styles.searchLabel}>Busca</label>
+          <label className={styles.searchLabel}></label>
           <div className={styles.searchInputContainer}>
-            <Search className={styles.searchIcon} />
-            <Input 
-              placeholder="Procure por um membro"
-              className={styles.searchInput}
+            <Input
+              placeholder="Pesquisar por um Membro"
+              value={searchTerm}
+              onChange={handleSearch}
             />
           </div>
         </div>
-        
+
         <div className={styles.filterContainer}>
-          <label className={styles.filterLabel}>Filtrar</label>
+          <label className={styles.filterLabel}></label>
           <Button variant="outline" className={styles.filterButton}>
             Adicionar Filtros
             <Filter className="ml-2 h-4 w-4" />
           </Button>
         </div>
-        
-        <Button 
+
+        <Button
           className={styles.newMemberButton}
           onClick={() => setIsModalOpen(true)}
         >
@@ -85,7 +96,7 @@ export default function MembrosContent() {
           Novo Membro
         </Button>
       </div>
-      
+
       {/* Tabela de membros */}
       <Card className={styles.membersCard}>
         <div className={styles.tableContainer}>
@@ -98,10 +109,11 @@ export default function MembrosContent() {
                 <th className={styles.tableHeader}>Bloqueado</th>
                 <th className={styles.tableHeader}>Conta criada</th>
                 <th className={styles.tableHeader}>Questionários</th>
+                <th className={styles.tableHeader}>Ações</th>
               </tr>
             </thead>
             <tbody>
-              {membrosData.map((membro) => (
+              {filteredMembros.map((membro) => (
                 <tr key={membro.id} className={styles.tableRow}>
                   <td className={styles.tableCell}>{membro.nome}</td>
                   <td className={styles.tableCell}>{membro.email}</td>
@@ -109,6 +121,17 @@ export default function MembrosContent() {
                   <td className={styles.tableCell}>{membro.bloqueado}</td>
                   <td className={styles.tableCell}>{membro.contaCriada}</td>
                   <td className={styles.tableCell}>{membro.questionarios}</td>
+                  <td className={styles.tableCell}>
+                    <div className={styles.actionButtonSpacer} >
+                      <Button variant="outline" className={styles.button}>
+                        <UserPen className="h-4 w-4" />
+                      </Button>
+
+                      <Button variant='destructive' className={styles.button}>
+                        <Ban className="  h-4 w-4" />
+                      </Button>
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>

@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Filter, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { Input } from "../../components/Input";
+import { Input } from '@/components/ui/input';
 import { SurveysModal } from "../../components/Modal/SurveysModal";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
 import { SurveyDto } from "../../dtos/SurveyDto";
@@ -17,12 +17,15 @@ export default function QuestionariosPage() {
     const [isTestModalOpen, setIsTestModalOpen] = useState(false);
     const [editingQuestionarioId, setEditingQuestionarioId] = useState<{ id: number | null; isOpen: boolean }>({ id: null, isOpen: false });
 
+    const [inputValue, setInputValue] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
 
 
     const typingTimeout = useRef<NodeJS.Timeout | null>(null);
     const onInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const value = e.target.value;
+
+        setInputValue(value);
 
         if (typingTimeout.current) {
             clearTimeout(typingTimeout.current);
@@ -47,16 +50,22 @@ export default function QuestionariosPage() {
 
     return (
         <div className={styles.pageContainer}>
+
+            {/* Seção de busca e filtros */}
             <div className={styles.searchSection}>
                 <div className={styles.searchContainer}>
-                    <label className={styles.searchLabel}>Busca</label>
+                    <label className={styles.searchLabel}></label>
                     <div className={styles.searchInputContainer}>
-                        <Input placeholder='Pesquisar por Questionários' onChange={onInputChange} />
+                        <Input
+                            placeholder='Pesquisar por Questionários'
+                            onChange={onInputChange}
+                            value={inputValue}
+                        />
                     </div>
                 </div>
 
                 <div className={styles.filterContainer}>
-                    <label className={styles.filterLabel}>Filtrar</label>
+                    <label className={styles.filterLabel}></label>
                     <Button variant="outline" className={styles.filterButton}>
                         Adicionar Filtros
                         <Filter className="ml-2 h-4 w-4" />

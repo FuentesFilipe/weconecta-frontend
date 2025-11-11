@@ -32,13 +32,6 @@
   align-items: center;
 }
 
-.searchIcon {
-  position: absolute;
-  left: 1rem;
-  color: #6b7280;
-  z-index: 1;
-}
-
 .searchInput {
   padding-left: 2.75rem;
   border: 1px solid #d1d5db;
@@ -55,15 +48,15 @@
 .filterLabel {
   font-size: 0.875rem;
   font-weight: 500;
-  color: #374151;
+  color: #ff7300;
 }
 
 .filterButton {
+  border: 1px solid #ff7300;
+  color: #ff7300;
   background-color: white;
-  border: 1px solid #d1d5db;
-  color: #374151;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
   font-size: 0.875rem;
   font-weight: 500;
   cursor: pointer;
@@ -74,24 +67,20 @@
 }
 
 .filterButton:hover {
-  background-color: #f9fafb;
-  border-color: #9ca3af;
+  background-color: #ff7300;
+  color: white;
 }
 
 .newQuestionarioButton {
   background-color: #ff7300;
   color: white;
   border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
   font-size: 0.875rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  white-space: nowrap;
+  font-weight: 500;
+  transition: all 0.2s ease;
+  height: fit-content;
 }
 
 .newQuestionarioButton:hover {
@@ -158,9 +147,12 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: .5;
   }
@@ -171,16 +163,15 @@
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .cardsGrid {
     grid-template-columns: 1fr;
   }
 }
+
 .surveyCard:hover {
   transform: translateY(-5px);
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
   border-color: var(--secondary-color);
   background: #f9f9f9;
 }
-
-
