@@ -9,17 +9,22 @@ import {
     CardHeader,
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
+import { sendSurveyResponse } from '@/services/core/surveys';
+import { useGetSurveysElementById } from '@/services/core/surveysElements/queries';
 import { ArrowRight, Paperclip } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Loading } from '../../components/ui';
 import { SurveyDto } from '../../dtos/SurveyDto';
+import { useCompleteSurveyMutation } from '../../services/core/surveys/mutations';
 import { useGetSurveyByIdAndClientId } from '../../services/core/surveys/queries';
-import { useGetSurveysElementById } from '@/services/core/surveysElements/queries';
-import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
-import { sendSurveyResponse } from '@/services/core/surveys';
 import './index.css';
 
-type SendPayload = { surveyId?: number; elementId?: number; value: string | number | number[] };
+type SendPayload = {
+    surveyId?: number;
+    elementId?: number;
+    value: string | number | number[];
+};
 
 export default function ChatbotWrapper() {
     const params = new URLSearchParams(window.location.search);
@@ -53,13 +58,25 @@ export default function ChatbotWrapper() {
     return <Chatbot survey={survey} clientId={clientId} />;
 }
 
-function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) {
+function Chatbot({
+    survey,
+    clientId,
+}: {
+    survey: SurveyDto;
+    clientId: string;
+}) {
     // messages: a simple in-memory sequence combining questions (from the survey)
     // and user responses. We render question bubbles (left) and user bubbles (right).
     type QuestionMsg = { kind: 'question'; element: SurveyElementDto };
-    type ResponseMsg = { kind: 'response'; text: string; align?: 'left' | 'right' };
+    type ResponseMsg = {
+        kind: 'response';
+        text: string;
+        align?: 'left' | 'right';
+    };
     const [input, setInput] = useState('');
-    const [messages, setMessages] = useState<Array<QuestionMsg | ResponseMsg>>([]);
+    const [messages, setMessages] = useState<Array<QuestionMsg | ResponseMsg>>(
+        [],
+    );
 
     // current element id for the flow engine
     const [currentElementId, setCurrentElementId] = useState<number | null>(
@@ -76,7 +93,11 @@ function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) 
         if (!currentElement) return;
         setMessages((prev) => {
             const last = prev[prev.length - 1];
-            if (last && last.kind === 'question' && last.element.id === currentElement.id) {
+            if (
+                last &&
+                last.kind === 'question' &&
+                last.element.id === currentElement.id
+            ) {
                 return prev;
             }
             return [...prev, { kind: 'question', element: currentElement }];
@@ -129,7 +150,11 @@ function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) 
     };
 
     // when user answers a question, post and advance the flow
-    const handleQuestionSend = async (payload: { surveyId?: number; elementId?: number; value: string | number | number[] }) => {
+    const handleQuestionSend = async (payload: {
+        surveyId?: number;
+        elementId?: number;
+        value: string | number | number[];
+    }) => {
         const element = currentElement as SurveyElementDto | undefined | null;
         try {
             if (survey.id) {
@@ -154,27 +179,66 @@ function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) 
         let text = '';
         if (typeof payload.value === 'string') text = payload.value;
         else if (typeof payload.value === 'number') {
-            const opt = element?.options?.find((o) => o.id === payload.value as number);
+            const opt = element?.options?.find(
+                (o) => o.id === (payload.value as number),
+            );
             text = opt?.description ?? String(payload.value);
         } else if (Array.isArray(payload.value)) {
-            const parts = (payload.value as number[])
-                .map((id) => element?.options?.find((o) => o.id === id)?.description ?? String(id));
+            const parts = (payload.value as number[]).map(
+                (id) =>
+                    element?.options?.find((o) => o.id === id)?.description ??
+                    String(id),
+            );
             text = parts.join(', ');
         }
 
         // append user response bubble (right aligned)
-        setMessages((prev) => [...prev, { kind: 'response', text, align: 'right' }]);
+        setMessages((prev) => [
+            ...prev,
+            { kind: 'response', text, align: 'right' },
+        ]);
 
         // determine next element id from flow
-        const next = resolveNextElementId(survey.flow, payload.elementId ?? element?.id ?? null, payload.value);
+        const next = resolveNextElementId(
+            survey.flow,
+            payload.elementId ?? element?.id ?? null,
+            payload.value,
+        );
         setCurrentElementId(next);
     };
+    const [isLastQuestion, setIsLastQuestion] = useState(false);
+    const { mutate: completeSurvey, isPending: isCompleting } =
+        useCompleteSurveyMutation();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (input.trim()) {
-            setMessages((prev) => [...prev, { kind: 'response', text: input.trim(), align: 'right' }]);
+            setMessages((prev) => [
+                ...prev,
+                { kind: 'response', text: input.trim(), align: 'right' },
+            ]);
+            console.log(
+                'Mensagem enviada:',
+                input,
+                'Questionário ID:',
+                survey.id,
+                'Client ID:',
+                clientId,
+            );
+
+            // Quando você receber a sinalização do backend de que não há mais perguntas,
+            // defina: setIsLastQuestion(true)
+
             setInput('');
+        }
+    };
+
+    const handleCompleteSurvey = () => {
+        if (survey.id) {
+            completeSurvey({
+                userId: clientId,
+                surveyId: survey.id,
+            });
         }
     };
 
@@ -183,16 +247,32 @@ function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) 
             <Card className='chatbot-main'>
                 <CardHeader className='chatbot-header'>
                     <div aria-label='logo-group'>
-                        <img src='/logo_padrao_horizontal.png' className='weconecta-logo' />
+                        <img
+                            src='/logo_padrao_horizontal.png'
+                            className='weconecta-logo'
+                        />
                     </div>
                 </CardHeader>
 
                 <CardContent className='chatbot-messages'>
                     {/* Área das mensagens */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '1rem',
+                        }}
+                    >
                         {messages.length === 0 && (
-                            <div style={{ textAlign: 'center', color: '#999', padding: '2rem' }}>
-                                Nenhuma mensagem ainda. Digite sua resposta abaixo.
+                            <div
+                                style={{
+                                    textAlign: 'center',
+                                    color: '#999',
+                                    padding: '2rem',
+                                }}
+                            >
+                                Nenhuma mensagem ainda. Digite sua resposta
+                                abaixo.
                             </div>
                         )}
 
@@ -205,7 +285,9 @@ function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) 
                                         isQuestion
                                         surveyId={survey.id}
                                         align={'left'}
-                                        onSend={(payload: SendPayload) => handleQuestionSend(payload)}
+                                        onSend={(payload: SendPayload) =>
+                                            handleQuestionSend(payload)
+                                        }
                                     />
                                 );
                             }
@@ -214,7 +296,9 @@ function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) 
                                     key={`r-${idx}`}
                                     isQuestion={false}
                                     responseText={msg.text}
-                                    align={msg.align === 'right' ? 'right' : 'left'}
+                                    align={
+                                        msg.align === 'right' ? 'right' : 'left'
+                                    }
                                 />
                             );
                         })}
@@ -222,22 +306,72 @@ function Chatbot({ survey, clientId }: { survey: SurveyDto; clientId: string }) 
                 </CardContent>
 
                 <CardFooter className='chatbot-input-container'>
-                    <form onSubmit={handleSubmit} className='chatbot-input-wrapper'>
-                        <Button type='button' variant='ghost' size='icon' className='attachment-icon'>
-                            <Paperclip className='w-5 h-5 icon-orange' />
-                        </Button>
+                    {isLastQuestion ? (
+                        <div
+                            className='chatbot-finish-wrapper'
+                            style={{
+                                width: '100%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <Button
+                                onClick={handleCompleteSurvey}
+                                disabled={isCompleting}
+                                className='chatbot-finish-button'
+                                style={{
+                                    padding: '12px 24px',
+                                    fontSize: '16px',
+                                    fontWeight: '500',
+                                    backgroundColor: '#e46f2c',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: isCompleting
+                                        ? 'not-allowed'
+                                        : 'pointer',
+                                    opacity: isCompleting ? 0.7 : 1,
+                                }}
+                            >
+                                {isCompleting
+                                    ? 'Finalizando...'
+                                    : 'Finalizar questionário'}
+                            </Button>
+                        </div>
+                    ) : (
+                        <form
+                            onSubmit={handleSubmit}
+                            className='chatbot-input-wrapper'
+                        >
+                            <Button
+                                type='button'
+                                variant='ghost'
+                                size='icon'
+                                className='attachment-icon'
+                            >
+                                <Paperclip className='w-5 h-5 icon-orange' />
+                            </Button>
 
-                        <Input
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            placeholder='Digite sua resposta aqui...'
-                            className='chatbot-input'
-                        />
+                            <Input
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                placeholder='Digite sua resposta aqui...'
+                                className='chatbot-input'
+                            />
 
-                        <Button type='submit' variant='ghost' size='icon' className='send-icon'>
-                            <ArrowRight className='w-5 h-5' color='#e46f2c' />
-                        </Button>
-                    </form>
+                            <Button
+                                type='submit'
+                                variant='ghost'
+                                size='icon'
+                                className='send-icon'
+                            >
+                                <ArrowRight
+                                    className='w-5 h-5'
+                                    color='#e46f2c'
+                                />
+                            </Button>
+                        </form>
+                    )}
                 </CardFooter>
             </Card>
         </div>
