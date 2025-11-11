@@ -73,7 +73,7 @@ export default function MembrosContent() {
           <label className={styles.searchLabel}></label>
           <div className={styles.searchInputContainer}>
             <Input
-              placeholder="Pesquisar por um membro"
+              placeholder="Pesquisar por um Membro"
               value={searchTerm}
               onChange={handleSearch}
             />
@@ -112,7 +112,7 @@ export default function MembrosContent() {
               </tr>
             </thead>
             <tbody>
-              {membrosData.map((membro) => (
+              {filteredMembros.map((membro) => (
                 <tr key={membro.id} className={styles.tableRow}>
                   <td className={styles.tableCell}>{membro.nome}</td>
                   <td className={styles.tableCell}>{membro.email}</td>

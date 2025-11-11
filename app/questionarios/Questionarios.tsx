@@ -6,7 +6,7 @@ import { Card } from '@/components/ui/card';
 import { Filter, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
-import { Input } from "../../components/Input";
+import { Input } from '@/components/ui/input';
 import { SurveysModal } from "../../components/Modal/SurveysModal";
 import { SurveyCard } from "../../components/SurveyCard/SurveyCard";
 import { SurveyDto } from "../../dtos/SurveyDto";
