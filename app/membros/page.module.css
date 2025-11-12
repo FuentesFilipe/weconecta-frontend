@@ -57,9 +57,9 @@
 }
 
 .filterButton {
-  border: 1px solid #ff7300;
-  color: #ff7300;
-  background-color: white;
+  border: 1px solid #ff7300 !important;
+  color: #ff7300 !important;
+  background-color: white !important;
   border-radius: 6px;
   padding: 0.5rem 1rem;
   font-size: 0.875rem;
@@ -72,8 +72,76 @@
 }
 
 .filterButton:hover {
-  background-color: #ff7300;
-  color: white;
+  background-color: #ff7300 !important;
+  color: white !important;
+}
+
+.filterButton * {
+  color: inherit !important;
+}
+
+.filterButton [data-slot="select-value"] {
+  color: #ff7300 !important;
+}
+
+.filterButton:hover [data-slot="select-value"] {
+  color: white !important;
+}
+
+.filterButton svg {
+  color: #ff7300 !important;
+}
+
+.filterButton:hover svg {
+  color: white !important;
+}
+
+.membrosFilterDropdown {
+  background-color: white !important;
+  border: 1px solid #e5e7eb !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+.membrosFilterDropdown * {
+  color: #ff7300 !important;
+}
+
+.membrosFilterItem {
+  color: #ff7300 !important;
+  cursor: pointer !important;
+}
+
+.membrosFilterItem * {
+  color: #ff7300 !important;
+}
+
+.membrosFilterItem:hover,
+.membrosFilterItem[data-highlighted] {
+  background-color: #fff7ed !important;
+  color: #ff7300 !important;
+}
+
+.membrosFilterItem:hover *,
+.membrosFilterItem[data-highlighted] * {
+  color: #ff7300 !important;
+}
+
+.membrosFilterItem[data-state="checked"] {
+  background-color: #fff7ed !important;
+  color: #ff7300 !important;
+  font-weight: 500 !important;
+}
+
+.membrosFilterItem[data-state="checked"] * {
+  color: #ff7300 !important;
+}
+
+.membrosFilterItem svg {
+  color: #ff7300 !important;
+}
+
+.membrosFilterItem [data-slot="select-item-text"] {
+  color: #ff7300 !important;
 }
 
 .newMemberButton {

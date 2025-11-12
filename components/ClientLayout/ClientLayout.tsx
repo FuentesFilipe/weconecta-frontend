@@ -2,7 +2,7 @@
 
 import { Sidebar } from "@/components/Sidebar";
 import { useEffect, useState } from "react";
-import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import { UserRole } from "../../dtos/UserDto";
 import { useAuth } from "../../providers/Auth/AuthProvider";
 import { useRoute } from "../../providers/Route/RouteProvider";
@@ -21,16 +21,84 @@ function PageName() {
 
 export default function ClientLayout({ children }: { children: React.ReactNode }) {
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const { user, logout } = useAuth();
+    const { user, isLogged, logout } = useAuth();
     const { currentPage } = useRoute();
+    const router = useRouter();
 
     useEffect(() => {
-        if (currentPage?.requireAuth && !user) {
-            toast.warning('Você precisa estar logado para acessar essa página.');
-            logout();
+        // Só verifica autenticação se a página requer autenticação
+        // Não chama logout() aqui para evitar chamadas desnecessárias à API
+        // Se não há usuário nem token, apenas redireciona
+        if (currentPage?.requireAuth && !user && !isLogged()) {
+            router.push('/login');
         }
-    }, [user])
+    }, [user, isLogged, currentPage, router])
 
+    // Se a página requer autenticação mas o usuário não está logado, aguarda carregar
+    if (currentPage?.requireAuth && !user && !isLogged()) {
+        return <></>;
+    }
+
+    // Se há usuário e a página requer roles específicos, verifica permissão
+    // Isso deve ser verificado ANTES de renderizar o layout, mesmo para páginas sem sidebar
+    if (user && currentPage?.requireRoles && currentPage.requireRoles.length > 0) {
+        if (!currentPage.requireRoles.includes(user.role as UserRole)) {
+            const handleBack = async () => {
+                // Faz logout e redireciona para login
+                // Como o usuário está logado (chegou neste ponto), sempre faz logout
+                await logout();
+            };
+
+            return (
+                <div className="layout-container">
+                    <main className="main-content">
+                        <div style={{ 
+                            display: 'flex', 
+                            flexDirection: 'column', 
+                            alignItems: 'center', 
+                            justifyContent: 'center', 
+                            minHeight: '100vh',
+                            gap: '1rem',
+                            padding: '2rem'
+                        }}>
+                            <h2 style={{ fontSize: '1.5rem', fontWeight: 600, color: '#333', margin: 0 }}>
+                                Acesso negado
+                            </h2>
+                            <p style={{ fontSize: '1rem', color: '#666', margin: 0, textAlign: 'center' }}>
+                                Você não tem permissão para acessar essa página.
+                            </p>
+                            <button
+                                id="back-to-login-btn"
+                                onClick={handleBack}
+                                style={{
+                                    padding: '0.75rem 1.5rem',
+                                    fontSize: '1rem',
+                                    fontWeight: 500,
+                                    color: '#fff',
+                                    backgroundColor: '#0c8bfc',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    transition: 'background-color 0.2s ease',
+                                    marginTop: '1rem'
+                                }}
+                                onMouseOver={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#0a7ae0';
+                                }}
+                                onMouseOut={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#0c8bfc';
+                                }}
+                            >
+                                Voltar para Login
+                            </button>
+                        </div>
+                    </main>
+                </div>
+            );
+        }
+    }
+
+    // Se a página não requer sidebar, renderiza apenas o conteúdo
     if (currentPage && !currentPage?.sidebarEnabled) {
         return (
             <div className="layout-container">
@@ -39,12 +107,9 @@ export default function ClientLayout({ children }: { children: React.ReactNode }
         );
     }
 
-    if (!user) {
+    // Se não há usuário e a página requer sidebar, aguarda carregar
+    if (!user && currentPage?.sidebarEnabled) {
         return <></>;
-    }
-
-    if (currentPage?.requireRoles.length && !currentPage?.requireRoles.includes(user?.role as UserRole)) {
-        return <div>Você não tem permissão para acessar essa página.</div>;
     }
 
     return (

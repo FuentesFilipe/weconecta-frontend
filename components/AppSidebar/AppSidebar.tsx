@@ -1,11 +1,11 @@
-import { CircleUser, TrendingUp, Calendar, Home, icons, Inbox, Search, Settings, Users, FileUser } from 'lucide-react';
+'use client';
 
-import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar';
+import { CircleUser, TrendingUp, Users, FileUser, LogOut } from 'lucide-react';
+
+import { Sidebar, SidebarContent, SidebarFooter, SidebarGroup, SidebarGroupContent, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '../ui/sidebar';
+import { useAuth } from '@/providers/Auth/AuthProvider';
+import { UserRole } from '@/dtos/UserDto';
 import './index.css';
-
-// export type AppSidebarProps = {
-//     children: React.ReactNode;
-// };
 
 const items = [
     {
@@ -28,13 +28,24 @@ const items = [
     }
 ];
 
-const user = {
-    name: "Usuário",
-    email: "exemplo@exemplo.com",
-    icon: CircleUser,
-}
-
 export function AppSidebarComponent() {
+    const { user, logout } = useAuth();
+
+    const handleLogout = () => {
+        logout();
+    };
+
+    const getUserRoleLabel = (role: UserRole) => {
+        switch (role) {
+            case UserRole.ADMIN:
+                return 'Administrador';
+            case UserRole.COLLABORATOR:
+                return 'Colaborador';
+            default:
+                return 'Usuário';
+        }
+    };
+
     return (
         <Sidebar className='app-sidebar'>
             <SidebarHeader className="weconecta-sidebar-header">
@@ -60,12 +71,26 @@ export function AppSidebarComponent() {
                 <SidebarGroup />
             </SidebarContent>
             <SidebarFooter className="weconecta-sidebar-footer">
-                <div className="weconecta-sidebar-user">
-                    <user.icon className="weconecta-sidebar-user-avatar" />
-                    <div className="weconecta-sidebar-user-info">
-                        <span className="weconecta-sidebar-user-name"> {user.name} </span>
-                        <span className="weconecta-sidebar-user-email"> {user.email} </span>
+                <div className="weconecta-sidebar-user-section">
+                    <div className="weconecta-sidebar-user">
+                        <CircleUser className="weconecta-sidebar-user-avatar" />
+                        <div className="weconecta-sidebar-user-info">
+                            <span className="weconecta-sidebar-user-name">
+                                {user?.friendlyName || 'Usuário'}
+                            </span>
+                            <span className="weconecta-sidebar-user-email">
+                                {user?.role ? getUserRoleLabel(user.role) : 'Carregando...'}
+                            </span>
+                        </div>
                     </div>
+                    <button
+                        onClick={handleLogout}
+                        className="weconecta-sidebar-logout-button"
+                        title="Sair"
+                    >
+                        <LogOut className="weconecta-sidebar-logout-icon" />
+                        <span className="weconecta-sidebar-logout-text">Sair</span>
+                    </button>
                 </div>
             </SidebarFooter>
         </Sidebar>

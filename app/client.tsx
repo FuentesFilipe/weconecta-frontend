@@ -21,7 +21,8 @@ function QueryClient({ children }: { children: React.ReactNode }) {
         },
         (error: unknown) => {
             if (error instanceof AxiosError && error.response?.status === 401) {
-                logout();
+                // Chama logout sem await, pois não queremos bloquear o interceptor
+                void logout();
             }
             return Promise.reject(error instanceof Error ? error : new Error('Unknown error'));
         }

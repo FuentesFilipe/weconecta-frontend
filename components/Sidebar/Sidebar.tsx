@@ -4,20 +4,38 @@ import { PAGES } from '@/providers/Route/pages';
 import { Menu } from '@mui/icons-material';
 import { Box, Drawer, List, Toolbar, Typography } from '@mui/material';
 import { usePathname, useRouter } from 'next/navigation';
+import { LogOut, CircleUser } from 'lucide-react';
+import { useAuth } from '@/providers/Auth/AuthProvider';
+import { UserRole } from '@/dtos/UserDto';
 import './index.css';
-import { UserIcon } from 'lucide-react';
 
 const Sidebar = ({
     sidebarOpen,
     setSidebarOpen,
-    user = { name: "Administrador", email: "weconecta@weconecta.com", icon: UserIcon },
 }: {
     sidebarOpen: boolean;
     setSidebarOpen: any;
-    user?: { name: string; email: string; icon: any };
 }) => {
     const pathname = usePathname();
-    const Icon = user.icon;
+    const { user, logout } = useAuth();
+
+    const getUserRoleLabel = (role: UserRole) => {
+        switch (role) {
+            case UserRole.ADMIN:
+                return 'Administrador';
+            case UserRole.COLLABORATOR:
+                return 'Colaborador';
+            default:
+                return 'Usuário';
+        }
+    };
+
+    const handleLogout = () => {
+        void logout();
+    };
+
+    const userName = user?.friendlyName || 'Usuário';
+    const userRole = user?.role ? getUserRoleLabel(user.role) : 'Carregando...';
     return (
         <Box className='sidebarWrapper'>
             <Drawer
@@ -74,17 +92,46 @@ const Sidebar = ({
 
                 <Box className={`weconecta-sidebar-footer ${!sidebarOpen ? 'closed' : ''}`} sx={{ mt: 'auto' }}>
                     <div className='weconecta-sidebar-user'>
-                        <Icon className='weconecta-sidebar-user-avatar' />
+                        <CircleUser className='weconecta-sidebar-user-avatar' />
                         {sidebarOpen && (
                             <div className='weconecta-sidebar-user-info'>
                                 <Typography className='weconecta-sidebar-user-name' sx={{ color: '#333' }}>
-                                    {user.name}
+                                    {userName}
                                 </Typography>
                                 <Typography className='weconecta-sidebar-user-email' sx={{ color: '#777', fontSize: 14 }}>
-                                    {user.email}
+                                    {userRole}
                                 </Typography>
                             </div>
                         )}
+                    </div>
+                    <div
+                        id="logout-btn"
+                        className={`menuItemWrapper ${!sidebarOpen ? 'closed' : ''}`}
+                        onClick={handleLogout}
+                        style={{ cursor: 'pointer' }}
+                    >
+                        <Box className={`menuItem ${!sidebarOpen ? 'closed' : ''}`}>
+                            <Box
+                                className='menuIcon'
+                                sx={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    color: '#4c4c4c',
+                                }}
+                            >
+                                <LogOut size={24} style={{ width: '24px', height: '24px' }} />
+                            </Box>
+                            {sidebarOpen && (
+                                <Typography
+                                    variant='body1'
+                                    className='menuText'
+                                    sx={{ fontSize: 18, fontWeight: 500 }}
+                                >
+                                    Sair
+                                </Typography>
+                            )}
+                        </Box>
                     </div>
                 </Box>
                 </Box>

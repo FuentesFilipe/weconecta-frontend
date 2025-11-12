@@ -64,61 +64,105 @@ Sidebar Footer
 .weconecta-sidebar-footer {
     position: relative;
     background-color: white;
-    padding: 20px 0;
+    padding: 16px 0;
     margin-bottom: 24px;
     display: flex;
     justify-content: center;
 }
 
-.weconecta-sidebar-footer::before,
-.weconecta-sidebar-footer::after {
+.weconecta-sidebar-footer::before {
     content: '';
     position: absolute;
     left: 12px;
     right: 12px;
+    top: 0;
     height: 1px;
     background-color: #e0e0e0;
 }
 
-.weconecta-sidebar-footer::before {
-    top: 0;
-}
-
-.weconecta-sidebar-footer::after {
-    bottom: 0;
+.weconecta-sidebar-user-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 100%;
+    padding: 0 16px;
 }
 
 .weconecta-sidebar-user {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-left: 8px;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
 }
 
 .weconecta-sidebar-user-avatar {
     width: 36px;
     height: 36px;
-    margin-left: 24px;
-    color: black;
+    color: #4d4d4d;
+    flex-shrink: 0;
 }
 
 .weconecta-sidebar-user-info {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    padding: 0 16px;
-    text-align: left;
+    flex: 1;
+    min-width: 0;
 }
 
 .weconecta-sidebar-user-name {
     font-weight: 600;
     font-size: 15px;
-    margin-left: 8px;
-    color: black;
+    color: #1a1a1a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
 }
 
 .weconecta-sidebar-user-email {
     font-size: 13px;
-    margin-left: 8px;
     color: #6b6b6b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 100%;
+}
+
+.weconecta-sidebar-logout-button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    background-color: transparent;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6b6b6b;
+    font-size: 14px;
+    font-weight: 500;
+    width: 100%;
+    justify-content: center;
+}
+
+.weconecta-sidebar-logout-button:hover {
+    background-color: #fee2e2;
+    border-color: #ef4444;
+    color: #dc2626;
+}
+
+.weconecta-sidebar-logout-button:active {
+    background-color: #fecaca;
+    transform: scale(0.98);
+}
+
+.weconecta-sidebar-logout-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+.weconecta-sidebar-logout-text {
+    font-weight: 500;
 }

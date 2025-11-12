@@ -153,34 +153,42 @@
 
 /* Footer/User Section */
 .weconecta-sidebar-footer {
-    padding: 1.25rem 1rem;
+    padding: 1rem 0;
     border-top: 1px solid #e0e0e0;
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    align-items: flex-start;
     justify-content: flex-start;
     background: #fff;
     margin-top: auto;
     transition: all 0.3s ease-in-out;
-    height: 95px;
+    gap: 0.5rem;
 }
 
 .weconecta-sidebar-footer.closed {
     padding: 1rem 0;
-    justify-content: center;
+    align-items: center;
+    gap: 0.75rem;
 }
 
 .weconecta-sidebar-user {
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    width: 100%;
+    padding: 0 1rem;
 }
 
-.weconecta-sidebar-footer:not(.closed) .weconecta-sidebar-user {
-    width: 100%;
+.weconecta-sidebar-footer.closed .weconecta-sidebar-user {
+    justify-content: center;
+    width: auto;
+    padding: 0;
 }
 
 .weconecta-sidebar-user-avatar {
-    min-width: 24px;
+    min-width: 32px;
+    width: 32px;
+    height: 32px;
     color: #4c4c4c;
     flex-shrink: 0;
 }
@@ -192,6 +200,8 @@
     overflow: hidden;
     opacity: 1;
     transition: opacity 0.3s ease-in-out;
+    flex: 1;
+    min-width: 0;
 }
 
 .weconecta-sidebar-user-name {

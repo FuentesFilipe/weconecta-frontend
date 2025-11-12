@@ -8,7 +8,9 @@
         "start": "next start",
         "lint": "eslint ./components",
         "lintFix": "eslint ./app ./components --fix",
-        "prepare": "husky install"
+        "prepare": "husky install",
+        "cy:open": "cypress open",
+        "cy:run": "cypress run"
     },
     "eslintConfig": {
         "extends": [
@@ -58,6 +60,7 @@
         "@types/node": "^20",
         "@types/react": "^19",
         "@types/react-dom": "^19",
+        "cypress": "^15.6.0",
         "eslint": "^9.33.0",
         "eslint-config-next": "15.4.6",
         "eslint-config-prettier": "^10.1.8",

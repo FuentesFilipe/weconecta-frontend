@@ -44,6 +44,7 @@ layout-container {
     position: relative;
     height: 100vh;
     padding: 0.5rem;
+    justify-content: center;
     gap: 0.5rem;
     overflow: hidden;
 }

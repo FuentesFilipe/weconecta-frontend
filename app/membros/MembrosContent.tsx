@@ -4,6 +4,13 @@ import AdicionarMembroModal from '@/components/Modal/AdicionarMembroModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { Ban, Filter, Plus, UserPen } from 'lucide-react';
 import { useState } from 'react';
 import styles from './page.module.css';
@@ -17,7 +24,8 @@ const membrosData = [
     telefone: '(57) 9.9988-2457',
     bloqueado: '20/04/23',
     contaCriada: '20/04/23',
-    questionarios: 'Questionário'
+    questionarios: 'Questionário',
+    role: 'admin'
   },
   {
     id: 2,
@@ -26,7 +34,8 @@ const membrosData = [
     telefone: '(57) 9.9847-5471',
     bloqueado: '20/04/23',
     contaCriada: '20/04/23',
-    questionarios: 'Questionário'
+    questionarios: 'Questionário',
+    role: 'usuario'
   },
   {
     id: 3,
@@ -35,7 +44,8 @@ const membrosData = [
     telefone: '(57) 9.9988-2457',
     bloqueado: '20/04/23',
     contaCriada: '20/04/23',
-    questionarios: 'Questionário'
+    questionarios: 'Questionário',
+    role: 'usuario'
   }
 ];
 
@@ -43,6 +53,7 @@ export default function MembrosContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<string>('all');
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
@@ -59,10 +70,15 @@ export default function MembrosContent() {
     alert('Membro adicionado com sucesso!');
   };
 
-  const filteredMembros = membrosData.filter(membro =>
-    membro.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    membro.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredMembros = membrosData.filter(membro => {
+    const matchesSearch =
+      membro.nome.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      membro.email.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesRole = roleFilter === 'all' || membro.role === roleFilter;
+    
+    return matchesSearch && matchesRole;
+  });
 
   return (
     <div className={styles.pageContainer}>
@@ -82,10 +98,17 @@ export default function MembrosContent() {
 
         <div className={styles.filterContainer}>
           <label className={styles.filterLabel}></label>
-          <Button variant="outline" className={styles.filterButton}>
-            Adicionar Filtros
-            <Filter className="ml-2 h-4 w-4" />
-          </Button>
+          <Select value={roleFilter} onValueChange={setRoleFilter}>
+            <SelectTrigger className={styles.filterButton}>
+              <Filter className="h-4 w-4" />
+              <SelectValue placeholder="Filtrar por tipo" />
+            </SelectTrigger>
+            <SelectContent className={styles.membrosFilterDropdown}>
+              <SelectItem value="all" className={styles.membrosFilterItem}>Todos</SelectItem>
+              <SelectItem value="admin" className={styles.membrosFilterItem}>Admin</SelectItem>
+              <SelectItem value="usuario" className={styles.membrosFilterItem}>Usuário</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <Button

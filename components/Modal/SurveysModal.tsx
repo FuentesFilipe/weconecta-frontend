@@ -54,8 +54,10 @@ function CreateEditSurvey({ open, onClose, data, id }: { open: boolean, onClose:
 
         if (createSurveyElementResponse) {
             queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS, id] });
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS] });
+            onClose(); // Fecha o modal após criar/editar com sucesso
         }
-    }, [createSurveyElementResponse]);
+    }, [createSurveyElementResponse, id, onClose]);
 
     const handleConfirm = () => {
         createSurveyElement();
