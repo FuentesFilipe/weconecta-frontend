@@ -54,9 +54,18 @@ export function useCanvasOperations() {
             if (savedNodes && savedEdges) {
                 const parsedNodes = JSON.parse(savedNodes || '{}');
                 const parsedEdges = JSON.parse(savedEdges || '{}');
+                if (
+                    Array.isArray(parsedNodes) ||
+                    Array.isArray(parsedEdges) ||
+                    !parsedNodes[surveyId!] ||
+                    !Object.values(parsedNodes[surveyId!]).length ||
+                    !Object.values(parsedEdges[surveyId!]).length
+                ) {
+                    return null;
+                }
                 return {
-                    nodes: parsedNodes[surveyId!] ?? null,
-                    edges: parsedEdges[surveyId!] ?? null,
+                    nodes: parsedNodes[surveyId!] ?? [],
+                    edges: parsedEdges[surveyId!] ?? [],
                 };
             }
         } catch (error) {
