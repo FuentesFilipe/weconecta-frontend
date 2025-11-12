@@ -1,6 +1,6 @@
 import {
     SurveysElementsCreateDto,
-    SurveysElementsResponse
+    SurveysElementsResponse,
 } from '@/dtos/SurveysElementsDto';
 import { queryClient } from '@/services/query-client';
 import QUERY_KEYS from '@/utils/contants/queries';
@@ -41,20 +41,21 @@ export const useSurveysElementsUpdateMutation = (
         },
     });
 
-
-
 export const useSurveysElementsSoftDeleteMutation = () =>
-    useMutation({
-        mutationFn: async (id: number) => {
-            const payload = { deletedAt: new Date().toISOString() };
-            const response = await surveyElementApi.patch(`/${id}`, payload);
-            return response.data as SurveysElementsResponse;
-        },
+    useMutation<SurveysElementsResponse, unknown, number>({
+        mutationFn: (id: number) =>
+            surveyElementApi
+                .patch(`/${id}`, { deletedAt: new Date().toISOString() })
+                .then((res) => res.data as SurveysElementsResponse),
         onSuccess: () => {
             toast.success('Elemento deletado com sucesso!');
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS] });
+
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+                refetchType: 'all',
+            });
         },
-        onError: () => {
-            toast.error('Falha ao deletar elemento.');
+        onError: (error) => {
+            console.error('Falha no soft delete da API:', error);
         },
     });

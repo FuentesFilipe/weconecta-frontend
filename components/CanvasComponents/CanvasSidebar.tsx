@@ -3,11 +3,11 @@
 import { Accordion } from '@/components/Accordion';
 import { Input } from '@/components/Input';
 import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
-// ✨ 1. Importando a mutação correta
 import { useSurveysElementsSoftDeleteMutation } from '@/services/core/surveysElements/mutations';
 import { ArrowRight as ArrowRightIcon, Clear as ClearIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import React from 'react';
+
 
 interface CanvasSidebarProps {
   sidebarOpen: boolean;
@@ -51,7 +51,6 @@ export default function CanvasSidebar({
       await deleteSurveyElement(element.id);
 
       onDeleteSurveyElement(element.id);
-
     } catch (err) {
       console.error('Erro ao deletar elemento:', err);
     }

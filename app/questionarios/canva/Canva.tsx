@@ -10,7 +10,7 @@ import {
     SelectionMode,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { useCallback } from 'react';
+import React, { useCallback } from 'react';
 import CanvasSidebar from '../../../components/CanvasComponents/CanvasSidebar';
 import CanvasToolbar from '../../../components/CanvasComponents/CanvasToolbar';
 import CustomNode from '../../../components/CanvasComponents/CustomNode';
@@ -288,14 +288,14 @@ function CanvasContent() {
                 setSidebarOpen={canvasState.setSidebarOpen}
                 searchTerm={canvasState.searchTerm}
                 onInputChange={canvasState.onInputChange}
-                surveysElements={surveysElements} // ✨ Passando a lista JÁ FILTRADA
+                surveysElements={surveysElements}
                 selectedNodes={canvasState.selectedNodes}
                 onEditSidebarElement={canvasState.handleEditSidebarElement}
                 onInsertOnCanva={canvasHandlers.handleInsertOnCanva}
                 onClearSelection={canvasState.handleClearSelection}
                 onDeleteMultipleNodes={canvasHandlers.handleDeleteMultipleNodes}
                 onNewMessage={canvasState.handleNewMessage}
-                onDeleteSurveyElement={handleDeleteSurveyElement} // ✨ Passando o handler
+                onDeleteSurveyElement={handleDeleteSurveyElement}
             />
 
             <div className='canvas-main-content'>
