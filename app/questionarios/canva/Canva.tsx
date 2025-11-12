@@ -21,7 +21,9 @@ import { useCanvasOperations } from '../../../hooks/useCanvasOperations';
 import { useCanvasState } from '../../../hooks/useCanvasState';
 import { useGetSurveysById } from '../../../services/core/surveys/queries';
 import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
+import { queryClient } from '../../../services/query-client';
 import { ensureNodeFunctions } from '../../../utils/canvasUtils';
+import QUERY_KEYS from '../../../utils/contants/queries';
 import './index.css';
 
 const nodeTypes = {
@@ -72,6 +74,7 @@ function CanvasContent() {
     const isNodeModalOpen = canvasState.isModalOpen;
     const isSidebarModalOpen = canvasState.editingElementModal.isOpen;
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     const { data } = useGetAllSurveysElements({
         description: canvasState.searchTerm,
@@ -129,14 +132,18 @@ function CanvasContent() {
     );
 =======
     const { data: survey, isLoading: isSurveyFetching } = useGetSurveysById(surveyId);
+=======
+    const { data: survey, isLoading: isSurveyLoading } = useGetSurveysById(surveyId);
+>>>>>>> 791444e (Formataçao + Adiciona botao para limpar armazenamento local)
 
     useEffect(() => {
         if (survey) {
+            console.log('BUSCOU AAAAAAAAAAAAAA')
             const savedFlow = canvasOperations.loadFromLocalStorage();
             canvasOperations.setEdges(savedFlow && savedFlow.edges ? savedFlow.edges : survey.flow && survey.flow.edges ? survey.flow.edges : []);
             canvasOperations.setNodes(savedFlow && savedFlow.nodes ? savedFlow.nodes : survey.flow && survey.flow.nodes ? survey.flow.nodes : []);
         }
-    }, [survey])
+    }, [survey, isSurveyLoading]);
 
 
     const { mutate: saveFlow, isPending } = useSurveysSaveFlowMutation(surveyId, { nodes: canvasOperations.nodes, edges: canvasOperations.edges } as unknown as string);
@@ -313,6 +320,41 @@ function CanvasContent() {
         (el) => canvasState.handleEditSidebarElement(el),
     );
 
+<<<<<<< HEAD
+=======
+    const clearLocalStorage = () => {
+        try {
+            const loadedNodes = JSON.parse(
+                localStorage.getItem('weconnecta-canva-nodes') || '{}',
+            );
+            const loadedEdges = JSON.parse(
+                localStorage.getItem('weconnecta-canva-edges') || '{}',
+            );
+
+            delete loadedNodes[surveyId!];
+            delete loadedEdges[surveyId!];
+
+            localStorage.setItem(
+                'weconnecta-canva-nodes',
+                JSON.stringify({
+                    ...loadedNodes,
+                }),
+            );
+            localStorage.setItem(
+                'weconnecta-canva-edges',
+                JSON.stringify({
+                    ...loadedEdges,
+                }),
+            );
+
+            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS, surveyId] });
+        } catch (error) {
+            console.error('Erro ao salvar no localStorage:', error);
+        }
+    }
+
+
+>>>>>>> 791444e (Formataçao + Adiciona botao para limpar armazenamento local)
     return (
         <div className='canvas-layout-container'>
             <CanvasSidebar
@@ -336,6 +378,7 @@ function CanvasContent() {
                         onSave={() => handleFlowSave()}
                         onGoBack={canvasHandlers.handleGoBack}
                         onOrganizeCanvas={canvasOperations.organizeCanvas}
+                        clearLocalStorage={clearLocalStorage}
                     />
 
                     <ReactFlow

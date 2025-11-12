@@ -17,6 +17,11 @@ const mapNodeTypeToSurveyType = (
     }
 };
 
+enum NodeType {
+    OPTION = 'option',
+    ELEMENT = 'element',
+}
+
 export const ensureNodeFunctions = (
     nodeList: any[],
     handleNodeDelete: (nodeId: string) => void,
@@ -175,7 +180,7 @@ export const handleInsertOnCanvaAtPosition = (
     handleNodeDelete: (nodeId: string) => void,
     handleNodeDoubleClick: (nodeId: string) => void,
 ) => {
-    const newNodeId = `${element.id}-${Date.now()}`;
+    const newNodeId = `${NodeType.ELEMENT}-${element.id}-${Date.now()}`;
 
     const newNode = createNewNode(
         newNodeId,
@@ -193,7 +198,7 @@ export const handleInsertOnCanvaAtPosition = (
 
     if (element.options && element.options.length > 0) {
         element.options.forEach((option: any, index: number) => {
-            const childNodeId = `${newNodeId}-child-${option.id}`;
+            const childNodeId = `${NodeType.OPTION}-${newNodeId}-child-${option.id}`;
             const childNode = createNewNode(
                 childNodeId,
                 {
