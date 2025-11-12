@@ -51,6 +51,19 @@ export const ensureNodeFunctions = (
     });
 };
 
+    handleNodeDoubleClick: (nodeId: string) => void,
+) => {
+    return nodeList.map((node: any) => ({
+        ...node,
+        data: {
+            ...node.data,
+            onDelete: () => handleNodeDelete(node.id),
+            onDoubleClick: () => handleNodeDoubleClick(node.id),
+            onEdit: () => handleNodeDoubleClick(node.id),
+        },
+    }));
+};
+
 export const createNewNode = (
     id: string,
     position: { x: number; y: number },
@@ -59,7 +72,6 @@ export const createNewNode = (
     maxEdges: number = 2,
     handleNodeDelete: (nodeId: string) => void,
     handleNodeDoubleClick: (nodeId: string) => void,
-    element?: SurveyElementDto,
 ) => ({
     id,
     type: 'customNode',
@@ -68,10 +80,9 @@ export const createNewNode = (
         label,
         type,
         maxEdges,
-        surveyElement: element,
-        surveyElementId: element?.id,
         onClick: () => console.log('Clique no novo nó'),
         onDoubleClick: () => handleNodeDoubleClick(id),
+        onEdit: () => handleNodeDoubleClick(id),
         onDelete: () => handleNodeDelete(id),
     },
 });
@@ -82,7 +93,6 @@ export const createAlternativeNodes = (
     alternatives: string[],
     handleNodeDelete: (nodeId: string) => void,
     handleNodeDoubleClick: (nodeId: string) => void,
-    parentElement?: SurveyElementDto,
 ) => {
     return alternatives
         .filter((alt) => alt.trim() !== '')
@@ -97,11 +107,11 @@ export const createAlternativeNodes = (
                 label: alternativa,
                 type: 'alternativa' as const,
                 maxEdges: 1,
-                surveyElement: parentElement,
-                surveyElementId: parentElement?.id,
                 onClick: () =>
                     console.log('Clique na alternativa:', alternativa),
                 onDoubleClick: () =>
+                    handleNodeDoubleClick(`${parentNodeId}-alt-${index}`),
+                onEdit: () =>
                     handleNodeDoubleClick(`${parentNodeId}-alt-${index}`),
                 onDelete: () =>
                     handleNodeDelete(`${parentNodeId}-alt-${index}`),
@@ -140,10 +150,9 @@ export const createInputNode = (
                 label: 'Campo de entrada',
                 type: 'input' as const,
                 maxEdges: 1,
-                surveyElement: parentElement,
-                surveyElementId: parentElement?.id,
                 onClick: () => console.log('Clique no input'),
                 onDoubleClick: () => handleNodeDoubleClick(inputNodeId),
+                onEdit: () => handleNodeDoubleClick(inputNodeId),
                 onDelete: () => handleNodeDelete(inputNodeId),
             },
         },
@@ -166,9 +175,7 @@ export const handleInsertOnCanvaAtPosition = (
     handleNodeDelete: (nodeId: string) => void,
     handleNodeDoubleClick: (nodeId: string) => void,
 ) => {
-    console.log('Inserindo elemento na posição:', position);
-
-    const newNodeId = `node-${Date.now()}`;
+    const newNodeId = `${element.id}-${Date.now()}`;
 
     const newNode = createNewNode(
         newNodeId,
@@ -186,7 +193,7 @@ export const handleInsertOnCanvaAtPosition = (
 
     if (element.options && element.options.length > 0) {
         element.options.forEach((option: any, index: number) => {
-            const childNodeId = `${newNodeId}-child-${index}`;
+            const childNodeId = `${newNodeId}-child-${option.id}`;
             const childNode = createNewNode(
                 childNodeId,
                 {
