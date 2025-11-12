@@ -3,15 +3,15 @@
 import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
 import { useCallback, useRef, useState } from 'react';
 
-export type DeleteItem = {
-  type: 'node' | 'edge';
-  id: string;
-  label?: string;
+export interface DeleteItem {
+    type: 'node' | 'edge';
+    id: string;
+    label?: string;
 }
 
-export type EditingElementModal = {
-  isOpen: boolean;
-  surveyElement: SurveyElementDto | null;
+export interface EditingElementModal {
+    isOpen: boolean;
+    surveyElement: SurveyElementDto | null;
 }
 
 export function useCanvasState() {
@@ -20,26 +20,30 @@ export function useCanvasState() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [editingElementModal, setEditingElementModal] = useState<EditingElementModal>({
-        isOpen: false,
-        surveyElement: null
-    });
+    const [editingElementModal, setEditingElementModal] =
+        useState<EditingElementModal>({
+            isOpen: false,
+            surveyElement: null,
+        });
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [selectedNodes, setSelectedNodes] = useState<string[]>([]);
     const [deleteItem, setDeleteItem] = useState<DeleteItem | null>(null);
     const typingTimeout = useRef<NodeJS.Timeout | null>(null);
 
-    const onInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
+    const onInputChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const value = e.target.value;
 
-        if (typingTimeout.current) {
-            clearTimeout(typingTimeout.current);
-        }
+            if (typingTimeout.current) {
+                clearTimeout(typingTimeout.current);
+            }
 
-        typingTimeout.current = setTimeout(() => {
-            setSearchTerm(value);
-        }, 400);
-    }, []);
+            typingTimeout.current = setTimeout(() => {
+                setSearchTerm(value);
+            }, 400);
+        },
+        [],
+    );
 
     const handleCloseModal = useCallback(() => {
         setIsModalOpen(false);
@@ -58,12 +62,15 @@ export function useCanvasState() {
         setIsModalOpen(true);
     }, []);
 
-    const handleEditSidebarElement = useCallback((element: SurveyElementDto) => {
-        console.log('Editando elemento da sidebar:', element);
-        setEditingElementModal({ isOpen: true, surveyElement: element });
-        setSelectedNodeId(null);
-        setIsEditMode(false);
-    }, []);
+    const handleEditSidebarElement = useCallback(
+        (element: SurveyElementDto) => {
+            console.log('Editando elemento da sidebar:', element);
+            setEditingElementModal({ isOpen: true, surveyElement: element });
+            setSelectedNodeId(null);
+            setIsEditMode(false);
+        },
+        [],
+    );
 
     const handleNewMessage = useCallback(() => {
         setEditingElementModal({ isOpen: true, surveyElement: null });
@@ -74,7 +81,7 @@ export function useCanvasState() {
     }, []);
 
     return {
-    // Estado
+        // Estado
         sidebarOpen,
         setSidebarOpen,
         searchTerm,
@@ -90,7 +97,6 @@ export function useCanvasState() {
         setSelectedNodes,
         deleteItem,
         setDeleteItem,
-    
         // Handlers
         onInputChange,
         handleCloseModal,
@@ -99,9 +105,9 @@ export function useCanvasState() {
         handleEditSidebarElement,
         handleNewMessage,
         handleClearSelection,
-    
+
         // Setters
         setIsModalOpen,
-        setIsDeleteModalOpen
+        setIsDeleteModalOpen,
     };
 }

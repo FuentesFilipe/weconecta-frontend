@@ -1,7 +1,7 @@
 'use client';
 
 import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect } from 'react';
 import {
     createAlternativeEdges,
@@ -11,7 +11,7 @@ import {
     handleInsertOnCanvaAtPosition,
 } from '../utils/canvasUtils';
 
-type UseCanvasHandlersProps = {
+interface UseCanvasHandlersProps {
     nodes: any[];
     edges: any[];
     setNodes: (nodes: any) => void;
@@ -29,7 +29,7 @@ type UseCanvasHandlersProps = {
     setIsDeleteModalOpen: (open: boolean) => void;
     handleCloseModal: () => void;
     handleNodeDoubleClick: (nodeId: string) => void;
-};
+}
 
 export function useCanvasHandlers({
     nodes,
@@ -49,6 +49,9 @@ export function useCanvasHandlers({
 }: UseCanvasHandlersProps) {
     const pathname = usePathname();
     const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const surveyId = parseInt(searchParams.get('id') as string, 10);
 
     const handleGoBack = useCallback(() => {
         const segments = pathname.split('/').filter(Boolean);
