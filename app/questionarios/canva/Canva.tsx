@@ -12,7 +12,7 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSearchParams } from 'next/navigation';
-import React, { useCallback } from 'react';
+import { useCallback, useMemo } from 'react';
 import CanvasSidebar from '../../../components/CanvasComponents/CanvasSidebar';
 import CanvasToolbar from '../../../components/CanvasComponents/CanvasToolbar';
 import CustomNode from '../../../components/CanvasComponents/CustomNode';
@@ -41,13 +41,13 @@ function CanvasContent() {
     // Hooks customizados
     const canvasState = useCanvasState();
     const canvasOperations = useCanvasOperations();
-    var { data: surveysElements } = useGetAllSurveysElements({
+    const { data: surveysElements } = useGetAllSurveysElements({
         description: canvasState.searchTerm,
     });
     const selectedNode = canvasOperations.nodes.find(
         (node: any) => node.id === canvasState.selectedNodeId,
     );
-    const selectedNodeOptions = React.useMemo(() => {
+    const selectedNodeOptions = useMemo(() => {
         if (!selectedNode) {
             return [];
         }
