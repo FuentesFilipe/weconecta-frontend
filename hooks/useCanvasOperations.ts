@@ -242,6 +242,7 @@ export function useCanvasOperations() {
         edges,
         setEdges,
         saveToLocalStorage,
+        loadFromLocalStorage,
         organizeCanvas,
         onNodesChange,
         onEdgesChange,

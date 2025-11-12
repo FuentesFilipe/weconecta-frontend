@@ -12,13 +12,14 @@ import {
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useSearchParams } from 'next/navigation';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import CanvasSidebar from '../../../components/CanvasComponents/CanvasSidebar';
 import CanvasToolbar from '../../../components/CanvasComponents/CanvasToolbar';
 import CustomNode from '../../../components/CanvasComponents/CustomNode';
 import { useCanvasHandlers } from '../../../hooks/useCanvasHandlers';
 import { useCanvasOperations } from '../../../hooks/useCanvasOperations';
 import { useCanvasState } from '../../../hooks/useCanvasState';
+import { useGetSurveysById } from '../../../services/core/surveys/queries';
 import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import { ensureNodeFunctions } from '../../../utils/canvasUtils';
 import './index.css';
@@ -71,6 +72,7 @@ function CanvasContent() {
     const isNodeModalOpen = canvasState.isModalOpen;
     const isSidebarModalOpen = canvasState.editingElementModal.isOpen;
 
+<<<<<<< HEAD
     const { data } = useGetAllSurveysElements({
         description: canvasState.searchTerm,
     });
@@ -125,6 +127,20 @@ function CanvasContent() {
             edges: canvasOperations.edges,
         } as unknown as string,
     );
+=======
+    const { data: survey, isLoading: isSurveyFetching } = useGetSurveysById(surveyId);
+
+    useEffect(() => {
+        if (survey) {
+            const savedFlow = canvasOperations.loadFromLocalStorage();
+            canvasOperations.setEdges(savedFlow && savedFlow.edges ? savedFlow.edges : survey.flow && survey.flow.edges ? survey.flow.edges : []);
+            canvasOperations.setNodes(savedFlow && savedFlow.nodes ? savedFlow.nodes : survey.flow && survey.flow.nodes ? survey.flow.nodes : []);
+        }
+    }, [survey])
+
+
+    const { mutate: saveFlow, isPending } = useSurveysSaveFlowMutation(surveyId, { nodes: canvasOperations.nodes, edges: canvasOperations.edges } as unknown as string);
+>>>>>>> b63099d (Carrega survey do armazenamento ou utiliza do localstorage)
 
     const canvasHandlers = useCanvasHandlers({
         nodes: canvasOperations.nodes,

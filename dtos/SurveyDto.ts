@@ -7,7 +7,10 @@ export type SurveyDto = {
     title: string;
     description: string;
     url: string;
-    flow: string | null;
+    flow: null | {
+        nodes: string;
+        edges: string;
+    };
     firstSurveyElement: number | null;
 };
 
