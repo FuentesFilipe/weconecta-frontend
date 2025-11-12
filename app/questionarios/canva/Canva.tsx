@@ -2,6 +2,7 @@
 
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
+import { useSurveysSaveFlowMutation } from '@/services/core/surveys/mutations';
 import {
     Background,
     BackgroundVariant,
@@ -36,6 +37,7 @@ export default function Canva() {
 
 function CanvasContent() {
     const searchParams = useSearchParams();
+
     // Hooks customizados
     const canvasState = useCanvasState();
     const canvasOperations = useCanvasOperations();
@@ -115,6 +117,13 @@ function CanvasContent() {
             canvasOperations.setEdges,
             canvasOperations.saveToLocalStorage,
         ],
+    );
+    const { mutate: saveFlow, isPending } = useSurveysSaveFlowMutation(
+        parseInt(searchParams.get('id') as string, 10),
+        {
+            nodes: canvasOperations.nodes,
+            edges: canvasOperations.edges,
+        } as unknown as string,
     );
 
     const canvasHandlers = useCanvasHandlers({
