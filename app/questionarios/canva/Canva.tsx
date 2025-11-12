@@ -37,7 +37,7 @@ export default function Canva() {
 
 function CanvasContent() {
     const searchParams = useSearchParams();
-
+    const surveyId = parseInt(searchParams.get('id') as string, 10);
     // Hooks customizados
     const canvasState = useCanvasState();
     const canvasOperations = useCanvasOperations();
