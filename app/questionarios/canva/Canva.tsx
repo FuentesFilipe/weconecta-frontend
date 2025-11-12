@@ -2,7 +2,13 @@
 
 import { ConfirmDeleteModal } from '@/components/Modal/ConfirmDeleteModal';
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
-import { Background, BackgroundVariant, ReactFlow, ReactFlowProvider, SelectionMode } from '@xyflow/react';
+import {
+    Background,
+    BackgroundVariant,
+    ReactFlow,
+    ReactFlowProvider,
+    SelectionMode,
+} from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
 import { useCallback } from 'react';
 import CanvasSidebar from '../../../components/CanvasComponents/CanvasSidebar';
@@ -14,7 +20,6 @@ import { useCanvasState } from '../../../hooks/useCanvasState';
 import { useGetAllSurveysElements } from '../../../services/core/surveysElements/queries';
 import { ensureNodeFunctions } from '../../../utils/canvasUtils';
 import './index.css';
-
 
 const nodeTypes = {
     customNode: CustomNode,
@@ -32,64 +37,83 @@ function CanvasContent() {
     // Hooks customizados
     const canvasState = useCanvasState();
     const canvasOperations = useCanvasOperations();
-    const { data: surveysElements } = useGetAllSurveysElements({ description: canvasState.searchTerm });
-    const selectedNode = canvasOperations.nodes.find((node: any) => node.id === canvasState.selectedNodeId);
+    var { data: surveysElements } = useGetAllSurveysElements({
+        description: canvasState.searchTerm,
+    });
+    const selectedNode = canvasOperations.nodes.find(
+        (node: any) => node.id === canvasState.selectedNodeId,
+    );
     const selectedNodeOptions = React.useMemo(() => {
         if (!selectedNode) {
             return [];
         }
 
-        const childEdges = canvasOperations.edges.filter((edge: any) => edge.source === selectedNode.id);
+        const childEdges = canvasOperations.edges.filter(
+            (edge: any) => edge.source === selectedNode.id,
+        );
 
         return childEdges
-            .map((edge: any) => canvasOperations.nodes.find((node: any) => node.id === edge.target))
-            .filter((node: any) => !!node && typeof node.data?.label === 'string')
+            .map((edge: any) =>
+                canvasOperations.nodes.find(
+                    (node: any) => node.id === edge.target,
+                ),
+            )
+            .filter(
+                (node: any) => !!node && typeof node.data?.label === 'string',
+            )
             .map((node: any) => node.data.label.trim())
             .filter((label: string) => label.length > 0);
     }, [selectedNode, canvasOperations.edges, canvasOperations.nodes]);
     const isNodeModalOpen = canvasState.isModalOpen;
     const isSidebarModalOpen = canvasState.editingElementModal.isOpen;
 
-    // 👇 IMPLEMENTAÇÃO DA FUNÇÃO QUE REMOVE O NÓ APÓS DELEÇÃO DO DB (AJUSTE PRINCIPAL)
-    const handleDeleteSurveyElement = useCallback((deletedElementId: number) => {
-        console.log(`🗑️ Removendo nós do canvas para o elemento: ${deletedElementId}`);
+    const { data } = useGetAllSurveysElements({
+        description: canvasState.searchTerm,
+    });
 
-        // IMPORTANTE: Assumindo que o ID do elemento é salvo em 'node.data.id'
-        const flowNodeIdsToDelete = canvasOperations.nodes
-            .filter((node: any) => node.data?.id === deletedElementId)
-            .map((node: any) => node.id); // Este é o ID único do nó no React Flow
+    surveysElements = data?.filter((element) => !element.deletedAt);
 
-        if (flowNodeIdsToDelete.length === 0) {
-            console.log('ℹ️ Nenhum nó no canvas para remover.');
-            return; // Nenhum nó no canvas usava este elemento
-        }
+    const handleDeleteSurveyElement = useCallback(
+        (deletedElementId: number) => {
+            console.log(
+                `🗑️ Removendo nós do canvas para o elemento: ${deletedElementId}`,
+            );
 
-        // 1. Filtra os nós (mantém apenas os que NÃO serão deletados)
-        const updatedNodes = canvasOperations.nodes.filter((node: any) =>
-            !flowNodeIdsToDelete.includes(node.id)
-        );
+            const flowNodeIdsToDelete = canvasOperations.nodes
+                .filter((node: any) => node.data?.id === deletedElementId)
+                .map((node: any) => node.id);
 
-        // 2. Filtra as arestas conectadas a esses nós
-        const updatedEdges = canvasOperations.edges.filter((edge: any) =>
-            !flowNodeIdsToDelete.includes(edge.source) && !flowNodeIdsToDelete.includes(edge.target)
-        );
+            if (flowNodeIdsToDelete.length === 0) {
+                console.log('ℹ️ Nenhum nó no canvas para remover.');
+                return;
+            }
 
-        // 3. Atualiza o estado do canvas e Local Storage
-        canvasOperations.setNodes(updatedNodes);
-        canvasOperations.setEdges(updatedEdges);
-        canvasOperations.saveToLocalStorage(updatedNodes, updatedEdges);
+            const updatedNodes = canvasOperations.nodes.filter(
+                (node: any) => !flowNodeIdsToDelete.includes(node.id),
+            );
 
-        console.log(`✅ ${flowNodeIdsToDelete.length} nó(s) removido(s) do canvas.`);
+            const updatedEdges = canvasOperations.edges.filter(
+                (edge: any) =>
+                    !flowNodeIdsToDelete.includes(edge.source) &&
+                    !flowNodeIdsToDelete.includes(edge.target),
+            );
 
-    }, [
-        canvasOperations.nodes,
-        canvasOperations.edges,
-        canvasOperations.setNodes,
-        canvasOperations.setEdges,
-        canvasOperations.saveToLocalStorage
-    ]);
-    // 👆 FIM DA IMPLEMENTAÇÃO
+            canvasOperations.setNodes(updatedNodes);
+            canvasOperations.setEdges(updatedEdges);
+            canvasOperations.saveToLocalStorage(updatedNodes, updatedEdges);
 
+            console.log(
+                `✅ ${flowNodeIdsToDelete.length} nó(s) removido(s) do canvas.`,
+            );
+        },
+        [
+            canvasOperations.nodes,
+            canvasOperations.edges,
+            canvasOperations.setNodes,
+            canvasOperations.setEdges,
+            canvasOperations.saveToLocalStorage,
+        ],
+    );
 
     const canvasHandlers = useCanvasHandlers({
         nodes: canvasOperations.nodes,
@@ -105,10 +129,9 @@ function CanvasContent() {
         setDeleteItem: canvasState.setDeleteItem,
         setIsDeleteModalOpen: canvasState.setIsDeleteModalOpen,
         handleCloseModal: canvasState.handleCloseModal,
-        handleNodeDoubleClick: canvasState.handleNodeDoubleClick
+        handleNodeDoubleClick: canvasState.handleNodeDoubleClick,
     });
 
-    // Função para confirmar deleção
     const handleConfirmDelete = useCallback(() => {
         if (!canvasState.deleteItem) {
             console.error('❌ Nenhum item para deletar!');
@@ -127,7 +150,10 @@ function CanvasContent() {
                 const nodesToRemove = new Set<string>();
                 const collectDescendants = (nodeId: string) => {
                     canvasOperations.edges.forEach((edge: any) => {
-                        if (edge.source === nodeId && !nodesToRemove.has(edge.target)) {
+                        if (
+                            edge.source === nodeId &&
+                            !nodesToRemove.has(edge.target)
+                        ) {
                             nodesToRemove.add(edge.target);
                             collectDescendants(edge.target);
                         }
@@ -139,49 +165,90 @@ function CanvasContent() {
 
                 const connectionsToRemove = canvasOperations.edges.filter(
                     (edge: any) =>
-                        nodesToRemove.has(edge.source) || nodesToRemove.has(edge.target)
+                        nodesToRemove.has(edge.source) ||
+                        nodesToRemove.has(edge.target),
                 );
 
-                console.log('🧹 Nós que serão removidos (incluindo descendentes):', Array.from(nodesToRemove));
-                console.log('🔗 Conexões que serão removidas:', connectionsToRemove);
+                console.log(
+                    '🧹 Nós que serão removidos (incluindo descendentes):',
+                    Array.from(nodesToRemove),
+                );
+                console.log(
+                    '🔗 Conexões que serão removidas:',
+                    connectionsToRemove,
+                );
 
                 const newNodes = canvasOperations.nodes.filter(
-                    (node: any) => !nodesToRemove.has(node.id)
+                    (node: any) => !nodesToRemove.has(node.id),
                 );
                 const newEdges = canvasOperations.edges.filter(
                     (edge: any) =>
-                        !nodesToRemove.has(edge.source) && !nodesToRemove.has(edge.target)
+                        !nodesToRemove.has(edge.source) &&
+                        !nodesToRemove.has(edge.target),
                 );
 
-                console.log('📊 Antes da deleção - Nodes:', canvasOperations.nodes.length, 'Edges:', canvasOperations.edges.length);
-                console.log('📊 Depois da deleção - Nodes:', newNodes.length, 'Edges:', newEdges.length);
-                console.log('🔗 Conexões removidas:', connectionsToRemove.length);
+                console.log(
+                    '📊 Antes da deleção - Nodes:',
+                    canvasOperations.nodes.length,
+                    'Edges:',
+                    canvasOperations.edges.length,
+                );
+                console.log(
+                    '📊 Depois da deleção - Nodes:',
+                    newNodes.length,
+                    'Edges:',
+                    newEdges.length,
+                );
+                console.log(
+                    '🔗 Conexões removidas:',
+                    connectionsToRemove.length,
+                );
 
                 canvasOperations.setNodes(newNodes);
                 canvasOperations.setEdges(newEdges);
                 canvasOperations.saveToLocalStorage(newNodes, newEdges);
 
-                console.log('✅ Nó e todas as suas conexões foram deletados com sucesso!');
+                console.log(
+                    '✅ Nó e todas as suas conexões foram deletados com sucesso!',
+                );
             }
         } else if (canvasState.deleteItem.type === 'edge') {
             console.log('🗑️ Deletando conexão:', canvasState.deleteItem.id);
 
-            const newEdges = canvasOperations.edges.filter((edge: any) => edge.id !== canvasState.deleteItem!.id);
+            const newEdges = canvasOperations.edges.filter(
+                (edge: any) => edge.id !== canvasState.deleteItem!.id,
+            );
             canvasOperations.setEdges(newEdges);
-            canvasOperations.saveToLocalStorage(canvasOperations.nodes, newEdges);
+            canvasOperations.saveToLocalStorage(
+                canvasOperations.nodes,
+                newEdges,
+            );
 
             console.log('✅ Conexão deletada com sucesso!');
         }
 
         canvasState.setDeleteItem(null);
         canvasState.setIsDeleteModalOpen(false);
-    }, [canvasState.deleteItem, canvasOperations.nodes, canvasOperations.edges, canvasOperations.setNodes, canvasOperations.setEdges, canvasOperations.saveToLocalStorage, canvasState.setDeleteItem, canvasState.setIsDeleteModalOpen]);
+    }, [
+        canvasState.deleteItem,
+        canvasOperations.nodes,
+        canvasOperations.edges,
+        canvasOperations.setNodes,
+        canvasOperations.setEdges,
+        canvasOperations.saveToLocalStorage,
+        canvasState.setDeleteItem,
+        canvasState.setIsDeleteModalOpen,
+    ]);
 
     const handleConfirmMultipleDelete = useCallback(() => {
-        const updatedNodes = canvasOperations.nodes.filter((node: any) => !canvasState.selectedNodes.includes(node.id));
+        const updatedNodes = canvasOperations.nodes.filter(
+            (node: any) => !canvasState.selectedNodes.includes(node.id),
+        );
 
-        const updatedEdges = canvasOperations.edges.filter((edge: any) =>
-            !canvasState.selectedNodes.includes(edge.source) && !canvasState.selectedNodes.includes(edge.target)
+        const updatedEdges = canvasOperations.edges.filter(
+            (edge: any) =>
+                !canvasState.selectedNodes.includes(edge.source) &&
+                !canvasState.selectedNodes.includes(edge.target),
         );
 
         canvasOperations.setNodes(updatedNodes);
@@ -192,35 +259,46 @@ function CanvasContent() {
         canvasState.setIsDeleteModalOpen(false);
         canvasState.setDeleteItem(null);
 
-        console.log(`✅ ${canvasState.selectedNodes.length} nós deletados com sucesso!`);
-    }, [canvasState.selectedNodes, canvasOperations.nodes, canvasOperations.edges, canvasOperations.setNodes, canvasOperations.setEdges, canvasOperations.saveToLocalStorage, canvasState.setSelectedNodes, canvasState.setIsDeleteModalOpen, canvasState.setDeleteItem]);
+        console.log(
+            `✅ ${canvasState.selectedNodes.length} nós deletados com sucesso!`,
+        );
+    }, [
+        canvasState.selectedNodes,
+        canvasOperations.nodes,
+        canvasOperations.edges,
+        canvasOperations.setNodes,
+        canvasOperations.setEdges,
+        canvasOperations.saveToLocalStorage,
+        canvasState.setSelectedNodes,
+        canvasState.setIsDeleteModalOpen,
+        canvasState.setDeleteItem,
+    ]);
 
     // Garantir que os nós tenham as funções necessárias
     const nodesWithFunctions = ensureNodeFunctions(
         canvasOperations.nodes,
         canvasHandlers.handleNodeDelete,
-        canvasState.handleNodeDoubleClick
+        canvasState.handleNodeDoubleClick,
     );
 
     return (
-        <div className="canvas-layout-container">
+        <div className='canvas-layout-container'>
             <CanvasSidebar
                 sidebarOpen={canvasState.sidebarOpen}
                 setSidebarOpen={canvasState.setSidebarOpen}
                 searchTerm={canvasState.searchTerm}
                 onInputChange={canvasState.onInputChange}
-                surveysElements={surveysElements}
+                surveysElements={surveysElements} // ✨ Passando a lista JÁ FILTRADA
                 selectedNodes={canvasState.selectedNodes}
                 onEditSidebarElement={canvasState.handleEditSidebarElement}
                 onInsertOnCanva={canvasHandlers.handleInsertOnCanva}
                 onClearSelection={canvasState.handleClearSelection}
                 onDeleteMultipleNodes={canvasHandlers.handleDeleteMultipleNodes}
                 onNewMessage={canvasState.handleNewMessage}
-                onDeleteSurveyElement={handleDeleteSurveyElement} // <-- FUNÇÃO DELEÇÃO DB -> CANVAS
-
+                onDeleteSurveyElement={handleDeleteSurveyElement} // ✨ Passando o handler
             />
 
-            <div className="canvas-main-content">
+            <div className='canvas-main-content'>
                 <div style={{ height: '97vh' }}>
                     <CanvasToolbar
                         onSave={() => console.log('Salvar canvas')}
@@ -248,7 +326,10 @@ function CanvasContent() {
                         deleteKeyCode={['Delete', 'Backspace']}
                         fitView
                     >
-                        <Background color="#FF894E" variant={BackgroundVariant.Dots} />
+                        <Background
+                            color='#FF894E'
+                            variant={BackgroundVariant.Dots}
+                        />
                     </ReactFlow>
 
                     {isNodeModalOpen && (
@@ -256,41 +337,56 @@ function CanvasContent() {
                             open={isNodeModalOpen}
                             onClose={canvasState.handleCloseModal}
                             onConfirm={canvasHandlers.handleModalConfirm}
-                            initialData={selectedNode
-                                ? {
-                                    label: selectedNode.data?.label,
-                                    type: selectedNode.data?.type,
-                                    maxEdges: selectedNode.data?.maxEdges,
-                                    options: selectedNodeOptions
-                                }
-                                : undefined
+                            initialData={
+                                selectedNode
+                                    ? {
+                                          label: selectedNode.data?.label,
+                                          type: selectedNode.data?.type,
+                                          maxEdges: selectedNode.data?.maxEdges,
+                                          options: selectedNodeOptions,
+                                      }
+                                    : undefined
                             }
                         />
                     )}
 
-                    {canvasState.editingElementModal.isOpen &&
+                    {canvasState.editingElementModal.isOpen && (
                         <SurveysElementModal
                             open={canvasState.editingElementModal.isOpen}
                             onClose={canvasState.handleCloseModal}
                             onConfirm={canvasHandlers.handleModalConfirm}
-                            id={canvasState.editingElementModal?.surveyElement ? canvasState.editingElementModal?.surveyElement?.id : undefined}
-                        />}
+                            id={
+                                canvasState.editingElementModal?.surveyElement
+                                    ? canvasState.editingElementModal
+                                          ?.surveyElement?.id
+                                    : undefined
+                            }
+                        />
+                    )}
 
                     <ConfirmDeleteModal
                         open={canvasState.isDeleteModalOpen}
                         onClose={canvasState.handleCloseDeleteModal}
                         onConfirm={handleConfirmDelete}
-                        title={canvasState.deleteItem?.type === 'node'
-                            ? (canvasState.deleteItem?.id === 'multiple' ? 'Deletar Nós Selecionados' : 'Deletar Nó')
-                            : 'Deletar Conexão'
+                        title={
+                            canvasState.deleteItem?.type === 'node'
+                                ? canvasState.deleteItem?.id === 'multiple'
+                                    ? 'Deletar Nós Selecionados'
+                                    : 'Deletar Nó'
+                                : 'Deletar Conexão'
                         }
-                        message={canvasState.deleteItem?.type === 'node'
-                            ? (canvasState.deleteItem?.id === 'multiple'
-                                ? `Tem certeza que deseja deletar ${canvasState.selectedNodes.length} nós selecionados?\n\n${canvasState.deleteItem?.label}`
-                                : `Tem certeza que deseja deletar o nó "${canvasState.deleteItem?.label}"?`)
-                            : 'Tem certeza que deseja deletar esta conexão?'
+                        message={
+                            canvasState.deleteItem?.type === 'node'
+                                ? canvasState.deleteItem?.id === 'multiple'
+                                    ? `Tem certeza que deseja deletar ${canvasState.selectedNodes.length} nós selecionados?\n\n${canvasState.deleteItem?.label}`
+                                    : `Tem certeza que deseja deletar o nó "${canvasState.deleteItem?.label}"?`
+                                : 'Tem certeza que deseja deletar esta conexão?'
                         }
-                        itemType={canvasState.deleteItem?.type === 'node' ? 'nó' : 'conexão'}
+                        itemType={
+                            canvasState.deleteItem?.type === 'node'
+                                ? 'nó'
+                                : 'conexão'
+                        }
                     />
                 </div>
             </div>

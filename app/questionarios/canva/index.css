@@ -375,6 +375,7 @@
     margin-bottom: 0.5rem;
 }
 
+/* ✨ Botão de Deletar (Lixeira) */
 .canvas-delete-button {
     color: #ef4444 !important;
     background: #fef2f2 !important;
@@ -395,4 +396,20 @@
 
 .canvas-delete-button:active {
     transform: scale(0.95) !important;
+}
+
+.canvas-delete-button[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: #f3f4f6 !important;
+    color: #9ca3af !important;
+    box-shadow: none !important;
+    transform: none !important;
+}
+
+.canvas-delete-button[disabled]:hover {
+    background: #f3f4f6 !important;
+    color: #9ca3af !important;
+    box-shadow: none !important;
+    transform: none !important;
 }

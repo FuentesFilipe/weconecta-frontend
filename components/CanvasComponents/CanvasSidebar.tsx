@@ -3,7 +3,8 @@
 import { Accordion } from '@/components/Accordion';
 import { Input } from '@/components/Input';
 import { SurveyElementDto } from '@/dtos/SurveysElementsDto';
-import { useSurveysElementsDeleteMutation } from '@/services/core/surveysElements/mutations';
+// ✨ 1. Importando a mutação correta
+import { useSurveysElementsSoftDeleteMutation } from '@/services/core/surveysElements/mutations';
 import { ArrowRight as ArrowRightIcon, Clear as ClearIcon, Delete as DeleteIcon, Edit as EditIcon } from '@mui/icons-material';
 import { IconButton } from '@mui/material';
 import React from 'react';
@@ -38,25 +39,24 @@ export default function CanvasSidebar({
   onDeleteSurveyElement
 }: CanvasSidebarProps) {
 
-  const deleteSurveyElementMutation = useSurveysElementsDeleteMutation();
+  const deleteSurveyElementMutation = useSurveysElementsSoftDeleteMutation();
   const { mutateAsync: deleteSurveyElement } = deleteSurveyElementMutation;
   const isLoading = deleteSurveyElementMutation?.status === 'pending';
 
-
-  const handleDelete = (element: SurveyElementDto) => {
+  const handleDelete = async (element: SurveyElementDto) => {
     if (!element.id) return;
-    if (!confirm('Tem certeza que deseja deletar este elemento?')) return;
+    if (!window.confirm('Tem certeza que deseja deletar este elemento?')) return;
 
-    // 1. Chama a mutação para deletar no backend
-    deleteSurveyElement(element.id)
-      .then(() => {
-        // 2. SUCESSO: Chama a função que remove o nó do canvas.
-        onDeleteSurveyElement(element.id!);
-      })
-      .catch((err) => {
-        console.error('Erro ao deletar elemento:', err);
-      });
+    try {
+      await deleteSurveyElement(element.id);
+
+      onDeleteSurveyElement(element.id);
+
+    } catch (err) {
+      console.error('Erro ao deletar elemento:', err);
+    }
   };
+
 
   return (
     <aside className={`canvas-sidebar ${sidebarOpen ? "open" : "closed"}`}>
@@ -71,6 +71,7 @@ export default function CanvasSidebar({
           {sidebarOpen ? '←' : '→'}
         </button>
       </div>
+
       <div className="canvas-sidebar-content">
         <div className="canvas-sidebar-section">
           <h3 className="canvas-sidebar-title">Mensagem</h3>
@@ -79,6 +80,7 @@ export default function CanvasSidebar({
             onChange={onInputChange}
           />
         </div>
+
         <div className='canvas-options-list'>
           {surveysElements?.map((element) => (
             <div
@@ -99,6 +101,7 @@ export default function CanvasSidebar({
                   {element.options && element.options.length > 0 ? (
                     <ul>
                       {element.options.map((option) => {
+                        // Não mostra opções deletadas
                         if (option.deletedAt) return <React.Fragment key={option.id}></React.Fragment>;
                         return <li key={option.id}>{option.description}</li>;
                       })}
@@ -114,6 +117,7 @@ export default function CanvasSidebar({
                 </Accordion>
               </div>
 
+              {/* ✨ 6. BOTÃO DE DELETAR ADICIONADO */}
               <IconButton
                 onClick={(e) => {
                   e.preventDefault();
@@ -122,7 +126,7 @@ export default function CanvasSidebar({
                 }}
                 className="canvas-delete-button"
                 title="Excluir elemento"
-                disabled={isLoading}
+                disabled={isLoading} // Desabilita durante a deleção
               >
                 <DeleteIcon style={{ width: '1rem', height: '1rem', color: '#ef4444' }} />
               </IconButton>
@@ -155,6 +159,7 @@ export default function CanvasSidebar({
             </div>
           ))}
         </div>
+
         <div className="canvas-sidebar-footer">
           {selectedNodes.length > 0 && (
             <div className="selection-info">
