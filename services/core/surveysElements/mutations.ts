@@ -40,3 +40,22 @@ export const useSurveysElementsUpdateMutation = (
             });
         },
     });
+
+export const useSurveysElementsSoftDeleteMutation = () =>
+    useMutation<SurveysElementsResponse, unknown, number>({
+        mutationFn: (id: number) =>
+            surveyElementApi
+                .patch(`/${id}`, { deletedAt: new Date().toISOString() })
+                .then((res) => res.data as SurveysElementsResponse),
+        onSuccess: () => {
+            toast.success('Elemento deletado com sucesso!');
+
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+                refetchType: 'all',
+            });
+        },
+        onError: (error) => {
+            console.error('Falha no soft delete da API:', error);
+        },
+    });

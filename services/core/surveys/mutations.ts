@@ -34,3 +34,21 @@ export const useSurveysDeleteMutation = (payload: SurveyDto) =>
             toast.success('Questionário deletado com sucesso!');
         },
     });
+
+export interface CompleteSurveyDTO {
+    userId: string;
+    surveyId: number;
+}
+
+export const useCompleteSurveyMutation = () =>
+    useMutation({
+        mutationFn: (payload: CompleteSurveyDTO) =>
+            surveyApi.post('/complete', payload).then((res) => res.data),
+        onSuccess: () => {
+            toast.success('Questionário finalizado com sucesso!');
+        },
+        onError: (error: any) => {
+            toast.error('Erro ao finalizar questionário. Tente novamente.');
+            console.error('Error completing survey:', error);
+        },
+    });
