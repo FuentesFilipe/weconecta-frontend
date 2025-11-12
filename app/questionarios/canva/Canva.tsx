@@ -138,7 +138,6 @@ function CanvasContent() {
 
     useEffect(() => {
         if (survey) {
-            console.log('BUSCOU AAAAAAAAAAAAAA')
             const savedFlow = canvasOperations.loadFromLocalStorage();
             canvasOperations.setEdges(savedFlow && savedFlow.edges ? savedFlow.edges : survey.flow && survey.flow.edges ? survey.flow.edges : []);
             canvasOperations.setNodes(savedFlow && savedFlow.nodes ? savedFlow.nodes : survey.flow && survey.flow.nodes ? survey.flow.nodes : []);
