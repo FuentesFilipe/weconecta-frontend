@@ -39,9 +39,15 @@ export function toCanvasModel(payload: SurveyGraphPayload): { nodes: CanvasNode[
 
         //nos das alternativas desse elemento
         const base = elPos(i);
-        el.options.forEach((opt, k) => {
-            if (opt.id == null) return;
-            
+        // Filtra opções __DEFAULT__ e deletadas
+        const validOptions = el.options?.filter(opt => 
+            opt.id != null && 
+            !opt.deletedAt && 
+            opt.description !== '__DEFAULT__' && 
+            opt.description !== 'N/A'
+        ) || [];
+        
+        validOptions.forEach((opt, k) => {
             const optNodeId = `opt-${opt.id}`;
             nodes.push({
                 id: optNodeId,

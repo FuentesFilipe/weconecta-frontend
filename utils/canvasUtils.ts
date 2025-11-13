@@ -194,8 +194,16 @@ export const handleInsertOnCanvaAtPosition = (
     const newNodes = [newNode];
     const newEdges: any[] = [];
 
-    if (element.options && element.options.length > 0) {
-        element.options.forEach((option: any, index: number) => {
+    // Filtra opções __DEFAULT__ e deletadas antes de criar nós
+    const validOptions = element.options?.filter((option: any) => 
+        option.id != null && 
+        !option.deletedAt && 
+        option.description !== '__DEFAULT__' && 
+        option.description !== 'N/A'
+    ) || [];
+
+    if (validOptions.length > 0) {
+        validOptions.forEach((option: any, index: number) => {
             const childNodeId = `${NodeType.OPTION}-${newNodeId}-child-${option.id}`;
             const childNode = createNewNode(
                 childNodeId,

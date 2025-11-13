@@ -61,12 +61,16 @@ export const useSurveysElementsSoftDeleteMutation = () =>
         onSuccess: () => {
             toast.success('Elemento deletado com sucesso!');
 
+            // Invalida todas as queries que começam com SURVEYS_ELEMENTS
+            // Isso garante que todas as variações da query sejam refetchadas
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
-                refetchType: 'all',
+                exact: false, // Invalida todas as queries que começam com essa key
+                refetchType: 'active', // Refaz apenas as queries ativas
             });
         },
         onError: (error) => {
             console.error('Falha no soft delete da API:', error);
+            toast.error('Erro ao deletar elemento. Tente novamente.');
         },
     });

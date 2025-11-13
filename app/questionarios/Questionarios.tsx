@@ -4,7 +4,7 @@ import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Filter, Plus } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
 import { SurveysModal } from '../../components/Modal/SurveysModal';
@@ -59,14 +59,6 @@ export default function QuestionariosPage() {
                             onChange={onInputChange}
                         />
                     </div>
-                </div>
-
-                <div className={styles.filterContainer}>
-                    <label className={styles.filterLabel}>Filtrar</label>
-                    <Button variant='outline' className={styles.filterButton}>
-                        Adicionar Filtros
-                        <Filter className='ml-2 h-4 w-4' />
-                    </Button>
                 </div>
 
                 <Button

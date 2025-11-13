@@ -19,6 +19,8 @@ type Props = {
     align?: 'left' | 'right';
     onSend?: (payload: SendPayload) => Promise<unknown> | void;
     responseText?: string; // when rendering an answer bubble
+    selectedOptionId?: number | null; // Opção selecionada para elementos do tipo OPTION (para manter seleção visual)
+    selectedOptions?: number[]; // Opções selecionadas para elementos do tipo MULTIPLE_CHOICE (para manter seleção visual)
 };
 
 export const SpeechBubble: React.FC<Props> = ({
@@ -28,13 +30,18 @@ export const SpeechBubble: React.FC<Props> = ({
     align = 'left',
     onSend,
     responseText,
+    selectedOptionId: propSelectedOptionId = null,
+    selectedOptions: propSelectedOptions = [],
 }) => {
     const [text, setText] = useState('');
-    const [selectedOptionId, setSelectedOptionId] = useState<number | null>(
-        null,
-    );
-    const [selectedOptions, setSelectedOptions] = useState<number[]>([]);
+    // Usa props se fornecidas, senão usa estado local
+    const [localSelectedOptionId, setLocalSelectedOptionId] = useState<number | null>(null);
+    const [localSelectedOptions, setLocalSelectedOptions] = useState<number[]>([]);
     const [loading, setLoading] = useState(false);
+
+    // Usa props se fornecidas (para manter seleção após envio), senão usa estado local
+    const selectedOptionId = propSelectedOptionId !== null ? propSelectedOptionId : localSelectedOptionId;
+    const selectedOptions = propSelectedOptions.length > 0 ? propSelectedOptions : localSelectedOptions;
 
     const type = element?.type;
     
@@ -79,11 +86,21 @@ export const SpeechBubble: React.FC<Props> = ({
     const isTextEnabled = !isSelectionType && isQuestion;
 
     const toggleMultiple = (optId: number) => {
-        setSelectedOptions((prev) =>
-            prev.includes(optId)
-                ? prev.filter((id) => id !== optId)
-                : [...prev, optId],
-        );
+        // Só atualiza estado local se não houver props (ou seja, ainda não foi enviado)
+        if (propSelectedOptions.length === 0) {
+            setLocalSelectedOptions((prev) =>
+                prev.includes(optId)
+                    ? prev.filter((id) => id !== optId)
+                    : [...prev, optId],
+            );
+        }
+    };
+
+    const handleOptionSelect = (optId: number) => {
+        // Só atualiza estado local se não houver props (ou seja, ainda não foi enviado)
+        if (propSelectedOptionId === null) {
+            setLocalSelectedOptionId(optId);
+        }
     };
 
     const defaultSend = async (payload: SendPayload): Promise<unknown> => {
@@ -123,10 +140,15 @@ export const SpeechBubble: React.FC<Props> = ({
             } else {
                 await defaultSend(payload);
             }
-            // simple reset after send
+            // simple reset after send (mas mantém seleção visual via props)
             setText('');
-            setSelectedOptionId(null);
-            setSelectedOptions([]);
+            // Só reseta estado local se não houver props
+            if (propSelectedOptionId === null) {
+                setLocalSelectedOptionId(null);
+            }
+            if (propSelectedOptions.length === 0) {
+                setLocalSelectedOptions([]);
+            }
         } finally {
             setLoading(false);
         }
@@ -180,28 +202,24 @@ export const SpeechBubble: React.FC<Props> = ({
                                                 type='radio'
                                                 name={`opt-${element.id}`}
                                                 checked={selectedOptionId === optId}
-                                                onChange={() =>
-                                                    setSelectedOptionId(optId)
-                                                }
-                                                style={{ width: '18px', height: '18px' }}
+                                                onChange={() => handleOptionSelect(optId)}
+                                                disabled={propSelectedOptionId !== null} // Desabilita se já foi enviado
+                                                style={{ width: '18px', height: '18px', cursor: propSelectedOptionId !== null ? 'default' : 'pointer' }}
                                             />
                                         ) : (
                                             <input
                                                 type='checkbox'
-                                                checked={selectedOptions.includes(
-                                                    optId,
-                                                )}
-                                                onChange={() =>
-                                                    toggleMultiple(optId)
-                                                }
-                                                style={{ width: '18px', height: '18px' }}
+                                                checked={selectedOptions.includes(optId)}
+                                                onChange={() => toggleMultiple(optId)}
+                                                disabled={propSelectedOptions.length > 0} // Desabilita se já foi enviado
+                                                style={{ width: '18px', height: '18px', cursor: propSelectedOptions.length > 0 ? 'default' : 'pointer' }}
                                             />
                                         )}
                                         <span 
-                                            className='sb-option-text' 
+                                            className={`sb-option-text ${(selectedOptionId === optId || selectedOptions.includes(optId)) ? 'sb-option-selected' : ''}`}
                                             style={{ 
-                                                color: '#000000', 
-                                                fontWeight: 400, 
+                                                color: (selectedOptionId === optId || selectedOptions.includes(optId)) ? '#ff8a4a' : '#000000', 
+                                                fontWeight: (selectedOptionId === optId || selectedOptions.includes(optId)) ? 600 : 400, 
                                                 fontSize: '14px',
                                                 display: 'block', 
                                                 visibility: 'visible', 

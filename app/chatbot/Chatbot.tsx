@@ -73,6 +73,9 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
     // current element id for the flow engine
     const [currentElementId, setCurrentElementId] = useState<number | null>(null);
 
+    // Rastreia opções selecionadas por elemento (para manter seleção visual após envio)
+    const [selectedOptionsByElement, setSelectedOptionsByElement] = useState<Map<number, number | number[]>>(new Map());
+
     // fetch the current survey element when currentElementId is set
     const { data: currentElement } = useGetSurveysElementById(
         currentElementId ?? undefined,
@@ -130,6 +133,19 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
 
         // append user response bubble (right aligned)
         setMessages((prev) => [...prev, { kind: 'response', text, align: 'right' }]);
+
+            // Salva a seleção para manter visualmente selecionado após envio
+            if (elementId) {
+                setSelectedOptionsByElement((prev) => {
+                    const newMap = new Map(prev);
+                    if (typeof payload.value === 'number') {
+                        newMap.set(elementId, payload.value);
+                    } else if (Array.isArray(payload.value)) {
+                        newMap.set(elementId, payload.value);
+                    }
+                    return newMap;
+                });
+            }
 
             // Chama o backend para processar a resposta e obter o próximo elemento
             if (!sessionIdentifier) {
@@ -265,6 +281,8 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                 }
 
                 // Reconstrói o histórico na ordem correta
+                const tempSelectedOptions = new Map<number, number | number[]>();
+                
                 for (const answer of verification.previousAnswers) {
                     const element = elementsMap.get(answer.surveyElementId);
                     if (element) {
@@ -283,6 +301,21 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                             // Busca a descrição da opção
                             const option = element.options?.find(opt => opt.id === answer.optionId);
                             responseText = option?.description || `Opção ${answer.optionId}`;
+                            
+                            // Salva a seleção para manter visualmente selecionado
+                            const existing = tempSelectedOptions.get(answer.surveyElementId);
+                            if (Array.isArray(existing)) {
+                                // Se já existe um array, adiciona a esta opção
+                                if (!existing.includes(answer.optionId)) {
+                                    tempSelectedOptions.set(answer.surveyElementId, [...existing, answer.optionId]);
+                                }
+                            } else if (typeof existing === 'number') {
+                                // Se já existe um número, converte para array (múltipla escolha)
+                                tempSelectedOptions.set(answer.surveyElementId, [existing, answer.optionId]);
+                            } else {
+                                // Primeira seleção para este elemento
+                                tempSelectedOptions.set(answer.surveyElementId, answer.optionId);
+                            }
                         } else if (answer.inputResponse) {
                             responseText = answer.inputResponse;
                         }
@@ -292,6 +325,9 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                         }
                     }
                 }
+                
+                // Atualiza o estado de seleções com o histórico
+                setSelectedOptionsByElement(tempSelectedOptions);
 
                 // Adiciona a resposta do telefone e a pergunta inicial no início do histórico
                 historyMessages.unshift(
@@ -433,6 +469,11 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                                     optionsCount: msg.element.options?.length || 0
                                 });
                                 
+                                // Obtém opções selecionadas para este elemento (se houver)
+                                const selectedForElement = selectedOptionsByElement.get(msg.element.id);
+                                const selectedOptionId = typeof selectedForElement === 'number' ? selectedForElement : null;
+                                const selectedOptions = Array.isArray(selectedForElement) ? selectedForElement : [];
+
                                 return (
                                     <SpeechBubble
                                         key={`q-${msg.element.id}-${idx}`}
@@ -441,6 +482,8 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                                         surveyId={survey.id}
                                         align={'left'}
                                         onSend={(payload: SendPayload) => handleQuestionSend(payload)}
+                                        selectedOptionId={selectedOptionId}
+                                        selectedOptions={selectedOptions}
                                     />
                                 );
                             }

@@ -81,7 +81,7 @@ export default function CanvasSidebar({
         </div>
 
         <div className='canvas-options-list'>
-          {surveysElements?.map((element) => (
+          {surveysElements?.filter((element) => !element.deletedAt).map((element) => (
             <div
               key={element.id}
               className="canvas-option-item"
@@ -100,8 +100,12 @@ export default function CanvasSidebar({
                   {element.options && element.options.length > 0 ? (
                     <ul>
                       {element.options.map((option) => {
-                        // Não mostra opções deletadas
-                        if (option.deletedAt) return <React.Fragment key={option.id}></React.Fragment>;
+                        // Não mostra opções deletadas ou opções padrão (__DEFAULT__)
+                        if (option.deletedAt || 
+                            option.description === '__DEFAULT__' || 
+                            option.description === 'N/A') {
+                          return <React.Fragment key={option.id}></React.Fragment>;
+                        }
                         return <li key={option.id}>{option.description}</li>;
                       })}
                     </ul>
