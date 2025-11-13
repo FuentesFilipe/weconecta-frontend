@@ -87,117 +87,293 @@ export function useCanvasOperations() {
 
     // Organização do canvas
     const organizeCanvas = useCallback(() => {
-        console.log('Organizando canvas em formato de árvore...');
+        console.log('Organizando canvas em formato de árvore melhorado...');
 
         const NODE_WIDTH = 200;
         const NODE_HEIGHT = 100;
-        const LEVEL_HEIGHT = 200;
-        const SIBLING_SPACING = 250;
+        const LEVEL_HEIGHT = 280; // Espaçamento vertical entre níveis
+        const MIN_SIBLING_SPACING = 320; // Espaçamento horizontal mínimo entre irmãos
+        const START_X = 0;
 
-        const rootNodes = nodes.filter(
-            (node: any) => !edges.some((edge: any) => edge.target === node.id),
-        );
-
-        console.log('Nós raiz encontrados:', rootNodes);
-
-        if (rootNodes.length === 0) {
-            console.log('Nenhum nó raiz encontrado, usando primeiro nó');
-            if (nodes.length > 0) {
-                rootNodes.push(nodes[0]);
-            }
+        if (nodes.length === 0) {
+            return;
         }
 
-        const positionedNodes = new Map();
+        // Funções auxiliares
+        const getParents = (nodeId: string): string[] => {
+            return edges
+                .filter((edge: any) => edge.target === nodeId)
+                .map((edge: any) => edge.source);
+        };
 
-        const positionLeafNodes = (
-            nodeId: string,
-            level: number,
-            siblingIndex: number,
-            parentX: number = 0,
-        ) => {
-            const node = nodes.find((n: any) => n.id === nodeId);
-            if (!node) return;
-
-            const children = edges
+        const getChildren = (nodeId: string): string[] => {
+            return edges
                 .filter((edge: any) => edge.source === nodeId)
                 .map((edge: any) => edge.target);
+        };
 
-            let x, y;
+        // Passo 1: Calcular níveis usando BFS otimizado
+        const nodeLevels = new Map<string, number>();
+        const rootNodes = nodes.filter(
+            (node: any) => getParents(node.id).length === 0,
+        );
 
-            if (children.length === 0) {
-                x = parentX + siblingIndex * SIBLING_SPACING;
-                y = level * LEVEL_HEIGHT;
-                positionedNodes.set(nodeId, { x, y });
-            } else {
-                children.forEach((childId: string, index: number) => {
-                    positionLeafNodes(childId, level + 1, index, parentX);
+        if (rootNodes.length === 0 && nodes.length > 0) {
+            rootNodes.push(nodes[0]);
+        } else if (nodes.length === 0) {
+            return;
+        }
+
+        // Calcula níveis considerando múltiplos pais
+        const calculateLevels = () => {
+            const queue: Array<{ id: string; level: number }> = [];
+            const processed = new Set<string>();
+            
+            rootNodes.forEach((root: any) => {
+                nodeLevels.set(root.id, 0);
+                queue.push({ id: root.id, level: 0 });
+            });
+
+            while (queue.length > 0) {
+                const { id, level } = queue.shift()!;
+                if (processed.has(id)) continue;
+                processed.add(id);
+
+                const children = getChildren(id);
+                children.forEach((childId: string) => {
+                    const parents = getParents(childId);
+                    const maxParentLevel = Math.max(
+                        ...parents.map((pid: string) => nodeLevels.get(pid) ?? -1),
+                        level
+                    );
+                    const newLevel = maxParentLevel + 1;
+                    const currentLevel = nodeLevels.get(childId) ?? -1;
+                    
+                    if (newLevel > currentLevel) {
+                        nodeLevels.set(childId, newLevel);
+                        queue.push({ id: childId, level: newLevel });
+                    }
                 });
             }
         };
 
-        const positionParentNodes = (nodeId: string) => {
-            const node = nodes.find((n: any) => n.id === nodeId);
-            if (!node) return;
+        calculateLevels();
 
-            const children = edges
-                .filter((edge: any) => edge.source === nodeId)
-                .map((edge: any) => edge.target);
-
-            if (children.length > 0) {
-                children.forEach((childId: any) =>
-                    positionParentNodes(childId),
-                );
-
-                const childPositions = children
-                    .map((childId: any) => positionedNodes.get(childId))
-                    .filter(Boolean);
-
-                if (childPositions.length > 0) {
-                    const minX = Math.min(
-                        ...childPositions.map((pos: any) => pos.x),
-                    );
-                    const maxX = Math.max(
-                        ...childPositions.map((pos: any) => pos.x),
-                    );
-                    const centerX = (minX + maxX) / 2;
-
-                    const parentLevel =
-                        Math.min(...childPositions.map((pos: any) => pos.y)) -
-                        LEVEL_HEIGHT;
-
-                    positionedNodes.set(nodeId, { x: centerX, y: parentLevel });
-                }
+        // Garante nível para nós desconectados
+        nodes.forEach((node: any) => {
+            if (!nodeLevels.has(node.id)) {
+                nodeLevels.set(node.id, 0);
             }
-        };
+        });
 
-        const positionRootNodes = () => {
-            rootNodes.forEach((rootNode: any, index: number) => {
-                const startX = index * SIBLING_SPACING * 3;
+        // Passo 2: Agrupar nós por nível
+        const nodesByLevel = new Map<number, string[]>();
+        nodeLevels.forEach((level, nodeId) => {
+            if (!nodesByLevel.has(level)) {
+                nodesByLevel.set(level, []);
+            }
+            nodesByLevel.get(level)!.push(nodeId);
+        });
 
-                const children = edges
-                    .filter((edge: any) => edge.source === rootNode.id)
-                    .map((edge: any) => edge.target);
+        const sortedLevels = Array.from(nodesByLevel.keys()).sort((a, b) => a - b);
 
-                children.forEach((childId: string, childIndex: number) => {
-                    positionLeafNodes(childId, 1, childIndex, startX);
-                });
+        // Passo 3: Layout hierárquico melhorado com múltiplas passadas
+        const finalPositions = new Map<string, { x: number; y: number }>();
+        const nodeXPositions = new Map<string, number>();
 
-                positionParentNodes(rootNode.id);
+        // Inicializa posições Y
+        nodes.forEach((node: any) => {
+            const level = nodeLevels.get(node.id) ?? 0;
+            finalPositions.set(node.id, { x: 0, y: level * LEVEL_HEIGHT });
+        });
 
-                if (children.length === 0) {
-                    positionedNodes.set(rootNode.id, { x: startX, y: 0 });
+        // Passada 1: Posiciona nós de cima para baixo baseado nos pais
+        sortedLevels.forEach((level) => {
+            const levelNodes = nodesByLevel.get(level)!;
+            
+            // Calcula posições ideais baseadas nos pais
+            const idealPositions = new Map<string, number>();
+            
+            levelNodes.forEach((nodeId) => {
+                const parents = getParents(nodeId);
+                if (parents.length > 0) {
+                    const parentXs = parents
+                        .map((pid: string) => nodeXPositions.get(pid))
+                        .filter((x): x is number => x !== undefined);
+                    
+                    if (parentXs.length > 0) {
+                        const minX = Math.min(...parentXs);
+                        const maxX = Math.max(...parentXs);
+                        idealPositions.set(nodeId, (minX + maxX) / 2);
+                    }
                 }
             });
-        };
 
-        positionRootNodes();
+            // Ordena nós pela posição ideal
+            levelNodes.sort((a, b) => {
+                const idealA = idealPositions.get(a);
+                const idealB = idealPositions.get(b);
+                if (idealA !== undefined && idealB !== undefined) {
+                    return idealA - idealB;
+                }
+                if (idealA !== undefined) return -1;
+                if (idealB !== undefined) return 1;
+                return 0;
+            });
 
+            // Posiciona nós do nível
+            levelNodes.forEach((nodeId, index) => {
+                const parents = getParents(nodeId);
+                let targetX: number;
+
+                if (parents.length > 0) {
+                    const idealX = idealPositions.get(nodeId);
+                    if (idealX !== undefined) {
+                        targetX = idealX;
+                    } else {
+                        const parentXs = parents
+                            .map((pid: string) => nodeXPositions.get(pid))
+                            .filter((x): x is number => x !== undefined);
+                        targetX = parentXs.length > 0 
+                            ? parentXs.reduce((a, b) => a + b, 0) / parentXs.length
+                            : START_X + index * MIN_SIBLING_SPACING;
+                    }
+                } else {
+                    // Nós raiz: distribui uniformemente
+                    const totalRoots = nodesByLevel.get(0)?.length ?? 1;
+                    const spacing = Math.max(MIN_SIBLING_SPACING, 400);
+                    targetX = START_X + index * spacing;
+                }
+
+                // Evita sobreposição
+                const existing = levelNodes.slice(0, index);
+                let finalX = targetX;
+                
+                existing.forEach((existingId) => {
+                    const existingX = nodeXPositions.get(existingId);
+                    if (existingX !== undefined) {
+                        const minDist = MIN_SIBLING_SPACING;
+                        if (finalX < existingX + minDist) {
+                            finalX = existingX + minDist;
+                        }
+                    }
+                });
+
+                const pos = finalPositions.get(nodeId)!;
+                pos.x = finalX;
+                nodeXPositions.set(nodeId, finalX);
+            });
+        });
+
+        // Passada 2: Ajusta espaçamento horizontal para evitar sobreposição
+        let changed = true;
+        let iterations = 0;
+        const maxIterations = 15;
+
+        while (changed && iterations < maxIterations) {
+            changed = false;
+            iterations++;
+
+            sortedLevels.forEach((level) => {
+                const levelNodes = nodesByLevel.get(level)!;
+                const sorted = levelNodes
+                    .map((id) => ({ id, x: nodeXPositions.get(id) ?? 0 }))
+                    .sort((a, b) => a.x - b.x);
+
+                sorted.forEach((node, index) => {
+                    if (index > 0) {
+                        const prev = sorted[index - 1];
+                        const minX = prev.x + MIN_SIBLING_SPACING;
+                        const currentX = node.x;
+                        
+                        if (currentX < minX) {
+                            node.x = minX;
+                            nodeXPositions.set(node.id, minX);
+                            const pos = finalPositions.get(node.id)!;
+                            pos.x = minX;
+                            changed = true;
+                        }
+                    }
+                });
+            });
+        }
+
+        // Passada 3: Centraliza pais acima dos filhos (bottom-up)
+        [...sortedLevels].reverse().forEach((level) => {
+            const levelNodes = nodesByLevel.get(level)!;
+            
+            levelNodes.forEach((nodeId) => {
+                const children = getChildren(nodeId);
+                if (children.length > 0) {
+                    const childXs = children
+                        .map((cid: string) => nodeXPositions.get(cid))
+                        .filter((x): x is number => x !== undefined);
+                    
+                    if (childXs.length > 0) {
+                        const minChildX = Math.min(...childXs);
+                        const maxChildX = Math.max(...childXs);
+                        const idealCenterX = (minChildX + maxChildX) / 2;
+                        
+                        const currentX = nodeXPositions.get(nodeId) ?? 0;
+                        const diff = idealCenterX - currentX;
+                        
+                        // Ajusta se a diferença for pequena e não causar sobreposição
+                        if (Math.abs(diff) < MIN_SIBLING_SPACING * 0.8) {
+                            const newX = idealCenterX;
+                            const levelNodesAtLevel = nodesByLevel.get(level)!;
+                            let canMove = true;
+                            
+                            levelNodesAtLevel.forEach((otherId) => {
+                                if (otherId !== nodeId) {
+                                    const otherX = nodeXPositions.get(otherId) ?? 0;
+                                    if (Math.abs(newX - otherX) < MIN_SIBLING_SPACING) {
+                                        canMove = false;
+                                    }
+                                }
+                            });
+                            
+                            if (canMove) {
+                                nodeXPositions.set(nodeId, newX);
+                                const pos = finalPositions.get(nodeId)!;
+                                pos.x = newX;
+                            }
+                        }
+                    }
+                }
+            });
+        });
+
+        // Passada 4: Ajuste final para garantir espaçamento mínimo
+        sortedLevels.forEach((level) => {
+            const levelNodes = nodesByLevel.get(level)!;
+            const sorted = levelNodes
+                .map((id) => ({ id, x: nodeXPositions.get(id) ?? 0 }))
+                .sort((a, b) => a.x - b.x);
+
+            sorted.forEach((node, index) => {
+                if (index > 0) {
+                    const prev = sorted[index - 1];
+                    const minX = prev.x + MIN_SIBLING_SPACING;
+                    if (node.x < minX) {
+                        node.x = minX;
+                        nodeXPositions.set(node.id, minX);
+                        const pos = finalPositions.get(node.id)!;
+                        pos.x = minX;
+                    }
+                }
+            });
+        });
+
+        // Atualiza as posições dos nós
         const updatedNodes = nodes.map((node: any) => {
-            const newPosition = positionedNodes.get(node.id);
-            if (newPosition) {
+            const pos = finalPositions.get(node.id);
+            if (pos) {
                 return {
                     ...node,
-                    position: newPosition,
+                    position: {
+                        x: pos.x - NODE_WIDTH / 2,
+                        y: pos.y,
+                    },
                 };
             }
             return node;
@@ -207,10 +383,10 @@ export function useCanvasOperations() {
         saveToLocalStorage(updatedNodes, edges);
 
         setTimeout(() => {
-            fitView({ padding: 0.1, duration: 800 });
+            fitView({ padding: 0.2, duration: 800 });
         }, 100);
 
-        console.log('Canvas organizado em formato de árvore!');
+        console.log('Canvas organizado com sucesso!');
     }, [nodes, edges, fitView, saveToLocalStorage]);
 
     // Handlers de mudança
