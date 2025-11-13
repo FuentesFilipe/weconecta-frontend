@@ -64,10 +64,19 @@ export function useCanvasState() {
 
     const handleEditSidebarElement = useCallback(
         (element: SurveyElementDto) => {
-            console.log('Editando elemento da sidebar:', element);
+            console.log('✏️ handleEditSidebarElement chamado:', {
+                element,
+                elementId: element?.id,
+                elementDescription: element?.description,
+            });
+            if (!element || !element.id) {
+                console.error('❌ Elemento inválido ou sem ID:', element);
+                return;
+            }
             setEditingElementModal({ isOpen: true, surveyElement: element });
             setSelectedNodeId(null);
             setIsEditMode(false);
+            console.log('✅ Modal de edição aberto para elemento:', element.id);
         },
         [],
     );

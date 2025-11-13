@@ -132,6 +132,45 @@ function CreateEditSurveyElement({
         prevOpenRef.current = open;
     }, [open, initialData, id]);
 
+    // Atualiza o form quando os dados do backend chegarem
+    const prevDataRef = React.useRef<any>(null);
+    React.useEffect(() => {
+        if (open && id && data && Object.keys(data).length > 0 && 'id' in data) {
+            // Só atualiza se os dados mudaram
+            const dataString = JSON.stringify(data);
+            const prevDataString = JSON.stringify(prevDataRef.current);
+            
+            if (dataString !== prevDataString) {
+                console.log('📥 Atualizando form com dados do backend:', data);
+                const surveyElementData = data as SurveyElementDto;
+                
+                // Converte as opções do formato do backend para o formato do form
+                const options = surveyElementData.options?.map((option) => ({
+                    description: option.description || '',
+                    id: option.id,
+                    deletedAt: option.deletedAt || null,
+                })) || [];
+
+                const newForm = {
+                    description: surveyElementData.description || '',
+                    type: surveyElementData.type as SurveyElementType,
+                    options: options.length > 0 
+                        ? options 
+                        : (surveyElementData.type === SurveyElementType.MULTIPLE_CHOICE || surveyElementData.type === SurveyElementType.OPTION 
+                            ? [...DEFAULT_DATA.options] 
+                            : []),
+                };
+
+                console.log('✅ Form atualizado:', newForm);
+                setForm(newForm);
+                prevDataRef.current = data;
+            }
+        } else if (!open) {
+            // Limpa a referência quando o modal fecha
+            prevDataRef.current = null;
+        }
+    }, [open, id, data]);
+
     React.useEffect(() => {
         if (createSurveyElementResponse) {
             console.log('Elemento criado com sucesso:', createSurveyElementResponse);
@@ -420,6 +459,14 @@ export function SurveysElementModal({
 }: NewSurveyElementProp) {
     const { data: surveyElementData, isLoading: surveyElementLoading } = useGetSurveysElementById(id);
 
+    console.log('🔍 SurveysElementModal renderizado:', {
+        open,
+        id,
+        surveyElementLoading,
+        surveyElementData,
+        hasInitialData: !!initialData,
+    });
+
     if (!onConfirm && (surveyElementLoading || (id && !surveyElementData))) {
         return (
             <Modal open={open} onClose={onClose} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1rem', }}>
@@ -433,7 +480,7 @@ export function SurveysElementModal({
             open={open}
             onClose={onClose}
             id={id}
-            data={!!id ? (surveyElementData || DEFAULT_DATA) : DEFAULT_DATA}
+            data={!!id && surveyElementData ? surveyElementData : DEFAULT_DATA}
             onConfirm={onConfirm}
             initialData={initialData}
         />

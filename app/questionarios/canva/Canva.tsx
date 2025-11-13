@@ -235,21 +235,22 @@ function CanvasContent() {
                 console.log('🗑️ Deletando nó:', canvasState.deleteItem.id);
 
                 const nodesToRemove = new Set<string>();
-                const collectDescendants = (nodeId: string) => {
-                    canvasOperations.edges.forEach((edge: any) => {
-                        if (
-                            edge.source === nodeId &&
-                            !nodesToRemove.has(edge.target)
-                        ) {
-                            nodesToRemove.add(edge.target);
-                            collectDescendants(edge.target);
-                        }
-                    });
-                };
+                const nodeIdToDelete = canvasState.deleteItem.id;
+                
+                // Adiciona o nó que está sendo deletado
+                nodesToRemove.add(nodeIdToDelete);
 
-                nodesToRemove.add(canvasState.deleteItem.id);
-                collectDescendants(canvasState.deleteItem.id);
+                // Encontra apenas os filhos DIRETOS (nós conectados diretamente como target)
+                const directChildren = canvasOperations.edges
+                    .filter((edge: any) => edge.source === nodeIdToDelete)
+                    .map((edge: any) => edge.target);
 
+                // Adiciona apenas os filhos diretos à lista de remoção
+                directChildren.forEach((childId: string) => {
+                    nodesToRemove.add(childId);
+                });
+
+                // Remove todas as conexões relacionadas aos nós que serão deletados
                 const connectionsToRemove = canvasOperations.edges.filter(
                     (edge: any) =>
                         nodesToRemove.has(edge.source) ||
@@ -257,7 +258,7 @@ function CanvasContent() {
                 );
 
                 console.log(
-                    '🧹 Nós que serão removidos (incluindo descendentes):',
+                    '🧹 Nós que serão removidos (nó deletado + filhos diretos):',
                     Array.from(nodesToRemove),
                 );
                 console.log(

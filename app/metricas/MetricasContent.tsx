@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { 
   BarChart2, 
@@ -9,58 +9,88 @@ import {
   AlertTriangle 
 } from 'lucide-react';
 import styles from './page.module.css';
-
-// Dados mockados para demonstração
-const questionariosData = [
-  { nome: 'Câncer de mama', respondidos: 46 },
-  { nome: 'Câncer de próstata', respondidos: 17 },
-  { nome: 'Câncer de pele', respondidos: 19 },
-  { nome: 'Obesidade', respondidos: 29 },
-];
-
-const respostasData = [
-  { mes: 'Jan', respondidos: 100, enviados: 200 },
-  { mes: 'Fev', respondidos: 150, enviados: 300 },
-  { mes: 'Mar', respondidos: 200, enviados: 350 },
-  { mes: 'Abr', respondidos: 250, enviados: 400 },
-  { mes: 'Mai', respondidos: 300, enviados: 450 },
-  { mes: 'Jun', respondidos: 350, enviados: 500 },
-  { mes: 'Jul', respondidos: 400, enviados: 550 },
-  { mes: 'Ago', respondidos: 450, enviados: 600 },
-  { mes: 'Set', respondidos: 500, enviados: 650 },
-  { mes: 'Out', respondidos: 550, enviados: 700 },
-  { mes: 'Nov', respondidos: 600, enviados: 750 },
-  { mes: 'Dez', respondidos: 650, enviados: 800 },
-];
+import { useGetAllSurveys } from '@/services/core/surveys/queries';
+import { useGetAllSurveysStatistics } from '@/services/core/surveyAnswer/queries';
 
 export default function MetricasContent() {
+  // Busca todos os questionários
+  const { data: surveysData, isLoading: surveysLoading } = useGetAllSurveys({});
+  const surveys = surveysData?.[0] || [];
+
+  // Busca estatísticas de todos os questionários
+  const surveyIds = useMemo(() => surveys.filter(s => s.id).map(s => s.id!), [surveys]);
+  const { data: statisticsData, isLoading: statisticsLoading } = useGetAllSurveysStatistics(surveyIds);
+
+  // Calcula totais agregados
+  const totals = useMemo(() => {
+    if (!statisticsData) {
+      return {
+        totalStarted: 0,
+        totalFinished: 0,
+        totalInProgress: 0,
+        totalSurveys: 0,
+      };
+    }
+
+    return statisticsData.reduce(
+      (acc, item) => ({
+        totalStarted: acc.totalStarted + item.statistics.totalStarted,
+        totalFinished: acc.totalFinished + item.statistics.totalFinished,
+        totalInProgress: acc.totalInProgress + item.statistics.totalInProgress,
+        totalSurveys: acc.totalSurveys + 1,
+      }),
+      { totalStarted: 0, totalFinished: 0, totalInProgress: 0, totalSurveys: 0 }
+    );
+  }, [statisticsData]);
+
+  // Prepara dados dos questionários com estatísticas
+  const questionariosData = useMemo(() => {
+    if (!surveys.length || !statisticsData) return [];
+
+    return surveys
+      .map((survey) => {
+        const stats = statisticsData.find((s) => s.surveyId === survey.id);
+        return {
+          id: survey.id,
+          nome: survey.title,
+          respondidos: stats?.statistics.totalFinished || 0,
+          iniciados: stats?.statistics.totalStarted || 0,
+          emProgresso: stats?.statistics.totalInProgress || 0,
+        };
+      })
+      .sort((a, b) => b.respondidos - a.respondidos)
+      .slice(0, 4); // Top 4
+  }, [surveys, statisticsData]);
+
+  const isLoading = surveysLoading || statisticsLoading;
+
   const summaryItems = [
     {
       icon: <BarChart2 className="text-blue-500" />,
-      value: 512,
-      label: 'Respondidos',
-      trend: '+10% desde ontem',
+      value: isLoading ? '...' : totals.totalFinished,
+      label: 'Finalizados',
+      trend: '',
       bgColor: 'bg-blue-50'
     },
     {
       icon: <FileText className="text-green-500" />,
-      value: 10,
+      value: isLoading ? '...' : totals.totalSurveys,
       label: 'Criados',
-      trend: '+8% desde ontem',
+      trend: '',
       bgColor: 'bg-green-50'
     },
     {
       icon: <CheckCircle className="text-cyan-500" />,
-      value: 500,
-      label: 'Saudáveis',
-      trend: '+3% desde ontem',
+      value: isLoading ? '...' : totals.totalStarted,
+      label: 'Iniciados',
+      trend: '',
       bgColor: 'bg-cyan-50'
     },
     {
       icon: <AlertTriangle className="text-red-500" />,
-      value: 12,
-      label: 'Críticos',
-      trend: '+3% desde ontem',
+      value: isLoading ? '...' : totals.totalInProgress,
+      label: 'Em Progresso',
+      trend: '',
       bgColor: 'bg-red-50'
     }
   ];
@@ -151,8 +181,17 @@ export default function MetricasContent() {
               <div>Respondidos</div>
               <div>%</div>
             </div>
-            {questionariosData.map((item, index) => (
-              <div key={item.nome} className={styles.topQuestionarioItem}>
+            {isLoading ? (
+              <div className="text-center py-4 text-gray-500">Carregando...</div>
+            ) : questionariosData.length === 0 ? (
+              <div className="text-center py-4 text-gray-500">Nenhum questionário encontrado</div>
+            ) : (
+              questionariosData.map((item, index) => {
+                const maxValue = Math.max(...questionariosData.map(q => q.respondidos), 1);
+                const percentage = maxValue > 0 ? (item.respondidos / maxValue) * 100 : 0;
+                
+                return (
+                  <div key={item.id} className={styles.topQuestionarioItem}>
                 <div className={styles.topQuestionarioIndex}>
                   {String(index + 1).padStart(2, '0')}
                 </div>
@@ -161,15 +200,17 @@ export default function MetricasContent() {
                   <div className={styles.progressBar}>
                     <div 
                       className={styles.progressBarFill}
-                      style={{ width: `${item.respondidos}%` }}
+                          style={{ width: `${percentage}%` }}
                     />
                   </div>
                 </div>
                 <div className={styles.topQuestionarioPercentage}>
-                  {item.respondidos}%
+                      {item.respondidos}
                 </div>
               </div>
-            ))}
+                );
+              })
+            )}
           </div>
         </Card>
         
@@ -247,9 +288,13 @@ export default function MetricasContent() {
           <h2 className="text-lg font-semibold mb-4 text-orange-500">Respondidos</h2>
           <div className="flex items-center justify-between">
             <div className={styles.respondidosInfo}>
-              <div className={styles.respondidosLabel}>Total Respondido</div>
-              <div className={styles.respondidosValue}>6000</div>
-              <div className={styles.respondidosDescription}>48% a mais que o último mês.</div>
+              <div className={styles.respondidosLabel}>Total Finalizado</div>
+              <div className={styles.respondidosValue}>
+                {isLoading ? '...' : totals.totalFinished}
+              </div>
+              <div className={styles.respondidosDescription}>
+                {isLoading ? 'Carregando...' : `${totals.totalStarted} iniciados no total`}
+              </div>
             </div>
             <div className={styles.radialProgressContainer}>
               <svg viewBox="0 0 120 120" className={styles.radialProgress}>
@@ -265,10 +310,14 @@ export default function MetricasContent() {
                   r="50" 
                   className={styles.radialProgressForeground}
                   strokeDasharray="314.159"
-                  strokeDashoffset={`${314.159 * (1 - 0.8)}`}
+                  strokeDashoffset={`${314.159 * (1 - (totals.totalStarted > 0 ? totals.totalFinished / totals.totalStarted : 0))}`}
                 />
               </svg>
-              <div className={styles.radialProgressText}>80%</div>
+              <div className={styles.radialProgressText}>
+                {isLoading ? '...' : totals.totalStarted > 0 
+                  ? `${Math.round((totals.totalFinished / totals.totalStarted) * 100)}%`
+                  : '0%'}
+              </div>
             </div>
           </div>
         </Card>

@@ -33,6 +33,11 @@ export const useSurveysDeleteMutation = (payload: SurveyDto) =>
             });
             toast.success('Questionário deletado com sucesso!');
         },
+        onError: (error: any) => {
+            console.error('Erro ao deletar questionário:', error);
+            const errorMessage = error?.response?.data?.message || error?.message || 'Erro ao deletar questionário';
+            toast.error(errorMessage);
+        },
     });
 
 export interface CompleteSurveyDTO {

@@ -47,9 +47,21 @@ export const ensureNodeFunctions = (
                 surveyElement: element,
                 surveyElementId: element?.id ?? node.data?.surveyElementId,
                 onDelete: () => handleNodeDelete(node.id),
-                onEdit: (el: SurveyElementDto) => handleEditElement(el),
+                onEdit: (el?: SurveyElementDto) => {
+                    // Se recebeu um elemento, usa ele; senão usa o elemento do nó
+                    const elementToEdit = el || element;
+                    if (elementToEdit) {
+                        handleEditElement(elementToEdit);
+                    } else {
+                        console.warn('⚠️ Tentando editar nó sem elemento:', node.id);
+                    }
+                },
                 onDoubleClick: () => {
-                    if (element) handleEditElement(element);
+                    if (element) {
+                        handleEditElement(element);
+                    } else {
+                        console.warn('⚠️ Tentando editar nó sem elemento (double click):', node.id);
+                    }
                 },
             },
         };

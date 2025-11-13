@@ -128,9 +128,44 @@ const CustomNode = memo(({ id, data }: CustomNodeProps) => {
                 onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
-                    if (surveyElement && onEdit) {
-                        onEdit(surveyElement);
+                    e.nativeEvent.stopImmediatePropagation();
+                    console.log('✏️ Botão de editar clicado!', {
+                        id,
+                        surveyElement,
+                        onEdit: !!onEdit,
+                        onDoubleClick: !!onDoubleClick,
+                    });
+                    
+                    // Sempre tenta chamar onEdit se disponível
+                    if (onEdit) {
+                        if (surveyElement && surveyElement.id) {
+                            console.log('✅ Chamando onEdit com surveyElement completo:', surveyElement);
+                            onEdit(surveyElement);
+                        } else {
+                            // Tenta extrair o ID do nodeId para criar um elemento básico
+                            // O nodeId pode ter formato: element-{id}-{timestamp} ou option-{elementId}-{optionId}-{timestamp}
+                            const elementIdMatch = id.match(/element-(\d+)/);
+                            const extractedId = elementIdMatch ? parseInt(elementIdMatch[1], 10) : null;
+                            
+                            if (extractedId) {
+                                console.log('✅ Extraindo ID do nodeId e criando elemento básico:', extractedId);
+                                const basicElement: SurveyElementDto = {
+                                    id: extractedId,
+                                    description: label,
+                                    type: type === 'mensagem' ? 'MESSAGE' : type === 'alternativa' ? 'OPTION' : 'INPUT',
+                                    options: [],
+                                    deletedAt: null,
+                                };
+                                onEdit(basicElement);
+                            } else {
+                                // Se não conseguiu extrair ID, tenta chamar onEdit sem parâmetro
+                                // O ensureNodeFunctions vai usar o elemento do nó automaticamente
+                                console.log('⚠️ Tentando chamar onEdit sem parâmetro (vai usar elemento do nó)');
+                                onEdit();
+                            }
+                        }
                     } else {
+                        console.log('⚠️ onEdit não disponível, usando onDoubleClick');
                         onDoubleClick?.();
                     }
                 }}

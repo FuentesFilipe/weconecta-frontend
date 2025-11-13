@@ -32,13 +32,13 @@
     transform: rotateY(180deg);
 }
 
-.sb-title { font-weight: 700; margin-bottom: 6px; }
-.sb-description { color: #333; margin-bottom: 12px; }
+.sb-title { font-weight: 700; margin-bottom: 6px; color: #000000 !important; }
+.sb-description { color: #000000 !important; margin-bottom: 12px; font-weight: 400 !important; visibility: visible !important; opacity: 1 !important; display: block !important; }
 
-.sb-options { margin-bottom: 12px; }
-.sb-option { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+.sb-options { margin-bottom: 12px; display: block !important; }
+.sb-option { display:flex !important; align-items:center; gap:8px; margin-bottom:8px; visibility: visible !important; opacity: 1 !important; }
 .sb-option input { width:18px; height:18px; }
-.sb-option-text { color:#222; font-size:14px; }
+.sb-option-text { color:#000000 !important; font-size:14px !important; font-weight: 400 !important; visibility: visible !important; opacity: 1 !important; display: block !important; }
 
 .sb-textarea { width:100%; min-height:64px; padding:8px; border:1px solid #e6e6e6; border-radius:6px; resize:vertical; }
 .sb-disabled { background:#f3f3f3; color:#9e9e9e; }

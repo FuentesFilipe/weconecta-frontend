@@ -424,6 +424,15 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
 
                         {messages.map((msg, idx) => {
                             if (msg.kind === 'question') {
+                                // Debug: verifica se o elemento tem opções
+                                console.log('Renderizando pergunta:', {
+                                    elementId: msg.element.id,
+                                    description: msg.element.description,
+                                    type: msg.element.type,
+                                    options: msg.element.options,
+                                    optionsCount: msg.element.options?.length || 0
+                                });
+                                
                                 return (
                                     <SpeechBubble
                                         key={`q-${msg.element.id}-${idx}`}

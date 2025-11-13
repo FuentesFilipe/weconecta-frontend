@@ -60,3 +60,20 @@ export const verifyPhone = async (
     return res.data;
 };
 
+export interface SurveyStatistics {
+    totalStarted: number;
+    totalFinished: number;
+    totalInProgress: number;
+}
+
+/**
+ * Busca estatísticas de um questionário
+ * GET /core/survey-answer/statistics/:surveyId
+ */
+export const getSurveyStatistics = async (
+    surveyId: number,
+): Promise<SurveyStatistics> => {
+    const res = await surveyAnswerApi.get<SurveyStatistics>(`/statistics/${surveyId}`);
+    return res.data;
+};
+

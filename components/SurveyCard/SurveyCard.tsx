@@ -53,7 +53,12 @@ export function SurveyCard({
 
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.stopPropagation();
-        setTimeout(() => deleteQuestionarioMutate(), 100);
+        
+        if (!window.confirm(`Tem certeza que deseja deletar o questionário "${survey.title}"?\n\nEsta ação não pode ser desfeita e todas as respostas relacionadas serão deletadas.`)) {
+            return;
+        }
+        
+        deleteQuestionarioMutate();
     };
 
     const handleDuplicateClick = (e: React.MouseEvent) => {

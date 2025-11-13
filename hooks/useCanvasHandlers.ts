@@ -137,14 +137,132 @@ export function useCanvasHandlers({
             tipo: string;
             alternativas: string[];
         }) => {
+            // Se estamos editando um elemento do canvas (via botão de editar)
             if (
                 editingElementModal.isOpen &&
                 editingElementModal.surveyElement
             ) {
+                const elementId = editingElementModal.surveyElement.id;
                 console.log(
-                    'Atualizando elemento da sidebar:',
-                    editingElementModal.surveyElement,
+                    '✏️ Atualizando nó do canvas para elemento:',
+                    elementId,
+                    modalData,
                 );
+
+                // Encontra todos os nós que correspondem a este elemento
+                const nodesToUpdate = nodes.filter(
+                    (node: any) =>
+                        node.data?.surveyElementId === elementId ||
+                        node.data?.surveyElement?.id === elementId ||
+                        (node.id && node.id.includes(`element-${elementId}`))
+                );
+
+                if (nodesToUpdate.length === 0) {
+                    console.warn('⚠️ Nenhum nó encontrado para atualizar');
+                    handleCloseModal();
+                    return;
+                }
+
+                // Pega o nó principal (o primeiro que não é opção)
+                const mainNode = nodesToUpdate.find(
+                    (node: any) => !node.id.includes('option-') && !node.id.includes('-alt-')
+                ) || nodesToUpdate[0];
+
+                if (!mainNode) {
+                    console.warn('⚠️ Nó principal não encontrado');
+                    handleCloseModal();
+                    return;
+                }
+
+                console.log('📝 Nó principal encontrado:', mainNode.id);
+
+                // Remove nós filhos antigos (opções) deste elemento
+                const childNodeIds = new Set<string>();
+                edges.forEach((edge: any) => {
+                    if (edge.source === mainNode.id) {
+                        childNodeIds.add(edge.target);
+                    }
+                });
+
+                // Remove edges dos filhos antigos
+                let updatedEdges = edges.filter(
+                    (edge: any) =>
+                        edge.source !== mainNode.id && !childNodeIds.has(edge.target)
+                );
+
+                // Remove nós filhos antigos
+                let updatedNodes = nodes.filter(
+                    (node: any) => node.id !== mainNode.id && !childNodeIds.has(node.id)
+                );
+
+                // Atualiza o nó principal
+                const nodeType: 'mensagem' | 'alternativa' | 'input' | 'fim' = 'mensagem';
+                const updatedMainNode = {
+                    ...mainNode,
+                    data: {
+                        ...mainNode.data,
+                        label: modalData.titulo,
+                        type: nodeType,
+                        maxEdges:
+                            modalData.tipo === 'MultiplaEscolha' ||
+                            modalData.tipo === 'Alternativa'
+                                ? modalData.alternativas.length
+                                : modalData.tipo === 'Input'
+                                  ? 1
+                                  : mainNode.data.maxEdges,
+                        surveyElement: {
+                            ...editingElementModal.surveyElement,
+                            description: modalData.titulo,
+                        },
+                    },
+                };
+
+                updatedNodes = [...updatedNodes, updatedMainNode];
+
+                // Se tem alternativas, cria novos nós filhos
+                if (
+                    (modalData.tipo === 'MultiplaEscolha' ||
+                        modalData.tipo === 'Alternativa') &&
+                    modalData.alternativas.length > 0
+                ) {
+                    const newAlternativeNodes = createAlternativeNodes(
+                        mainNode.id,
+                        mainNode.position,
+                        modalData.alternativas,
+                        handleNodeDelete,
+                        handleNodeDoubleClick,
+                    );
+
+                    const newAlternativeEdges = createAlternativeEdges(
+                        mainNode.id,
+                        newAlternativeNodes,
+                    );
+
+                    updatedNodes = [...updatedNodes, ...newAlternativeNodes];
+                    updatedEdges = [...updatedEdges, ...newAlternativeEdges];
+                } else if (modalData.tipo === 'Input') {
+                    const { node: inputNode, edge: inputEdge } = createInputNode(
+                        mainNode.id,
+                        mainNode.position,
+                        handleNodeDelete,
+                        handleNodeDoubleClick,
+                    );
+
+                    updatedNodes = [...updatedNodes, inputNode];
+                    updatedEdges = [...updatedEdges, inputEdge];
+                }
+
+                setNodes(updatedNodes);
+                setEdges(updatedEdges);
+                saveToLocalStorage(updatedNodes, updatedEdges);
+
+                console.log('✅ Nó atualizado no canvas:', {
+                    nodeId: mainNode.id,
+                    newLabel: modalData.titulo,
+                    newType: modalData.tipo,
+                    alternatives: modalData.alternativas,
+                });
+
                 handleCloseModal();
                 return;
             }
@@ -404,37 +522,52 @@ export function useCanvasHandlers({
             console.log('Element ID:', element.id);
             console.log('Element description:', element.description);
 
-            const newNodeId = `node-${Date.now()}`;
+            const newNodeId = `element-${element.id}-${Date.now()}`;
             const basePosition = { x: 250, y: 250 };
 
-            const newNode = createNewNode(
-                newNodeId,
-                basePosition,
-                element.description,
-                'mensagem',
-                element.options?.length > 0 ? element.options.length : 2,
-                handleNodeDelete,
-                handleNodeDoubleClick,
-            );
+            // Cria o nó com o surveyElement incluído
+            const newNode = {
+                id: newNodeId,
+                type: 'customNode',
+                position: basePosition,
+                data: {
+                    label: element.description,
+                    type: 'mensagem',
+                    maxEdges: element.options?.length > 0 ? element.options.length : 2,
+                    surveyElement: element,
+                    surveyElementId: element.id,
+                    onClick: () => console.log('Clique no novo nó'),
+                    onDoubleClick: () => handleNodeDoubleClick(newNodeId),
+                    onEdit: () => handleNodeDoubleClick(newNodeId),
+                    onDelete: () => handleNodeDelete(newNodeId),
+                },
+            };
 
             const newNodes = [newNode];
             const newEdges: any[] = [];
 
             if (element.options && element.options.length > 0) {
                 element.options.forEach((option: any, index: number) => {
-                    const childNodeId = `${newNodeId}-child-${index}`;
-                    const childNode = createNewNode(
-                        childNodeId,
-                        {
+                    const childNodeId = `option-${element.id}-${option.id}-${Date.now()}`;
+                    const childNode = {
+                        id: childNodeId,
+                        type: 'customNode',
+                        position: {
                             x: basePosition.x + index * 200,
                             y: basePosition.y + 150,
                         },
-                        option.description,
-                        'alternativa',
-                        1,
-                        handleNodeDelete,
-                        handleNodeDoubleClick,
-                    );
+                        data: {
+                            label: option.description,
+                            type: 'alternativa',
+                            maxEdges: 1,
+                            surveyElement: undefined, // Opções não têm surveyElement próprio
+                            surveyElementId: undefined, // Opções não têm surveyElementId
+                            onClick: () => console.log('Clique na alternativa'),
+                            onDoubleClick: () => handleNodeDoubleClick(childNodeId),
+                            onEdit: () => handleNodeDoubleClick(childNodeId),
+                            onDelete: () => handleNodeDelete(childNodeId),
+                        },
+                    };
 
                     const edge = {
                         id: `${newNodeId}-to-${childNodeId}`,
@@ -442,7 +575,7 @@ export function useCanvasHandlers({
                         target: childNodeId,
                     };
 
-                    newNodes.push(childNode);
+                    newNodes.push(childNode as any);
                     newEdges.push(edge);
                 });
             }
