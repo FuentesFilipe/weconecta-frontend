@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
@@ -26,7 +26,46 @@ export default function AdicionarMembroModal({
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
-  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.COLLABORATOR);
+  const [selectedRole, setSelectedRole] = useState<UserRole>(UserRole.MEMBER);
+
+  // Função para aplicar máscara de telefone brasileiro
+  const applyPhoneMask = (value: string): string => {
+    // Remove tudo que não é número
+    const numbers = value.replace(/\D/g, '');
+    
+    // Aplica máscara: (XX) XXXXX-XXXX para celular ou (XX) XXXX-XXXX para fixo
+    if (numbers.length <= 2) {
+      return numbers.length > 0 ? `(${numbers}` : numbers;
+    } else if (numbers.length <= 6) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+    } else if (numbers.length <= 10) {
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+    } else {
+      // Celular: (XX) XXXXX-XXXX
+      return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+    }
+  };
+
+  // Função para remover máscara do telefone
+  const removePhoneMask = (value: string): string => {
+    return value.replace(/\D/g, '');
+  };
+
+  // Handler para mudança do input de telefone (aplica máscara)
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const maskedValue = applyPhoneMask(value);
+    setTelefone(maskedValue);
+  };
+
+  const handleCancel = useCallback(() => {
+    // Limpar formulário
+    setNome('');
+    setEmail('');
+    setTelefone('');
+    setSelectedRole(UserRole.MEMBER);
+    onClose();
+  }, [onClose]);
 
   // Fechar modal com ESC
   useEffect(() => {
@@ -45,7 +84,7 @@ export default function AdicionarMembroModal({
       document.removeEventListener('keydown', handleEsc);
       document.body.style.overflow = 'unset';
     };
-  }, [isOpen]);
+  }, [isOpen, handleCancel]);
 
   const handleConfirm = () => {
     if (!nome.trim() || !email.trim() || !telefone.trim()) {
@@ -60,10 +99,13 @@ export default function AdicionarMembroModal({
       return;
     }
 
+    // Remove a máscara antes de enviar
+    const telefoneSemMascara = removePhoneMask(telefone.trim());
+
     onConfirm({
       nome: nome.trim(),
       email: email.trim(),
-      telefone: telefone.trim(),
+      telefone: telefoneSemMascara,
       role: selectedRole
     });
 
@@ -71,16 +113,7 @@ export default function AdicionarMembroModal({
     setNome('');
     setEmail('');
     setTelefone('');
-    setSelectedRole(UserRole.COLLABORATOR);
-    onClose();
-  };
-
-  const handleCancel = () => {
-    // Limpar formulário
-    setNome('');
-    setEmail('');
-    setTelefone('');
-    setSelectedRole(UserRole.COLLABORATOR);
+    setSelectedRole(UserRole.MEMBER);
     onClose();
   };
 
@@ -112,9 +145,9 @@ export default function AdicionarMembroModal({
           <div className={styles.roleButtons}>
             <button
               className={`${styles.roleButton} ${
-                selectedRole === UserRole.COLLABORATOR ? styles.roleButtonSelected : ''
+                selectedRole === UserRole.MEMBER ? styles.roleButtonSelected : ''
               }`}
-              onClick={() => setSelectedRole(UserRole.COLLABORATOR)}
+              onClick={() => setSelectedRole(UserRole.MEMBER)}
             >
               Usuário
             </button>
@@ -155,9 +188,10 @@ export default function AdicionarMembroModal({
             <label className={styles.fieldLabel}>Telefone</label>
             <Input
               value={telefone}
-              onChange={(e) => setTelefone(e.target.value)}
-              placeholder="Digite um titulo aqui"
+              onChange={handlePhoneChange}
+              placeholder="(00) 00000-0000"
               className={styles.fieldInput}
+              maxLength={15}
             />
           </div>
         </div>

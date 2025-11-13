@@ -1,10 +1,14 @@
 import { STORE_KEYS } from '../../contants/stores';
 
 const getAuthToken = (): string | null => {
-    return (
-        localStorage.getItem(STORE_KEYS.token) ||
-        sessionStorage.getItem(STORE_KEYS.token)
-    );
+    const token = localStorage.getItem(STORE_KEYS.token) || sessionStorage.getItem(STORE_KEYS.token);
+    
+    // Retorna null se o token for inválido (null, undefined, string vazia, ou strings "null"/"undefined")
+    if (!token || token.trim() === '' || token === 'null' || token === 'undefined') {
+        return null;
+    }
+    
+    return token;
 };
 
 const setAuthToken = (token: string, rememberMe: boolean = false): void => {
