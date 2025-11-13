@@ -21,3 +21,21 @@ export const sendSurveyResponse = async (
     const res = await surveyApi.post(url, payload);
     return res.data as unknown;
 };
+
+export interface MonthlySurveyData {
+    month: string;
+    count: number;
+}
+
+/**
+ * Busca questionários agrupados por mês
+ * GET /core/surveys/history/monthly?months=12
+ */
+export const getSurveysGroupedByMonth = async (
+    months: number = 12,
+): Promise<MonthlySurveyData[]> => {
+    const res = await surveyApi.get<MonthlySurveyData[]>('/history/monthly', {
+        params: { months },
+    });
+    return res.data;
+};

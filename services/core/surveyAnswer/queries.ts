@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getSurveyStatistics } from '.';
+import { getSurveyStatistics, getAnswersGroupedByMonth, getAnswersByCurrentAndPreviousMonth, getTopSurveysAnswers } from '.';
 import QUERY_KEYS from '@/utils/contants/queries';
 
 export interface SurveyStatistics {
@@ -48,5 +48,23 @@ export const useGetAllSurveysStatistics = (surveyIds: number[]) =>
         },
         enabled: surveyIds.length > 0,
         retry: 1, // Tenta novamente apenas uma vez em caso de erro
+    });
+
+export const useGetAnswersGroupedByMonth = (months: number = 6) =>
+    useQuery({
+        queryKey: [QUERY_KEYS.SURVEY_STATISTICS, 'monthly', months],
+        queryFn: () => getAnswersGroupedByMonth(months),
+    });
+
+export const useGetAnswersByCurrentAndPreviousMonth = () =>
+    useQuery({
+        queryKey: [QUERY_KEYS.SURVEY_STATISTICS, 'monthly-comparison'],
+        queryFn: () => getAnswersByCurrentAndPreviousMonth(),
+    });
+
+export const useGetTopSurveysAnswers = (limit: number = 6) =>
+    useQuery({
+        queryKey: [QUERY_KEYS.SURVEY_STATISTICS, 'top-surveys', limit],
+        queryFn: () => getTopSurveysAnswers(limit),
     });
 

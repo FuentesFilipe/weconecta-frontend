@@ -1,7 +1,7 @@
 import { SurveyDto, SurveyPayload, SurveyResponse } from '@/dtos/SurveyDto';
 import QUERY_KEYS from '@/utils/contants/queries';
 import { useQuery } from '@tanstack/react-query';
-import { surveyApi } from '.';
+import { surveyApi, getSurveysGroupedByMonth } from '.';
 
 export const useGetAllSurveys = (payload: SurveyPayload) =>
     useQuery({
@@ -32,4 +32,10 @@ export const useGetSurveyByIdAndClientId = (
             (await surveyApi.get<SurveyDto>(`/${surveyId}/client/${clientId}`))
                 .data,
         enabled: !!surveyId && !!clientId,
+    });
+
+export const useGetSurveysGroupedByMonth = (months: number = 12) =>
+    useQuery({
+        queryKey: [QUERY_KEYS.SURVEYS, 'monthly', months],
+        queryFn: () => getSurveysGroupedByMonth(months),
     });

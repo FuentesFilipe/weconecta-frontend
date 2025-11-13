@@ -77,3 +77,53 @@ export const getSurveyStatistics = async (
     return res.data;
 };
 
+export interface MonthlyAnswerData {
+    month: string;
+    count: number;
+}
+
+/**
+ * Busca respostas agrupadas por mês
+ * GET /core/survey-answer/history/monthly?months=6
+ */
+export const getAnswersGroupedByMonth = async (
+    months: number = 6,
+): Promise<MonthlyAnswerData[]> => {
+    const res = await surveyAnswerApi.get<MonthlyAnswerData[]>('/history/monthly', {
+        params: { months },
+    });
+    return res.data;
+};
+
+export interface MonthlyComparison {
+    currentMonth: number;
+    previousMonth: number;
+}
+
+/**
+ * Busca comparação de respostas entre mês atual e anterior
+ * GET /core/survey-answer/history/monthly-comparison
+ */
+export const getAnswersByCurrentAndPreviousMonth = async (): Promise<MonthlyComparison> => {
+    const res = await surveyAnswerApi.get<MonthlyComparison>('/history/monthly-comparison');
+    return res.data;
+};
+
+export interface TopSurveyAnswer {
+    surveyId: number;
+    count: number;
+}
+
+/**
+ * Busca top questionários por número de respostas
+ * GET /core/survey-answer/history/top-surveys?limit=6
+ */
+export const getTopSurveysAnswers = async (
+    limit: number = 6,
+): Promise<TopSurveyAnswer[]> => {
+    const res = await surveyAnswerApi.get<TopSurveyAnswer[]>('/history/top-surveys', {
+        params: { limit },
+    });
+    return res.data;
+};
+
