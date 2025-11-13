@@ -75,17 +75,12 @@ function CreateEditSurveyElement({
     onConfirm?: (data: { titulo: string; tipo: string; alternativas: string[] }) => void
     initialData?: NewSurveyElementProp['initialData']
 }) {
-    const [form, setForm] = React.useState<SurveysElementsCreateDto>({ ...data });
-
-    const { mutate: createSurveyElement, data: createSurveyElementResponse } = useSurveysElementsCreateMutation(form);
-    const { mutate: updateSurveyElement, data: updateSurveyElementResponse } = useSurveysElementsUpdateMutation(id || 0, form);
-
-    React.useEffect(() => {
+    const [form, setForm] = React.useState<SurveysElementsCreateDto>(() => {
+        // Se tem initialData, usa ele, senão usa data, senão usa DEFAULT_DATA
         if (initialData) {
             const sanitizedOptions = (initialData.options || [])
                 .map((option) => option?.trim())
                 .filter((option): option is string => !!option && option.length > 0);
-
             const resolvedType = resolveInitialType(initialData.type, sanitizedOptions.length);
             const options =
                 resolvedType === SurveyElementType.MULTIPLE_CHOICE || resolvedType === SurveyElementType.OPTION
@@ -93,47 +88,115 @@ function CreateEditSurveyElement({
                         ? sanitizedOptions.map((description) => ({ description }))
                         : [...DEFAULT_DATA.options])
                     : [];
-
-            setForm({
+            return {
                 description: initialData.label || '',
                 type: resolvedType,
                 options
-            });
-            return;
+            };
         }
+        return data && Object.keys(data).length > 0 ? { ...data } : { ...DEFAULT_DATA };
+    });
 
-        if (!id) {
-            setForm({ ...DEFAULT_DATA });
+    // Usa um payload vazio inicialmente, pois vamos passar o form atual na chamada
+    const { mutate: createSurveyElement, data: createSurveyElementResponse, isPending: isCreating } = useSurveysElementsCreateMutation({ description: '', type: SurveyElementType.MESSAGE, options: [] });
+    const { mutate: updateSurveyElement, data: updateSurveyElementResponse } = useSurveysElementsUpdateMutation(id || 0, form);
+
+    // Só reseta o form quando o modal abre (open muda de false para true)
+    const prevOpenRef = React.useRef(open);
+    React.useEffect(() => {
+        // Se o modal acabou de abrir (mudou de fechado para aberto)
+        if (open && !prevOpenRef.current) {
+            if (initialData) {
+                const sanitizedOptions = (initialData.options || [])
+                    .map((option) => option?.trim())
+                    .filter((option): option is string => !!option && option.length > 0);
+
+                const resolvedType = resolveInitialType(initialData.type, sanitizedOptions.length);
+                const options =
+                    resolvedType === SurveyElementType.MULTIPLE_CHOICE || resolvedType === SurveyElementType.OPTION
+                        ? (sanitizedOptions.length > 0
+                            ? sanitizedOptions.map((description) => ({ description }))
+                            : [...DEFAULT_DATA.options])
+                        : [];
+
+                setForm({
+                    description: initialData.label || '',
+                    type: resolvedType,
+                    options
+                });
+            } else if (!id) {
+                // Só reseta para DEFAULT_DATA se for um novo elemento
+                setForm({ ...DEFAULT_DATA });
+            }
         }
-    }, [initialData, id]);
+        prevOpenRef.current = open;
+    }, [open, initialData, id]);
 
     React.useEffect(() => {
-        if (createSurveyElementResponse || updateSurveyElementResponse) {
-            queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS, id] });
+        if (createSurveyElementResponse) {
+            console.log('Elemento criado com sucesso:', createSurveyElementResponse);
+            // Invalida todas as queries de SURVEYS_ELEMENTS para garantir que a sidebar seja atualizada
+            queryClient.invalidateQueries({ 
+                queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+                refetchType: 'all'
+            });
+            // Força refetch imediato
+            queryClient.refetchQueries({
+                queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+            });
             onClose();
         }
-    }, [createSurveyElementResponse, updateSurveyElementResponse, id, onClose]);
+        if (updateSurveyElementResponse) {
+            console.log('Elemento atualizado com sucesso:', updateSurveyElementResponse);
+            // Invalida todas as queries de SURVEYS_ELEMENTS para garantir que a sidebar seja atualizada
+            queryClient.invalidateQueries({ 
+                queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+                refetchType: 'all'
+            });
+            onClose();
+        }
+    }, [createSurveyElementResponse, updateSurveyElementResponse, onClose]);
 
     const handleConfirm = () => {
-        if (onConfirm) {
-            const alternativas = form.options
-                .filter((option) => !option.deletedAt && option.description.trim() !== '')
-                .map((option) => option.description);
-
-            onConfirm({
-                titulo: form.description,
-                tipo: SurveyElementEnum[form.type],
-                alternativas
-            });
-
-            onClose();
+        // Valida se tem pelo menos description preenchida
+        if (!form.description || form.description.trim() === '') {
+            toast.error('Por favor, preencha o título da mensagem.');
             return;
         }
 
+        // Se é um novo elemento (sem id), SEMPRE salva no backend primeiro
+        if (!id) {
+            // Filtra opções válidas antes de enviar
+            const payloadToSend: SurveysElementsCreateDto = {
+                description: form.description.trim(),
+                type: form.type,
+                options: form.options
+                    .filter((option) => !option.deletedAt && option.description.trim() !== '')
+                    .map((option) => ({ description: option.description.trim() }))
+            };
+            
+            console.log('Criando elemento no backend com payload:', payloadToSend);
+            // Salva no backend - a mutation vai invalidar as queries e atualizar a sidebar
+            createSurveyElement(payloadToSend);
+            return;
+        }
+
+        // Se tem id, é edição
         if (id) {
+            // Se tem onConfirm (editando nó do canvas), chama ele também
+            if (onConfirm) {
+                const alternativas = form.options
+                    .filter((option) => !option.deletedAt && option.description.trim() !== '')
+                    .map((option) => option.description);
+
+                onConfirm({
+                    titulo: form.description,
+                    tipo: SurveyElementEnum[form.type],
+                    alternativas
+                });
+            }
+            // Sempre atualiza no backend também
             updateSurveyElement();
-        } else {
-            createSurveyElement();
         }
     };
 

@@ -12,15 +12,26 @@ export const useSurveysElementsCreateMutation = (
     payload: SurveysElementsCreateDto,
 ) =>
     useMutation({
-        mutationFn: () =>
-            surveyElementApi
-                .post('', payload)
-                .then((res) => res.data as SurveysElementsResponse),
+        mutationFn: (updatedPayload?: SurveysElementsCreateDto) => {
+            const payloadToUse = updatedPayload || payload;
+            console.log('Enviando payload para criar elemento:', payloadToUse);
+            return surveyElementApi
+                .post('', payloadToUse)
+                .then((res) => {
+                    console.log('Elemento criado com sucesso:', res.data);
+                    return res.data as SurveysElementsResponse;
+                });
+        },
         onSuccess: () => {
             toast.success('Elemento criado com sucesso!');
             queryClient.invalidateQueries({
                 queryKey: [QUERY_KEYS.SURVEYS_ELEMENTS],
+                refetchType: 'all',
             });
+        },
+        onError: (error: any) => {
+            console.error('Erro ao criar elemento:', error);
+            toast.error('Erro ao criar elemento. Tente novamente.');
         },
     });
 

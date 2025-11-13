@@ -56,19 +56,6 @@ export const ensureNodeFunctions = (
     });
 };
 
-    handleNodeDoubleClick: (nodeId: string) => void,
-) => {
-    return nodeList.map((node: any) => ({
-        ...node,
-        data: {
-            ...node.data,
-            onDelete: () => handleNodeDelete(node.id),
-            onDoubleClick: () => handleNodeDoubleClick(node.id),
-            onEdit: () => handleNodeDoubleClick(node.id),
-        },
-    }));
-};
-
 export const createNewNode = (
     id: string,
     position: { x: number; y: number },
@@ -190,7 +177,6 @@ export const handleInsertOnCanvaAtPosition = (
         element.options?.length > 0 ? element.options.length : 2,
         handleNodeDelete,
         handleNodeDoubleClick,
-        element,
     );
 
     const newNodes = [newNode];
@@ -210,7 +196,6 @@ export const handleInsertOnCanvaAtPosition = (
                 1,
                 handleNodeDelete,
                 handleNodeDoubleClick,
-                element,
             );
 
             const edge = {

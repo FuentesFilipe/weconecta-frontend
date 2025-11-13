@@ -52,3 +52,37 @@ export const useCompleteSurveyMutation = () =>
             console.error('Error completing survey:', error);
         },
     });
+
+export interface SaveFlowPayload {
+    surveyId: number;
+    nodes: any[];
+    edges: any[];
+}
+
+export const useSurveysSaveFlowMutation = (
+    surveyId: number,
+    payload: SaveFlowPayload,
+) =>
+    useMutation({
+        mutationFn: () => {
+            // Usa o endpoint que aceita nodes/edges diretamente
+            // O backend converte automaticamente para o formato de flow
+            const canvas = {
+                nodes: payload.nodes,
+                edges: payload.edges,
+            };
+            return surveyApi
+                .post(`/${payload.surveyId}/flow`, canvas)
+                .then((res) => res.data);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({
+                queryKey: [QUERY_KEYS.SURVEYS, surveyId],
+            });
+            toast.success('Fluxo salvo com sucesso!');
+        },
+        onError: (error: any) => {
+            toast.error('Erro ao salvar fluxo. Tente novamente.');
+            console.error('Error saving flow:', error);
+        },
+    });

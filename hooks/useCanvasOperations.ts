@@ -54,30 +54,36 @@ export function useCanvasOperations() {
             if (savedNodes && savedEdges) {
                 const parsedNodes = JSON.parse(savedNodes || '{}');
                 const parsedEdges = JSON.parse(savedEdges || '{}');
+                
+                // Verifica se os dados existem e são arrays válidos
                 if (
-                    Array.isArray(parsedNodes) ||
-                    Array.isArray(parsedEdges) ||
-                    !parsedNodes[surveyId!] ||
-                    !Object.values(parsedNodes[surveyId!]).length ||
-                    !Object.values(parsedEdges[surveyId!]).length
+                    parsedNodes[surveyId!] &&
+                    parsedEdges[surveyId!] &&
+                    Array.isArray(parsedNodes[surveyId!]) &&
+                    Array.isArray(parsedEdges[surveyId!])
                 ) {
-                    return null;
-                }
                 return {
-                    nodes: parsedNodes[surveyId!] ?? [],
-                    edges: parsedEdges[surveyId!] ?? [],
+                        nodes: parsedNodes[surveyId!],
+                        edges: parsedEdges[surveyId!],
                 };
+                }
             }
         } catch (error) {
             console.error('Erro ao carregar do localStorage:', error);
         }
         return null;
-    }, []);
+    }, [surveyId]);
 
     // Estado dos nós e arestas
     const savedData = loadFromLocalStorage();
-    const [nodes, setNodes] = useState(savedData?.nodes || []);
-    const [edges, setEdges] = useState(savedData?.edges || []);
+    const [nodes, setNodes] = useState(() => {
+        const initialNodes = savedData?.nodes;
+        return Array.isArray(initialNodes) ? initialNodes : [];
+    });
+    const [edges, setEdges] = useState(() => {
+        const initialEdges = savedData?.edges;
+        return Array.isArray(initialEdges) ? initialEdges : [];
+    });
 
     // Organização do canvas
     const organizeCanvas = useCallback(() => {

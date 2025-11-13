@@ -1,12 +1,9 @@
 'use client';
 
 import { SurveysElementModal } from '@/components/Modal/SurveysElementModal';
-import SpeechBubble from '@/components/SpeechBubble';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { SurveyElementType } from '@/dtos/SurveysElementsDto';
-import { sendSurveyResponse } from '@/services/core/surveys';
 import { Filter, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useRef, useState } from 'react';
@@ -48,96 +45,6 @@ export default function QuestionariosPage() {
 
     const handleRedirectToCanva = (survey: SurveyDto) => {
         router.push(`/questionarios/canva?id=${survey.id}`);
-    };
-
-    // Dev/test bubble elements (kept here so handlers can reference options)
-    const optionBubbleElement = {
-        id: 500,
-        description: 'Você possui alguma dor na região da lombar?',
-        type: SurveyElementType.OPTION,
-        options: [
-            { id: 1, description: 'Sim' },
-            { id: 2, description: 'Não' },
-        ],
-    } as const;
-
-    const inputBubbleElement = {
-        id: 501,
-        description: 'Descreva a intensidade da sua dor:',
-        type: SurveyElementType.INPUT,
-        options: [],
-    } as const;
-
-    const [userResponses, setUserResponses] = useState<
-        {
-            text: string;
-            align: 'left' | 'right';
-        }[]
-    >([]);
-
-    const questionAlign: 'left' | 'right' = 'right';
-
-    const oppositeAlign = (a: 'left' | 'right') =>
-        a === 'left' ? 'right' : 'left';
-
-    const handleOptionBubbleSend = async (payload: unknown) => {
-        // explicitly POST to backend before rendering local response bubble
-        try {
-            const p = payload as { elementId?: number; value?: unknown };
-            const payloadToSend = {
-                elementId: p.elementId ?? optionBubbleElement.id,
-                value: p.value as string | number | number[],
-            };
-            await sendSurveyResponse(123, payloadToSend);
-        } catch (err) {
-            // keep UX flow but log the error — you can replace with toast/error UI
-            // eslint-disable-next-line no-console
-            console.error('Failed to send survey response', err);
-        }
-
-        const val = (payload as { value?: unknown }).value;
-        let text = '';
-        if (typeof val === 'number') {
-            const opt = optionBubbleElement.options.find((o) => o.id === val);
-            text = opt?.description ?? String(val);
-        } else if (Array.isArray(val)) {
-            text = (val as number[])
-                .map(
-                    (id) =>
-                        optionBubbleElement.options.find((o) => o.id === id)
-                            ?.description ?? String(id),
-                )
-                .join(', ');
-        } else if (typeof val === 'string') {
-            text = val;
-        } else {
-            text = '';
-        }
-        setUserResponses((prev) => [
-            ...prev,
-            { text, align: oppositeAlign(questionAlign) },
-        ]);
-    };
-
-    const handleInputBubbleSend = async (payload: unknown) => {
-        try {
-            const p = payload as { elementId?: number; value?: unknown };
-            const payloadToSend = {
-                elementId: p.elementId ?? inputBubbleElement.id,
-                value: p.value as string | number | number[],
-            };
-            await sendSurveyResponse(123, payloadToSend);
-        } catch (err) {
-            // eslint-disable-next-line no-console
-            console.error('Failed to send survey response', err);
-        }
-
-        const val = (payload as { value?: unknown }).value;
-        const text = typeof val === 'string' ? val : '';
-        setUserResponses((prev) => [
-            ...prev,
-            { text, align: oppositeAlign(questionAlign) },
-        ]);
     };
 
     return (
@@ -210,63 +117,6 @@ export default function QuestionariosPage() {
                 open={isTestModalOpen}
                 onClose={() => setIsTestModalOpen(false)}
             />
-            {/* Overlay SpeechBubble (dev/test) - fixed on top-right stacked column */}
-            <div
-                style={{
-                    position: 'fixed',
-                    left: 24,
-                    right: 24,
-                    top: 24,
-                    zIndex: 99999,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: 16,
-                    alignItems: 'stretch',
-                }}
-            >
-                <SpeechBubble
-                    element={
-                        {
-                            id: 500,
-                            description:
-                                'Você possui alguma dor na região da lombar?',
-                            type: SurveyElementType.OPTION,
-                            options: [
-                                { id: 1, description: 'Sim' },
-                                { id: 2, description: 'Não' },
-                            ],
-                        } as any
-                    }
-                    isQuestion
-                    surveyId={123}
-                    onSend={handleOptionBubbleSend}
-                    align='right'
-                />
-
-                <SpeechBubble
-                    element={
-                        {
-                            id: 501,
-                            description: 'Descreva a intensidade da sua dor:',
-                            type: SurveyElementType.INPUT,
-                            options: [],
-                        } as any
-                    }
-                    isQuestion
-                    surveyId={123}
-                    onSend={handleInputBubbleSend}
-                    align='right'
-                />
-                {userResponses.map((r, i) => (
-                    <div key={`resp-${i}`} style={{ width: '100%' }}>
-                        <SpeechBubble
-                            isQuestion={false}
-                            responseText={r.text}
-                            align={r.align}
-                        />
-                    </div>
-                ))}
-            </div>
         </div>
     );
 }
