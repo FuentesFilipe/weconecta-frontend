@@ -183,10 +183,41 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
         return elementType === 'OPTION' || elementType === 'MULTIPLE_CHOICE';
     };
 
+    // Função para aplicar máscara de telefone brasileiro
+    const applyPhoneMask = (value: string): string => {
+        // Remove tudo que não é número
+        const numbers = value.replace(/\D/g, '');
+        
+        // Aplica máscara: (XX) XXXXX-XXXX para celular ou (XX) XXXX-XXXX para fixo
+        if (numbers.length <= 2) {
+            return numbers.length > 0 ? `(${numbers}` : numbers;
+        } else if (numbers.length <= 6) {
+            return `(${numbers.slice(0, 2)}) ${numbers.slice(2)}`;
+        } else if (numbers.length <= 10) {
+            return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 6)}-${numbers.slice(6)}`;
+        } else {
+            // Celular: (XX) XXXXX-XXXX
+            return `(${numbers.slice(0, 2)}) ${numbers.slice(2, 7)}-${numbers.slice(7, 11)}`;
+        }
+    };
+
+    // Função para remover máscara do telefone
+    const removePhoneMask = (value: string): string => {
+        return value.replace(/\D/g, '');
+    };
+
+    // Handler para mudança do input de telefone (aplica máscara)
+    const handlePhoneInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const value = e.target.value;
+        const maskedValue = applyPhoneMask(value);
+        setPhoneInput(maskedValue);
+    };
+
     // Handler para verificação de telefone
     const handlePhoneSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        const phone = phoneInput.trim();
+        // Remove a máscara antes de enviar
+        const phone = removePhoneMask(phoneInput.trim());
         if (!phone || !survey.id) return;
 
         setIsProcessing(true);
@@ -425,24 +456,25 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                             <Paperclip className='w-5 h-5 icon-orange' />
                         </Button>
 
-                        <Input
+                            <Input
                                 value={phoneVerified ? input : phoneInput}
                                 onChange={(e) => {
                                     if (phoneVerified) {
                                         setInput(e.target.value);
                                     } else {
-                                        setPhoneInput(e.target.value);
+                                        handlePhoneInputChange(e);
                                     }
                                 }}
-                                placeholder={
-                                    isProcessing
-                                        ? 'Processando...'
-                                        : !phoneVerified
-                                        ? 'Digite seu número de telefone...'
-                                        : isTextInputElement(currentElement)
-                                        ? 'Digite sua resposta aqui...'
-                                        : 'Selecione uma opção acima...'
-                                }
+                                maxLength={phoneVerified ? undefined : 15} // Máscara: (XX) XXXXX-XXXX = 15 caracteres
+                            placeholder={
+                                isProcessing
+                                    ? 'Processando...'
+                                    : !phoneVerified
+                                    ? '(XX) XXXXX-XXXX'
+                                    : isTextInputElement(currentElement)
+                                    ? 'Digite sua resposta aqui...'
+                                    : 'Selecione uma opção acima...'
+                            }
                             className='chatbot-input'
                                 disabled={
                                     isProcessing ||
