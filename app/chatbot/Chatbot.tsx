@@ -153,6 +153,17 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                 return;
             }
 
+            // Valida se o clientId é um UUID válido
+            const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+            if (!uuidRegex.test(actualClientId)) {
+                console.error('clientId inválido (não é um UUID válido):', actualClientId);
+                setMessages((prev) => [
+                    ...prev,
+                    { kind: 'response', text: 'Erro: clientId inválido. Por favor, recarregue a página.', align: 'left' },
+                ]);
+                return;
+            }
+
             const response = await sendSurveyAnswer({
                 identifier: sessionIdentifier,
                 clientId: actualClientId,
@@ -245,10 +256,13 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
                 surveyId: survey.id,
             });
 
-            // Armazena o identifier e atualiza o clientId se retornado
+            // Armazena o identifier e atualiza o clientId (sempre deve vir do backend)
             setSessionIdentifier(verification.identifier);
             if (verification.clientId) {
                 setActualClientId(verification.clientId);
+            } else {
+                // Se não retornou clientId, mantém o inicial (fallback)
+                console.warn('Backend não retornou clientId, usando o inicial da URL');
             }
             sessionStorage.setItem(`survey-${survey.id}-${actualClientId}-identifier`, verification.identifier);
             sessionStorage.setItem(`survey-${survey.id}-phone`, phone);

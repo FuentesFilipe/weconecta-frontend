@@ -237,18 +237,32 @@ function CanvasContent() {
                 const nodesToRemove = new Set<string>();
                 const nodeIdToDelete = canvasState.deleteItem.id;
                 
+                // Busca o nó que está sendo deletado para verificar seu tipo
+                const nodeToDelete = canvasOperations.nodes.find(
+                    (node: any) => node.id === nodeIdToDelete
+                );
+                
+                // Verifica se é um nó do tipo "alternativa"
+                const isOptionNode = nodeToDelete?.data?.type === 'alternativa';
+                
                 // Adiciona o nó que está sendo deletado
                 nodesToRemove.add(nodeIdToDelete);
 
-                // Encontra apenas os filhos DIRETOS (nós conectados diretamente como target)
-                const directChildren = canvasOperations.edges
-                    .filter((edge: any) => edge.source === nodeIdToDelete)
-                    .map((edge: any) => edge.target);
+                // Se NÃO for um nó de alternativa, encontra e adiciona os filhos DIRETOS
+                // (nós conectados diretamente como target)
+                // Para nós de alternativa, não deletamos os nós conectados abaixo
+                if (!isOptionNode) {
+                    const directChildren = canvasOperations.edges
+                        .filter((edge: any) => edge.source === nodeIdToDelete)
+                        .map((edge: any) => edge.target);
 
-                // Adiciona apenas os filhos diretos à lista de remoção
-                directChildren.forEach((childId: string) => {
-                    nodesToRemove.add(childId);
-                });
+                    // Adiciona apenas os filhos diretos à lista de remoção
+                    directChildren.forEach((childId: string) => {
+                        nodesToRemove.add(childId);
+                    });
+                } else {
+                    console.log('⚠️ Nó de alternativa detectado - não deletando nós conectados abaixo');
+                }
 
                 // Remove todas as conexões relacionadas aos nós que serão deletados
                 const connectionsToRemove = canvasOperations.edges.filter(
