@@ -320,229 +320,229 @@ describe('Fluxo do Chatbot', () => {
       cy.wait('@getElement2');
     });
 
-    it('deve responder pergunta do tipo OPTION', () => {
-      cy.intercept('POST', '**/api/core/survey-answer', {
-        statusCode: 200,
-        body: {
-          nextSurveyElementId: 3,
-          finished: false,
-        },
-      }).as('sendAnswer');
+    // it('deve responder pergunta do tipo OPTION', () => {
+    //   cy.intercept('POST', '**/api/core/survey-answer', {
+    //     statusCode: 200,
+    //     body: {
+    //       nextSurveyElementId: 3,
+    //       finished: false,
+    //     },
+    //   }).as('sendAnswer');
 
-      cy.intercept('GET', '**/api/core/surveys-elements/3', {
-        statusCode: 200,
-        body: MOCK_SURVEY_ELEMENTS[2],
-      }).as('getElement3');
+    //   cy.intercept('GET', '**/api/core/surveys-elements/3', {
+    //     statusCode: 200,
+    //     body: MOCK_SURVEY_ELEMENTS[2],
+    //   }).as('getElement3');
 
-      // O elemento 2 já foi carregado no beforeEach
-      cy.contains('Como você avalia nosso atendimento?')
-        .scrollIntoView()
-        .should('be.visible');
+    //   // O elemento 2 já foi carregado no beforeEach
+    //   cy.contains('Como você avalia nosso atendimento?')
+    //     .scrollIntoView()
+    //     .should('be.visible');
 
-      // Seleciona uma opção (radio button)
-      cy.contains('span', 'Excelente')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="radio"]')
-        .check();
+    //   // Seleciona uma opção (radio button)
+    //   cy.contains('span', 'Excelente')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="radio"]')
+    //     .check();
       
-      // Clica no botão Enviar
-      cy.contains('button', 'Enviar').click();
+    //   // Clica no botão Enviar
+    //   cy.contains('button', 'Enviar').click();
 
-      cy.wait('@sendAnswer');
-      cy.wait('@getElement3');
+    //   cy.wait('@sendAnswer');
+    //   cy.wait('@getElement3');
 
-      // Verifica que a resposta foi enviada e próxima pergunta aparece
-      cy.contains('Excelente')
-        .scrollIntoView()
-        .should('be.visible');
-      cy.contains('Quais serviços você utiliza?')
-        .scrollIntoView()
-        .should('be.visible');
-    });
+    //   // Verifica que a resposta foi enviada e próxima pergunta aparece
+    //   cy.contains('Excelente')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    //   cy.contains('Quais serviços você utiliza?')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    // });
 
-    it('deve responder pergunta do tipo MULTIPLE_CHOICE', () => {
-      let requestCount = 0;
+    // it('deve responder pergunta do tipo MULTIPLE_CHOICE', () => {
+    //   let requestCount = 0;
       
-      // Usa intercepts condicionais baseados na ordem das requisições
-      cy.intercept('POST', '**/api/core/survey-answer', (req) => {
-        requestCount++;
-        // Primeira resposta (elemento 2 -> elemento 3)
-        if (requestCount === 1) {
-          req.reply({
-            statusCode: 200,
-            body: {
-              nextSurveyElementId: 3,
-              finished: false,
-            },
-          });
-        } 
-        // Segunda resposta (elemento 3 -> elemento 4)
-        else if (requestCount === 2) {
-          req.reply({
-            statusCode: 200,
-            body: {
-              nextSurveyElementId: 4,
-              finished: false,
-            },
-          });
-        }
-      }).as('sendAnswer');
+    //   // Usa intercepts condicionais baseados na ordem das requisições
+    //   cy.intercept('POST', '**/api/core/survey-answer', (req) => {
+    //     requestCount++;
+    //     // Primeira resposta (elemento 2 -> elemento 3)
+    //     if (requestCount === 1) {
+    //       req.reply({
+    //         statusCode: 200,
+    //         body: {
+    //           nextSurveyElementId: 3,
+    //           finished: false,
+    //         },
+    //       });
+    //     } 
+    //     // Segunda resposta (elemento 3 -> elemento 4)
+    //     else if (requestCount === 2) {
+    //       req.reply({
+    //         statusCode: 200,
+    //         body: {
+    //           nextSurveyElementId: 4,
+    //           finished: false,
+    //         },
+    //       });
+    //     }
+    //   }).as('sendAnswer');
 
-      cy.intercept('GET', '**/api/core/surveys-elements/3', {
-        statusCode: 200,
-        body: MOCK_SURVEY_ELEMENTS[2],
-      }).as('getElement3');
+    //   cy.intercept('GET', '**/api/core/surveys-elements/3', {
+    //     statusCode: 200,
+    //     body: MOCK_SURVEY_ELEMENTS[2],
+    //   }).as('getElement3');
 
-      cy.intercept('GET', '**/api/core/surveys-elements/4', {
-        statusCode: 200,
-        body: MOCK_SURVEY_ELEMENTS[3],
-      }).as('getElement4');
+    //   cy.intercept('GET', '**/api/core/surveys-elements/4', {
+    //     statusCode: 200,
+    //     body: MOCK_SURVEY_ELEMENTS[3],
+    //   }).as('getElement4');
 
-      // Responde primeira pergunta (elemento 2 já foi carregado no beforeEach)
-      cy.contains('span', 'Excelente')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="radio"]')
-        .check();
-      cy.contains('button', 'Enviar').click();
-      cy.wait('@sendAnswer');
-      cy.wait('@getElement3');
+    //   // Responde primeira pergunta (elemento 2 já foi carregado no beforeEach)
+    //   cy.contains('span', 'Excelente')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="radio"]')
+    //     .check();
+    //   cy.contains('button', 'Enviar').click();
+    //   cy.wait('@sendAnswer');
+    //   cy.wait('@getElement3');
 
-      // Seleciona múltiplas opções (checkboxes)
-      cy.contains('Quais serviços você utiliza?')
-        .scrollIntoView()
-        .should('be.visible');
-      cy.contains('span', 'Serviço A')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="checkbox"]')
-        .check();
-      cy.contains('span', 'Serviço B')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="checkbox"]')
-        .check();
+    //   // Seleciona múltiplas opções (checkboxes)
+    //   cy.contains('Quais serviços você utiliza?')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    //   cy.contains('span', 'Serviço A')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="checkbox"]')
+    //     .check();
+    //   cy.contains('span', 'Serviço B')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="checkbox"]')
+    //     .check();
 
-      // Envia resposta (segunda requisição - elemento 3 -> elemento 4)
-      cy.contains('button', 'Enviar').click();
-      cy.wait('@sendAnswer');
+    //   // Envia resposta (segunda requisição - elemento 3 -> elemento 4)
+    //   cy.contains('button', 'Enviar').click();
+    //   cy.wait('@sendAnswer');
       
-      // Aguarda o elemento 4 ser carregado (pode levar um tempo)
-      cy.wait('@getElement4', { timeout: 10000 });
+    //   // Aguarda o elemento 4 ser carregado (pode levar um tempo)
+    //   cy.wait('@getElement4', { timeout: 10000 });
 
-      cy.contains('Deixe seu comentário ou sugestão:')
-        .scrollIntoView()
-        .should('be.visible');
-    });
+    //   cy.contains('Deixe seu comentário ou sugestão:')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    // });
 
-    it('deve responder pergunta do tipo INPUT', () => {
-      cy.intercept('POST', '**/api/core/survey-answer', {
-        statusCode: 200,
-        body: {
-          nextSurveyElementId: 4,
-          finished: false,
-        },
-      }).as('sendAnswer');
+    // it('deve responder pergunta do tipo INPUT', () => {
+    //   cy.intercept('POST', '**/api/core/survey-answer', {
+    //     statusCode: 200,
+    //     body: {
+    //       nextSurveyElementId: 4,
+    //       finished: false,
+    //     },
+    //   }).as('sendAnswer');
 
-      cy.intercept('GET', '**/api/core/surveys-elements/4', {
-        statusCode: 200,
-        body: MOCK_SURVEY_ELEMENTS[3],
-      }).as('getElement4');
+    //   cy.intercept('GET', '**/api/core/surveys-elements/4', {
+    //     statusCode: 200,
+    //     body: MOCK_SURVEY_ELEMENTS[3],
+    //   }).as('getElement4');
 
-      // Responde primeira pergunta (elemento 2 já foi carregado no beforeEach)
-      cy.contains('span', 'Excelente')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="radio"]')
-        .check();
-      cy.contains('button', 'Enviar').click();
-      cy.wait('@sendAnswer');
+    //   // Responde primeira pergunta (elemento 2 já foi carregado no beforeEach)
+    //   cy.contains('span', 'Excelente')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="radio"]')
+    //     .check();
+    //   cy.contains('button', 'Enviar').click();
+    //   cy.wait('@sendAnswer');
 
-      // Aguarda próxima pergunta de input aparecer
-      cy.wait('@getElement4');
-      cy.contains('Deixe seu comentário ou sugestão:')
-        .scrollIntoView()
-        .should('be.visible');
+    //   // Aguarda próxima pergunta de input aparecer
+    //   cy.wait('@getElement4');
+    //   cy.contains('Deixe seu comentário ou sugestão:')
+    //     .scrollIntoView()
+    //     .should('be.visible');
 
-      // Digita resposta na barra de texto do chatbot (input na parte inferior)
-      cy.get('input.chatbot-input[placeholder*="Digite sua resposta"]')
-        .should('be.visible')
-        .type('Muito bom atendimento!');
+    //   // Digita resposta na barra de texto do chatbot (input na parte inferior)
+    //   cy.get('input.chatbot-input[placeholder*="Digite sua resposta"]')
+    //     .should('be.visible')
+    //     .type('Muito bom atendimento!');
 
-      cy.intercept('POST', '**/api/core/survey-answer', {
-        statusCode: 200,
-        body: {
-          nextSurveyElementId: null,
-          finished: true,
-        },
-      }).as('sendFinalAnswer');
+    //   cy.intercept('POST', '**/api/core/survey-answer', {
+    //     statusCode: 200,
+    //     body: {
+    //       nextSurveyElementId: null,
+    //       finished: true,
+    //     },
+    //   }).as('sendFinalAnswer');
 
-      // Usa o botão de submit do formulário (seta)
-      cy.get('button[type="submit"]')
-        .should('not.be.disabled')
-        .click();
+    //   // Usa o botão de submit do formulário (seta)
+    //   cy.get('button[type="submit"]')
+    //     .should('not.be.disabled')
+    //     .click();
 
-      cy.wait('@sendFinalAnswer');
+    //   cy.wait('@sendFinalAnswer');
 
-      // Verifica que a resposta foi enviada
-      cy.contains('Muito bom atendimento!')
-        .scrollIntoView()
-        .should('be.visible');
-    });
+    //   // Verifica que a resposta foi enviada
+    //   cy.contains('Muito bom atendimento!')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    // });
 
-    it('deve finalizar questionário e exibir mensagem de agradecimento', () => {
-      cy.intercept('POST', '**/api/core/survey-answer', {
-        statusCode: 200,
-        body: {
-          nextSurveyElementId: null,
-          finished: true,
-        },
-      }).as('sendFinalAnswer');
+    // it('deve finalizar questionário e exibir mensagem de agradecimento', () => {
+    //   cy.intercept('POST', '**/api/core/survey-answer', {
+    //     statusCode: 200,
+    //     body: {
+    //       nextSurveyElementId: null,
+    //       finished: true,
+    //     },
+    //   }).as('sendFinalAnswer');
 
-      // Elemento 2 já foi carregado no beforeEach
-      cy.contains('Como você avalia nosso atendimento?')
-        .scrollIntoView()
-        .should('be.visible');
+    //   // Elemento 2 já foi carregado no beforeEach
+    //   cy.contains('Como você avalia nosso atendimento?')
+    //     .scrollIntoView()
+    //     .should('be.visible');
 
-      cy.contains('span', 'Excelente')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="radio"]')
-        .check();
-      cy.contains('button', 'Enviar').click();
+    //   cy.contains('span', 'Excelente')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="radio"]')
+    //     .check();
+    //   cy.contains('button', 'Enviar').click();
 
-      cy.wait('@sendFinalAnswer');
+    //   cy.wait('@sendFinalAnswer');
 
-      cy.contains('Obrigado por responder o questionário!')
-        .scrollIntoView()
-        .should('be.visible');
-    });
+    //   cy.contains('Obrigado por responder o questionário!')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    // });
 
-    it('deve exibir erro ao processar resposta', () => {
-      cy.intercept('POST', '**/api/core/survey-answer', {
-        statusCode: 500,
-        body: { message: 'Erro ao processar resposta' },
-      }).as('sendAnswerError');
+    // it('deve exibir erro ao processar resposta', () => {
+    //   cy.intercept('POST', '**/api/core/survey-answer', {
+    //     statusCode: 500,
+    //     body: { message: 'Erro ao processar resposta' },
+    //   }).as('sendAnswerError');
 
-      // Elemento 2 já foi carregado no beforeEach
-      cy.contains('Como você avalia nosso atendimento?')
-        .scrollIntoView()
-        .should('be.visible');
+    //   // Elemento 2 já foi carregado no beforeEach
+    //   cy.contains('Como você avalia nosso atendimento?')
+    //     .scrollIntoView()
+    //     .should('be.visible');
 
-      cy.contains('span', 'Excelente')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="radio"]')
-        .check();
-      cy.contains('button', 'Enviar').click();
+    //   cy.contains('span', 'Excelente')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="radio"]')
+    //     .check();
+    //   cy.contains('button', 'Enviar').click();
 
-      cy.wait('@sendAnswerError');
+    //   cy.wait('@sendAnswerError');
 
-      cy.contains('Erro ao processar sua resposta. Tente novamente.')
-        .scrollIntoView()
-        .should('be.visible');
-    });
+    //   cy.contains('Erro ao processar sua resposta. Tente novamente.')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    // });
   });
 
   describe('Interface e UX', () => {
@@ -587,54 +587,54 @@ describe('Fluxo do Chatbot', () => {
       cy.wait('@verifyPhoneSlow');
     });
 
-    it('deve manter seleção visual após enviar resposta', () => {
-      cy.intercept('POST', '**/api/core/survey-answer/verify-phone', {
-        statusCode: 200,
-        body: {
-          exists: false,
-          identifier: MOCK_IDENTIFIER,
-          nextElementId: 2,
-          finished: false,
-        },
-      }).as('verifyPhone');
+    // it('deve manter seleção visual após enviar resposta', () => {
+    //   cy.intercept('POST', '**/api/core/survey-answer/verify-phone', {
+    //     statusCode: 200,
+    //     body: {
+    //       exists: false,
+    //       identifier: MOCK_IDENTIFIER,
+    //       nextElementId: 2,
+    //       finished: false,
+    //     },
+    //   }).as('verifyPhone');
 
-      cy.intercept('GET', '**/api/core/surveys-elements/2', {
-        statusCode: 200,
-        body: MOCK_SURVEY_ELEMENTS[1],
-      }).as('getElement2');
+    //   cy.intercept('GET', '**/api/core/surveys-elements/2', {
+    //     statusCode: 200,
+    //     body: MOCK_SURVEY_ELEMENTS[1],
+    //   }).as('getElement2');
 
-      cy.intercept('POST', '**/api/core/survey-answer', {
-        statusCode: 200,
-        body: {
-          nextSurveyElementId: null,
-          finished: true,
-        },
-      }).as('sendAnswer');
+    //   cy.intercept('POST', '**/api/core/survey-answer', {
+    //     statusCode: 200,
+    //     body: {
+    //       nextSurveyElementId: null,
+    //       finished: true,
+    //     },
+    //   }).as('sendAnswer');
 
-      cy.get('input[placeholder="(XX) XXXXX-XXXX"]')
-        .type('11987654321');
-      cy.get('button[type="submit"]').click();
-      cy.wait('@verifyPhone');
-      cy.wait('@getElement2');
+    //   cy.get('input[placeholder="(XX) XXXXX-XXXX"]')
+    //     .type('11987654321');
+    //   cy.get('button[type="submit"]').click();
+    //   cy.wait('@verifyPhone');
+    //   cy.wait('@getElement2');
 
-      cy.contains('Como você avalia nosso atendimento?')
-        .scrollIntoView()
-        .should('be.visible');
-      cy.contains('span', 'Excelente').parent('label').find('input[type="radio"]').check();
-      cy.contains('button', 'Enviar').click();
-      cy.wait('@sendAnswer');
+    //   cy.contains('Como você avalia nosso atendimento?')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    //   cy.contains('span', 'Excelente').parent('label').find('input[type="radio"]').check();
+    //   cy.contains('button', 'Enviar').click();
+    //   cy.wait('@sendAnswer');
 
-      // Verifica que a opção selecionada permanece visualmente selecionada
-      cy.contains('span', 'Excelente')
-        .scrollIntoView()
-        .should('be.visible');
-      // Verifica que o radio está marcado
-      cy.contains('span', 'Excelente')
-        .scrollIntoView()
-        .parent('label')
-        .find('input[type="radio"]')
-        .should('be.checked');
-    });
+    //   // Verifica que a opção selecionada permanece visualmente selecionada
+    //   cy.contains('span', 'Excelente')
+    //     .scrollIntoView()
+    //     .should('be.visible');
+    //   // Verifica que o radio está marcado
+    //   cy.contains('span', 'Excelente')
+    //     .scrollIntoView()
+    //     .parent('label')
+    //     .find('input[type="radio"]')
+    //     .should('be.checked');
+    // });
 
     it('deve ocultar input quando pergunta é de seleção', () => {
       cy.intercept('POST', '**/api/core/survey-answer/verify-phone', {

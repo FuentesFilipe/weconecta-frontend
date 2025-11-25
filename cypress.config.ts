@@ -8,7 +8,7 @@ export default defineConfig({
     viewportWidth: 1280,
     viewportHeight: 720,
     // Reduz timeouts para tornar os testes mais rápidos
-    defaultCommandTimeout: 4000,
+    defaultCommandTimeout: 3000,
     requestTimeout: 5000,
     responseTimeout: 5000,
     pageLoadTimeout: 10000,

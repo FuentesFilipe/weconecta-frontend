@@ -129,6 +129,9 @@ function Chatbot({ survey, clientId: initialClientId }: { survey: SurveyDto; cli
             text = parts.join(', ');
                 // Para múltipla escolha, usa o primeiro optionId
                 optionId = payload.value[0];
+                // O backend trata MULTIPLE_CHOICE como "non-option" e exige mensagem
+                // Então enviamos o texto das opções selecionadas como mensagem
+                message = text;
         }
 
         // append user response bubble (right aligned)

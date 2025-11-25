@@ -9,10 +9,11 @@
         "lint": "eslint ./components",
         "lintFix": "eslint ./app ./components --fix",
         "prepare": "husky install",
-        "cy:open": "cypress open",
+        "cy:open": "CYPRESS_experimentalRunAllSpecs=true cypress open",
         "cy:run": "cypress run",
         "cy:run:all": "cypress run --spec 'cypress/e2e/**/*.cy.ts'",
         "cy:run:headless": "cypress run --headless",
+        "cy:run:visual": "cypress run --headed --spec 'cypress/e2e/**/*.cy.ts'",
         "test:e2e": "cypress run"
     },
     "eslintConfig": {
